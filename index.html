@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"><style>body{margin:0;background:#F4F1EC;font-family:Poppins,system-ui,sans-serif;color:#181818}a{color:#824703}a:hover{color:#DBAF5D}</style></helmet>
+
+<div style="display:flex;min-height:100vh;background:#F4F1EC">
+
+<div style="width:238px;flex:none;background:#fff;border-right:1px solid rgba(89,50,3,.09);padding:22px 18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:9px">
+<img src="logo.png" alt="Atharrazka Transport" style="height:32px;width:auto;display:block">
+<div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(89,50,3,.55);border:1px solid rgba(89,50,3,.2);border-radius:5px;padding:3px 6px;margin-top:2px">OPS</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:3px;overflow-y:auto">
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.14em;color:rgba(24,24,24,.35);padding:0 10px 8px">{{ L.opsGroup }}</div>
+<sc-for list="{{ navOps }}" as="item" hint-placeholder-count="5">
+<sc-if value="{{ item.active }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ item.go }}" style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;background:linear-gradient(100deg,#593203,#824703);color:#fff;font-size:13px;font-weight:500;cursor:pointer">
+<div style="width:7px;height:7px;border-radius:2px;background:#DBAF5D"></div>{{ item.label }}
+<div style="margin-left:auto;font-size:10px;font-weight:600;color:#3d2200;background:#DBAF5D;border-radius:20px;padding:2px 7px">{{ item.badge }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ item.inactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ item.go }}" style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;color:rgba(24,24,24,.7);font-size:13px;cursor:pointer" style-hover="background:rgba(89,50,3,.06)">
+<div style="width:7px;height:7px;border-radius:2px;background:rgba(89,50,3,.3)"></div>{{ item.label }}
+<div style="margin-left:auto;font-size:10px;font-weight:600;color:rgba(24,24,24,.5)">{{ item.badge }}</div>
+</div>
+</sc-if>
+</sc-for>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.14em;color:rgba(24,24,24,.35);padding:18px 10px 8px">{{ L.insightGroup }}</div>
+<sc-for list="{{ navInsight }}" as="item" hint-placeholder-count="2">
+<sc-if value="{{ item.active }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ item.go }}" style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;background:linear-gradient(100deg,#593203,#824703);color:#fff;font-size:13px;font-weight:500;cursor:pointer">
+<div style="width:7px;height:7px;border-radius:2px;background:#DBAF5D"></div>{{ item.label }}
+</div>
+</sc-if>
+<sc-if value="{{ item.inactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ item.go }}" style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;color:rgba(24,24,24,.7);font-size:13px;cursor:pointer" style-hover="background:rgba(89,50,3,.06)">
+<div style="width:7px;height:7px;border-radius:2px;background:rgba(89,50,3,.3)"></div>{{ item.label }}
+</div>
+</sc-if>
+</sc-for>
+</div>
+
+<div style="margin-top:auto;border-radius:12px;padding:16px;background:linear-gradient(135deg,#593203,#824703 60%,#3d2200);color:#fff">
+<div style="font-size:12px;font-style:italic;color:#DBAF5D;margin-bottom:5px">{{ L.promoTitle }}</div>
+<div style="font-size:11.5px;line-height:1.5;color:rgba(255,255,255,.72)">{{ L.promoBody }}</div>
+<div onClick="{{ goMaintenance }}" style="margin-top:12px;font-size:11px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:8px;padding:8px 12px;display:inline-block;cursor:pointer">{{ L.promoBtn }}</div>
+</div>
+</div>
+
+<div style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+<div style="display:flex;align-items:center;gap:18px;padding:18px 28px;background:#fff;border-bottom:1px solid rgba(89,50,3,.09);position:sticky;top:0;z-index:20">
+<div>
+<div style="font-size:19px;font-weight:600;letter-spacing:-.3px">{{ pageTitle }}</div>
+<div style="font-size:11.5px;color:rgba(24,24,24,.5)">{{ pageSub }}</div>
+</div>
+<div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+<div style="display:flex;align-items:center;gap:2px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:8px;padding:3px">
+<div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
+<div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
+</div>
+<div style="display:flex;align-items:center;gap:9px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:9px;padding:9px 13px;width:230px;font-size:12px;color:rgba(24,24,24,.42)">
+<div style="width:11px;height:11px;border:1.6px solid rgba(89,50,3,.4);border-radius:50%"></div>{{ L.searchPh }}</div>
+<div onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer">{{ L.newBooking }}</div>
+<div style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
+<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);border:2px solid #F6E6BE"></div>
+<div style="line-height:1.15"><div style="font-size:12px;font-weight:500">Rizky A.</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ L.opsManager }}</div></div>
+</div>
+</div>
+</div>
+
+<sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:20px">
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
+<div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiFleetOnRoad }}</div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">18</span><span style="font-size:12px;color:rgba(24,24,24,.45)">/ 24 {{ L.unitsWord }}</span></div>
+<div style="margin-top:12px;height:5px;border-radius:4px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:75%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div>
+</div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
+<div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiRevenueToday }}</div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">Rp 24,8</span><span style="font-size:12px;color:rgba(24,24,24,.45)">jt</span></div>
+<div style="margin-top:12px;font-size:11.5px;color:#5b7a3a">{{ L.vsYesterday }}</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
+<div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiUtilisation }}</div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">82%</span></div>
+<div style="margin-top:12px;font-size:11.5px;color:rgba(24,24,24,.45)">{{ L.targetAvg }}</div>
+</div>
+<div style="background:linear-gradient(135deg,#181818,#2c2116);border-radius:14px;padding:18px;color:#fff">
+<div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.kpiRating }}</div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">4,92</span><span style="font-size:12px;color:rgba(255,255,255,.5)">/ 5,0</span></div>
+<div style="margin-top:12px;font-size:11.5px;color:rgba(255,255,255,.55)">{{ L.reviewsMonth }}</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
+<div style="font-size:14px;font-weight:600">{{ L.chartTitle }}</div>
+<div style="font-size:11px;color:rgba(24,24,24,.45)">{{ L.chartSub }}</div>
+<div style="margin-left:auto;display:flex;gap:6px;font-size:10.5px">
+<span style="padding:5px 10px;border-radius:7px;background:#593203;color:#fff;font-weight:500">{{ L.tab12 }}</span>
+<span style="padding:5px 10px;border-radius:7px;color:rgba(24,24,24,.5)">{{ L.tab30 }}</span>
+<span style="padding:5px 10px;border-radius:7px;color:rgba(24,24,24,.5)">{{ L.tabQtr }}</span>
+</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:12px;height:158px">
+<div style="flex:1;height:38%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:52%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:44%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:67%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:58%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:76%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#DBAF5D,#824703)"></div>
+<div style="flex:1;height:92%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#F6E6BE,#C08A2E)"></div>
+<div style="flex:1;height:64%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:71%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:49%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:83%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div style="flex:1;height:60%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:9px;font-size:10px;color:rgba(24,24,24,.38)">
+<span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
+<div style="display:flex;align-items:baseline;margin-bottom:16px">
+<div style="font-size:14px;font-weight:600">{{ L.todaysBookings }}</div>
+<div onClick="{{ goBookings }}" style="margin-left:auto;font-size:11px;color:#824703;font-weight:500;cursor:pointer">{{ L.viewAll }}</div>
+</div>
+<div style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:0 4px 10px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div>{{ L.colCustomer }}</div><div>{{ L.colVehicle }}</div><div>{{ L.colRoute }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colTotal }}</div>
+</div>
+<sc-for list="{{ todayBookings }}" as="b" hint-placeholder-count="5">
+<div onClick="{{ b.open }}" style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:13px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
+<div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.ref }}</div></div>
+<div>{{ b.vehicle }}</div><div style="color:rgba(24,24,24,.62)">{{ b.route }}</div>
+<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
+<div style="text-align:right;font-weight:500">{{ b.amount }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;overflow:hidden">
+<div style="padding:16px 18px 12px;display:flex;align-items:baseline"><div style="font-size:14px;font-weight:600">{{ L.liveFleet }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ L.liveFleetMoving }}</div></div>
+<div style="height:196px;background:repeating-linear-gradient(135deg,#F4F1EC 0 9px,#EDE6D8 9px 18px);display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(89,50,3,.07)">
+<span style="font:11px ui-monospace,Menlo,monospace;color:rgba(89,50,3,.5);background:rgba(255,255,255,.75);padding:6px 10px;border-radius:6px">{{ L.liveMapPh }}</span>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
+<div style="font-size:14px;font-weight:600;margin-bottom:14px">{{ L.needsAttention }}</div>
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;gap:11px;align-items:flex-start;padding-bottom:11px;border-bottom:1px solid rgba(89,50,3,.07)">
+<div style="width:7px;height:7px;border-radius:50%;background:#a8471f;margin-top:5px;flex:none"></div>
+<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ L.attn1Title }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ L.attn1Sub }}</div></div>
+<div onClick="{{ goDrivers }}" style="font-size:10.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.assignAction }}</div>
+</div>
+<div style="display:flex;gap:11px;align-items:flex-start;padding-bottom:11px;border-bottom:1px solid rgba(89,50,3,.07)">
+<div style="width:7px;height:7px;border-radius:50%;background:#DBAF5D;margin-top:5px;flex:none"></div>
+<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ L.attn2Title }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ L.attn2Sub }}</div></div>
+<div onClick="{{ goMaintenance }}" style="font-size:10.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.bookAction }}</div>
+</div>
+<div style="display:flex;gap:11px;align-items:flex-start">
+<div style="width:7px;height:7px;border-radius:50%;background:rgba(89,50,3,.35);margin-top:5px;flex:none"></div>
+<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ L.attn3Title }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ L.attn3Sub }}</div></div>
+<div style="font-size:10.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.remindAction }}</div>
+</div>
+</div>
+</div>
+
+<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:18px;color:#fff">
+<div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.nextPickups }}</div>
+<div style="display:flex;flex-direction:column;gap:13px;margin-top:14px">
+<div style="display:flex;gap:12px;align-items:baseline"><div style="font-size:12px;font-weight:600;color:#DBAF5D;width:44px;flex:none">14:30</div><div><div style="font-size:12.5px">{{ L.pickup1a }}</div><div style="font-size:10.5px;color:rgba(255,255,255,.55)">{{ L.pickup1b }}</div></div></div>
+<div style="height:1px;background:rgba(255,255,255,.12)"></div>
+<div style="display:flex;gap:12px;align-items:baseline"><div style="font-size:12px;font-weight:600;color:#DBAF5D;width:44px;flex:none">16:00</div><div><div style="font-size:12.5px">{{ L.pickup2a }}</div><div style="font-size:10.5px;color:rgba(255,255,255,.55)">{{ L.pickup2b }}</div></div></div>
+<div style="height:1px;background:rgba(255,255,255,.12)"></div>
+<div style="display:flex;gap:12px;align-items:baseline"><div style="font-size:12px;font-weight:600;color:#DBAF5D;width:44px;flex:none">19:15</div><div><div style="font-size:12.5px">{{ L.pickup3a }}</div><div style="font-size:10.5px;color:rgba(255,255,255,.55)">{{ L.pickup3b }}</div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBookings }}" hint-placeholder-val="{{ false }}">
+<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px">
+<sc-for list="{{ bookingFilters }}" as="f" hint-placeholder-count="4">
+<sc-if value="{{ f.active }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ f.go }}" style="font-size:11.5px;font-weight:600;padding:9px 15px;border-radius:20px;background:#593203;color:#fff;cursor:pointer">{{ f.label }}</div>
+</sc-if>
+<sc-if value="{{ f.inactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ f.go }}" style="font-size:11.5px;padding:9px 15px;border-radius:20px;background:#fff;border:1px solid rgba(89,50,3,.1);color:rgba(24,24,24,.6);cursor:pointer" style-hover="border-color:#DBAF5D">{{ f.label }}</div>
+</sc-if>
+</sc-for>
+<div style="margin-left:auto;font-size:11.5px;color:rgba(24,24,24,.5)">{{ bookingsCountText }}</div>
+</div>
+
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 8px">
+<div style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div>{{ L.colRef }}</div><div>{{ L.colCustomer }}</div><div>{{ L.colVehicle }}</div><div>{{ L.colRouteTime }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colTotal }}</div>
+</div>
+<sc-for list="{{ bookingRows }}" as="b" hint-placeholder-count="8">
+<div onClick="{{ b.open }}" style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
+<div style="font-weight:500;color:#824703">{{ b.ref }}</div>
+<div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.type }}</div></div>
+<div>{{ b.vehicle }}</div>
+<div style="color:rgba(24,24,24,.62)"><div>{{ b.route }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.42)">{{ b.time }}</div></div>
+<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
+<div style="text-align:right;font-weight:500">{{ b.amount }}</div>
+</div>
+</sc-for>
+<div style="display:flex;align-items:center;padding:14px 4px 10px;font-size:11px;color:rgba(24,24,24,.45)">
+<div>{{ showingOfText }}</div>
+<div style="margin-left:auto;display:flex;gap:6px">
+<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">‹</span>
+<span style="padding:6px 11px;border-radius:7px;background:#593203;color:#fff">1</span>
+<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">2</span>
+<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">3</span>
+<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">›</span>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isFleet }}" hint-placeholder-val="{{ false }}">
+<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.totalUnits }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">24</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.available }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#4d6a30">6</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.onTrip }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#824703">18</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.inService }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">3</div></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+<sc-for list="{{ fleet }}" as="v" hint-placeholder-count="6">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;overflow:hidden" style-hover="border-color:#DBAF5D">
+<div style="height:132px;background:repeating-linear-gradient(115deg,#F4F1EC 0 9px,#E7DFCE 9px 18px);display:flex;align-items:center;justify-content:center">
+<span style="font:10px ui-monospace,Menlo,monospace;color:rgba(89,50,3,.5)">{{ v.photo }}</span></div>
+<div style="padding:16px">
+<div style="display:flex;align-items:baseline;gap:8px"><div style="font-size:14px;font-weight:600">{{ v.name }}</div>
+<div style="margin-left:auto;font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ v.status }}</div></div>
+<div style="font-size:11px;color:rgba(24,24,24,.5);margin-top:4px">{{ v.plate }} · {{ v.seats }} {{ L.seatsWord }} · {{ v.km }}</div>
+<div style="display:flex;align-items:baseline;margin-top:14px"><div style="font-size:13px;font-weight:600;color:#824703">{{ v.rate }}</div>
+<div style="margin-left:auto;font-size:10.5px;color:rgba(24,24,24,.45)">{{ L.utilWord }} {{ v.util }}</div></div>
+<div style="margin-top:10px;height:5px;border-radius:4px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div>
+<div style="display:flex;gap:8px;margin-top:15px;font-size:11px">
+<div onClick="{{ openNewBooking }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.assignTrip }}</div>
+<div style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.details }}</div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDrivers }}" hint-placeholder-val="{{ false }}">
+<div style="padding:24px 28px 34px;display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
+<div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.driverRoster }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ L.rosterSummary }}</div></div>
+<sc-for list="{{ drivers }}" as="d" hint-placeholder-count="6">
+<div style="display:flex;align-items:center;gap:13px;padding:13px 2px;border-bottom:1px solid rgba(89,50,3,.06)">
+<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div>
+<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ d.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ d.meta }}</div></div>
+<div style="font-size:11.5px;color:rgba(24,24,24,.6);width:130px">{{ d.assigned }}</div>
+<div style="font-size:11px;font-weight:600;color:#593203;background:rgba(89,50,3,.08);border-radius:20px;padding:5px 10px">{{ d.status }}</div>
+<div style="font-size:11.5px;font-weight:500;width:52px;text-align:right">{{ d.rating }} ★</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:20px;color:#fff">
+<div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.unassignedTrip }}</div>
+<div style="font-size:15px;font-weight:600;margin-top:9px">ARZ-2478 · Kemang → Puncak</div>
+<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:4px">{{ L.unassignedLine2 }}</div>
+<div style="margin-top:16px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">
+<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703)"></div>
+<div style="flex:1"><div style="font-size:12px">Dedi Kurniawan</div><div style="font-size:10px;color:rgba(255,255,255,.5)">{{ L.freeFrom1 }}</div></div>
+<div style="font-size:10.5px;font-weight:600;color:#181818;background:#DBAF5D;border-radius:7px;padding:6px 10px;cursor:pointer">{{ L.assignAction }}</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">
+<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703)"></div>
+<div style="flex:1"><div style="font-size:12px">Yoga Pratama</div><div style="font-size:10px;color:rgba(255,255,255,.5)">{{ L.freeFrom2 }}</div></div>
+<div style="font-size:10.5px;font-weight:600;color:#DBAF5D;border:1px solid rgba(219,175,93,.5);border-radius:7px;padding:6px 10px;cursor:pointer">{{ L.assignAction }}</div>
+</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
+<div style="font-size:14px;font-weight:600;margin-bottom:14px">{{ L.shiftCoverage }}</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div><div style="display:flex;font-size:11px;color:rgba(24,24,24,.5);margin-bottom:5px"><span>{{ L.shiftMorning }}</span><span style="margin-left:auto">8 / 8</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:100%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+<div><div style="display:flex;font-size:11px;color:rgba(24,24,24,.5);margin-bottom:5px"><span>{{ L.shiftAfternoon }}</span><span style="margin-left:auto">6 / 8</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:75%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+<div><div style="display:flex;font-size:11px;color:rgba(24,24,24,.5);margin-bottom:5px"><span>{{ L.shiftNight }}</span><span style="margin-left:auto">2 / 4</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:50%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
+<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.corpAccounts }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">28</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.returningRate }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">64%</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.outstanding }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">Rp 38,4 jt</div></div>
+</div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
+<div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div>{{ L.colAccount }}</div><div>{{ L.colType }}</div><div>{{ L.colTrips12mo }}</div><div>{{ L.colLastTrip }}</div><div style="text-align:right">{{ L.colLifetime }}</div>
+</div>
+<sc-for list="{{ customers }}" as="c" hint-placeholder-count="6">
+<div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
+<div style="display:flex;align-items:center;gap:11px"><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div><div><div style="font-weight:500">{{ c.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ c.contact }}</div></div></div>
+<div style="color:rgba(24,24,24,.62)">{{ c.type }}</div><div>{{ c.trips }}</div><div style="color:rgba(24,24,24,.62)">{{ c.last }}</div>
+<div style="text-align:right;font-weight:500">{{ c.value }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isRevenue }}" hint-placeholder-val="{{ false }}">
+<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:22px">
+<div style="display:flex;align-items:baseline;gap:12px"><div><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.revenueAugust }}</div><div style="font-size:30px;font-weight:600;letter-spacing:-1px;margin-top:7px">Rp 612,4 jt</div></div>
+<div style="margin-left:auto;font-size:11.5px;color:#5b7a3a">{{ L.vsJuly }}</div></div>
+<div style="display:flex;align-items:flex-end;gap:9px;height:180px;margin-top:26px">
+<div style="flex:1;height:44%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+<div style="flex:1;height:58%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+<div style="flex:1;height:51%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+<div style="flex:1;height:69%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+<div style="flex:1;height:62%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+<div style="flex:1;height:78%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+<div style="flex:1;height:88%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#F6E6BE,#C08A2E)"></div>
+<div style="flex:1;height:74%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:rgba(24,24,24,.38)"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span><span>W8</span></div>
+</div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:22px">
+<div style="font-size:14px;font-weight:600;margin-bottom:18px">{{ L.revenueByService }}</div>
+<div style="display:flex;flex-direction:column;gap:15px">
+<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcAirport }}</span><span style="margin-left:auto;font-weight:500">Rp 238 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:88%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcCorporate }}</span><span style="margin-left:auto;font-weight:500">Rp 176 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:66%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcWedding }}</span><span style="margin-left:auto;font-weight:500">Rp 121 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:46%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcTour }}</span><span style="margin-left:auto;font-weight:500">Rp 77 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:29%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
+<div style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div>{{ L.colInvoice }}</div><div>{{ L.colAccount }}</div><div>{{ L.colIssued }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colAmount }}</div>
+</div>
+<sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
+<div style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
+<div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
+<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ i.status }}</span></div>
+<div style="text-align:right;font-weight:500">{{ i.amount }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMaintenance }}" hint-placeholder-val="{{ false }}">
+<div style="padding:24px 28px 34px;display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
+<div style="font-size:14px;font-weight:600;margin-bottom:16px">{{ L.serviceSchedule }}</div>
+<sc-for list="{{ services }}" as="s" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:14px;padding:14px 2px;border-bottom:1px solid rgba(89,50,3,.06)">
+<div style="width:52px;flex:none;text-align:center;background:#F4F1EC;border-radius:10px;padding:8px 0"><div style="font-size:15px;font-weight:600;line-height:1">{{ s.day }}</div><div style="font-size:9.5px;color:rgba(24,24,24,.45);margin-top:2px">{{ s.mon }}</div></div>
+<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ s.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ s.work }}</div></div>
+<div style="font-size:11px;font-weight:600;color:#593203;background:rgba(89,50,3,.08);border-radius:20px;padding:5px 10px">{{ s.status }}</div>
+<div style="font-size:11.5px;font-weight:500;width:96px;text-align:right">{{ s.cost }}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
+<div style="font-size:14px;font-weight:600;margin-bottom:14px">{{ L.odometerTitle }}</div>
+<div style="display:flex;flex-direction:column;gap:13px">
+<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 1730 ARZ</span><span style="margin-left:auto;color:#a8471f;font-weight:500">{{ L.odo1 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:100%;height:100%;background:linear-gradient(90deg,#824703,#a8471f)"></div></div></div>
+<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 1907 ARZ</span><span style="margin-left:auto;color:rgba(24,24,24,.5)">{{ L.odo2 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 2288 ARZ</span><span style="margin-left:auto;color:rgba(24,24,24,.5)">{{ L.odo3 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:56%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 1145 ARZ</span><span style="margin-left:auto;color:rgba(24,24,24,.5)">{{ L.odo4 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:32%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+</div>
+</div>
+<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:20px;color:#fff">
+<div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.maintSpend }}</div>
+<div style="font-size:26px;font-weight:600;margin-top:8px">Rp 42,7 jt</div>
+<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:4px">{{ L.maintSpendSub }}</div>
+<div style="margin-top:16px;font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.72)">{{ L.maintDowntime }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+
+<sc-if value="{{ detail }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(24,24,24,.42);z-index:60;display:flex;justify-content:flex-end" onClick="{{ closeDetail }}">
+<div style="width:452px;height:100%;background:#fff;box-shadow:-20px 0 50px rgba(24,24,24,.2);overflow-y:auto" onClick="{{ stop }}">
+<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);padding:22px 24px;color:#fff">
+<div style="display:flex;align-items:flex-start"><div>
+<div style="font-size:10px;font-weight:600;letter-spacing:.12em;color:#DBAF5D">{{ L.bookingLabel }} {{ detail.ref }}</div>
+<div style="font-size:19px;font-weight:600;margin-top:8px">{{ detail.customer }}</div>
+<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:3px">{{ detail.type }} · {{ L.createdText }}</div>
+</div>
+<div onClick="{{ closeDetail }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
+</div>
+<div style="display:flex;gap:8px;margin-top:18px">
+<div style="font-size:10.5px;font-weight:600;color:#181818;background:#DBAF5D;border-radius:20px;padding:5px 11px">{{ detail.status }}</div>
+<div style="font-size:10.5px;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 11px">{{ detail.vehicle }}</div>
+</div>
+</div>
+<div style="padding:22px 24px;display:flex;flex-direction:column;gap:22px">
+<div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin-bottom:12px">{{ L.itinerary }}</div>
+<div style="display:flex;flex-direction:column;gap:0">
+<div style="display:flex;gap:12px"><div style="width:9px;height:9px;border-radius:50%;background:#824703;margin-top:5px;flex:none"></div><div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ detail.from }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ detail.time }} · {{ L.arrivesEarly }}</div></div></div>
+<div style="width:1px;height:26px;background:rgba(89,50,3,.2);margin-left:4px"></div>
+<div style="display:flex;gap:12px"><div style="width:9px;height:9px;border-radius:2px;background:#DBAF5D;margin-top:5px;flex:none"></div><div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ detail.to }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ L.estArrival }} {{ detail.eta }}</div></div></div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div style="background:#F4F1EC;border-radius:11px;padding:13px"><div style="font-size:9.5px;letter-spacing:.1em;color:rgba(24,24,24,.42);font-weight:600">{{ L.passengers }}</div><div style="font-size:14px;font-weight:600;margin-top:5px">{{ detail.pax }}</div></div>
+<div style="background:#F4F1EC;border-radius:11px;padding:13px"><div style="font-size:9.5px;letter-spacing:.1em;color:rgba(24,24,24,.42);font-weight:600">{{ L.duration }}</div><div style="font-size:14px;font-weight:600;margin-top:5px">{{ detail.duration }}</div></div>
+</div>
+<div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin-bottom:12px">{{ L.assigned }}</div>
+<div style="display:flex;align-items:center;gap:12px;border:1px solid rgba(89,50,3,.1);border-radius:12px;padding:13px">
+<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div>
+<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ detail.driver }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ detail.driverMeta }}</div></div>
+<div onClick="{{ goDrivers }}" style="font-size:11px;font-weight:600;color:#824703;border:1px solid rgba(130,71,3,.3);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.change }}</div>
+</div>
+</div>
+<div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin-bottom:12px">{{ L.priceBreakdown }}</div>
+<div style="display:flex;flex-direction:column;gap:9px;font-size:12px">
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.vehicleDriver }}</span><span style="margin-left:auto">{{ detail.base }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.tollParking }}</span><span style="margin-left:auto">Rp 185.000</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.overtimeBuffer }}</span><span style="margin-left:auto">Rp 300.000</span></div>
+<div style="height:1px;background:rgba(89,50,3,.1)"></div>
+<div style="display:flex;font-weight:600;font-size:13.5px"><span>{{ L.total }}</span><span style="margin-left:auto">{{ detail.amount }}</span></div>
+</div>
+</div>
+<div style="display:flex;gap:10px;font-size:12px">
+<div style="flex:1;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.confirmDispatch }}</div>
+<div style="padding:12px 16px;border-radius:10px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.invoiceBtn }}</div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showNew }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeNewBooking }}">
+<div style="width:660px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
+<div style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
+<div><div style="font-size:17px;font-weight:600">{{ L.newBookingTitle }}</div><div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-top:2px">{{ stepOfText }}</div></div>
+<div onClick="{{ closeNewBooking }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
+</div>
+<div style="display:flex;gap:6px;padding:16px 26px 0">
+<div style="flex:1;height:4px;border-radius:3px;background:linear-gradient(90deg,#824703,#DBAF5D)"></div>
+<sc-if value="{{ stepTwoDone }}" hint-placeholder-val="{{ false }}"><div style="flex:1;height:4px;border-radius:3px;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></sc-if>
+<sc-if value="{{ stepTwoOpen }}" hint-placeholder-val="{{ true }}"><div style="flex:1;height:4px;border-radius:3px;background:rgba(89,50,3,.12)"></div></sc-if>
+<sc-if value="{{ stepThreeDone }}" hint-placeholder-val="{{ false }}"><div style="flex:1;height:4px;border-radius:3px;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></sc-if>
+<sc-if value="{{ stepThreeOpen }}" hint-placeholder-val="{{ true }}"><div style="flex:1;height:4px;border-radius:3px;background:rgba(89,50,3,.12)"></div></sc-if>
+</div>
+
+<sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+<div style="padding:22px 26px;display:flex;flex-direction:column;gap:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">PT Sinar Mandiri</div></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.serviceTypeLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;color:rgba(24,24,24,.55)">{{ L.serviceTypeValue }}</div></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">Hotel Mulia, Senayan</div></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">Terminal 3 CGK</div></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">{{ L.dateValue }}</div></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">08:30</div></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">6</div></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 26px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:11.5px;color:rgba(24,24,24,.55)">{{ L.availableUnitsText }}</div>
+<div style="border:2px solid #DBAF5D;border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;background:rgba(219,175,93,.08)">
+<div style="width:76px;height:52px;flex:none;border-radius:9px;background:repeating-linear-gradient(115deg,#F4F1EC 0 8px,#E7DFCE 8px 16px)"></div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600">Alphard Executive</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">B 2288 ARZ · 6 {{ L.seatsWord }} · {{ L.captainChairs }}</div></div>
+<div style="font-size:12.5px;font-weight:600;color:#824703">Rp 2.100.000</div>
+</div>
+<div style="border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center">
+<div style="width:76px;height:52px;flex:none;border-radius:9px;background:repeating-linear-gradient(115deg,#F4F1EC 0 8px,#E7DFCE 8px 16px)"></div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600">HiAce Premio</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">B 1907 ARZ · 11 {{ L.seatsWord }} · {{ L.luggage6 }}</div></div>
+<div style="font-size:12.5px;font-weight:600;color:#824703">Rp 1.450.000</div>
+</div>
+<div style="border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center">
+<div style="width:76px;height:52px;flex:none;border-radius:9px;background:repeating-linear-gradient(115deg,#F4F1EC 0 8px,#E7DFCE 8px 16px)"></div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600">Innova Zenix</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">B 1145 ARZ · 7 {{ L.seatsWord }}</div></div>
+<div style="font-size:12.5px;font-weight:600;color:#824703">Rp 1.100.000</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 26px;display:flex;flex-direction:column;gap:18px">
+<div style="background:#F4F1EC;border-radius:13px;padding:18px;display:flex;flex-direction:column;gap:10px;font-size:12.5px">
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.customerLabel }}</span><span style="margin-left:auto;font-weight:500">PT Sinar Mandiri</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.tripLabel }}</span><span style="margin-left:auto;font-weight:500">Hotel Mulia → CGK T3</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.whenLabel }}</span><span style="margin-left:auto;font-weight:500">{{ L.whenValue }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }}</span><span style="margin-left:auto;font-weight:500">Alphard Executive · B 2288 ARZ</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.driverLabel }}</span><span style="margin-left:auto;font-weight:500">Agus Setiawan · 4,91 ★</span></div>
+<div style="height:1px;background:rgba(89,50,3,.12)"></div>
+<div style="display:flex;font-size:15px;font-weight:600"><span>{{ L.total }}</span><span style="margin-left:auto">Rp 2.100.000</span></div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:rgba(24,24,24,.6)">{{ L.invoiceToAccount }}</div>
+<div style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:rgba(24,24,24,.6)">{{ L.sendWhatsapp }}</div>
+</div>
+</div>
+</sc-if>
+
+<div style="padding:16px 26px 22px;border-top:1px solid rgba(89,50,3,.09);display:flex;align-items:center;gap:10px">
+<div onClick="{{ prevStep }}" style="font-size:12px;color:rgba(24,24,24,.55);padding:11px 15px;border-radius:10px;border:1px solid rgba(89,50,3,.14);cursor:pointer">{{ L.back }}</div>
+<div style="margin-left:auto;font-size:11.5px;color:rgba(24,24,24,.45)">{{ stepHint }}</div>
+<div onClick="{{ nextStep }}" style="font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px 20px;cursor:pointer">{{ nextLabel }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:940}}">
+const STR = {
+  opsGroup: { en: "OPERATIONS", id: "OPERASIONAL" },
+  insightGroup: { en: "INSIGHT", id: "WAWASAN" },
+  promoTitle: { en: "Comfort in every journey", id: "Kenyamanan di setiap perjalanan" },
+  promoBody: { en: "3 vans due for service this week.", id: "3 van dijadwalkan servis minggu ini." },
+  promoBtn: { en: "Schedule now", id: "Jadwalkan sekarang" },
+  searchPh: { en: "Search booking or plate", id: "Cari pemesanan atau plat" },
+  newBooking: { en: "+ New booking", id: "+ Pemesanan baru" },
+  opsManager: { en: "Ops manager", id: "Manajer operasional" },
+
+  kpiFleetOnRoad: { en: "FLEET ON ROAD", id: "ARMADA DI JALAN" },
+  unitsWord: { en: "units", id: "unit" },
+  kpiRevenueToday: { en: "REVENUE TODAY", id: "PENDAPATAN HARI INI" },
+  vsYesterday: { en: "▲ 12,4% vs yesterday", id: "▲ 12,4% vs kemarin" },
+  kpiUtilisation: { en: "UTILISATION", id: "UTILISASI" },
+  targetAvg: { en: "Target 78% · 7-day avg", id: "Target 78% · rata-rata 7 hari" },
+  kpiRating: { en: "RATING", id: "PENILAIAN" },
+  reviewsMonth: { en: "312 reviews this month", id: "312 ulasan bulan ini" },
+  chartTitle: { en: "Trips & revenue", id: "Perjalanan & pendapatan" },
+  chartSub: { en: "last 12 days", id: "12 hari terakhir" },
+  tab12: { en: "12d", id: "12h" },
+  tab30: { en: "30d", id: "30h" },
+  tabQtr: { en: "Qtr", id: "Kwartal" },
+  todaysBookings: { en: "Today's bookings", id: "Pemesanan hari ini" },
+  viewAll: { en: "View all", id: "Lihat semua" },
+  colCustomer: { en: "CUSTOMER", id: "PELANGGAN" },
+  colVehicle: { en: "VEHICLE", id: "KENDARAAN" },
+  colRoute: { en: "ROUTE", id: "RUTE" },
+  colStatus: { en: "STATUS", id: "STATUS" },
+  colTotal: { en: "TOTAL", id: "TOTAL" },
+  liveFleet: { en: "Live fleet", id: "Armada langsung" },
+  liveFleetMoving: { en: "18 moving", id: "18 bergerak" },
+  liveMapPh: { en: "live map · drop mapbox view", id: "peta langsung · pasang tampilan mapbox" },
+  needsAttention: { en: "Needs attention", id: "Perlu perhatian" },
+  attn1Title: { en: "ARZ-2478 has no driver", id: "ARZ-2478 belum ada pengemudi" },
+  attn1Sub: { en: "Pickup in 4h · Kemang → Puncak", id: "Jemput 4 jam lagi · Kemang → Puncak" },
+  attn2Title: { en: "B 1730 ARZ service overdue", id: "B 1730 ARZ servis terlambat" },
+  attn2Sub: { en: "130.402 km · 402 km past interval", id: "130.402 km · 402 km melewati interval" },
+  attn3Title: { en: "Invoice PT Sinar Mandiri unpaid", id: "Faktur PT Sinar Mandiri belum dibayar" },
+  attn3Sub: { en: "Rp 14.200.000 · 6 days overdue", id: "Rp 14.200.000 · terlambat 6 hari" },
+  assignAction: { en: "Assign", id: "Tugaskan" },
+  bookAction: { en: "Book", id: "Pesan" },
+  remindAction: { en: "Remind", id: "Ingatkan" },
+  nextPickups: { en: "NEXT PICKUPS", id: "JEMPUT BERIKUTNYA" },
+  pickup1a: { en: "Hotel Mulia · PT Sinar Mandiri", id: "Hotel Mulia · PT Sinar Mandiri" },
+  pickup1b: { en: "Driver Agus · Alphard", id: "Sopir Agus · Alphard" },
+  pickup2a: { en: "Terminal 3 CGK · Nadia P.", id: "Terminal 3 CGK · Nadia P." },
+  pickup2b: { en: "Driver Fahmi · HiAce Premio", id: "Sopir Fahmi · HiAce Premio" },
+  pickup3a: { en: "Kemang · Grace S.", id: "Kemang · Grace S." },
+  pickup3b: { en: "Unassigned · Innova Zenix", id: "Belum ditugaskan · Innova Zenix" },
+
+  colRef: { en: "REF", id: "REF" },
+  colRouteTime: { en: "ROUTE & TIME", id: "RUTE & WAKTU" },
+
+  totalUnits: { en: "TOTAL UNITS", id: "TOTAL UNIT" },
+  available: { en: "AVAILABLE", id: "TERSEDIA" },
+  onTrip: { en: "ON TRIP", id: "DALAM PERJALANAN" },
+  inService: { en: "IN SERVICE", id: "DALAM SERVIS" },
+  seatsWord: { en: "seats", id: "kursi" },
+  utilWord: { en: "util", id: "utilisasi" },
+  assignTrip: { en: "Assign trip", id: "Tugaskan perjalanan" },
+  details: { en: "Details", id: "Detail" },
+
+  driverRoster: { en: "Driver roster", id: "Daftar pengemudi" },
+  rosterSummary: { en: "16 active · 4 off duty", id: "16 aktif · 4 tidak bertugas" },
+  unassignedTrip: { en: "UNASSIGNED TRIP", id: "PERJALANAN BELUM DITUGASKAN" },
+  unassignedLine2: { en: "Today 19:15 · Innova Zenix · 4 pax", id: "Hari ini 19:15 · Innova Zenix · 4 pax" },
+  freeFrom1: { en: "Free from 17:00 · 4,88 ★", id: "Bebas mulai 17:00 · 4,88 ★" },
+  freeFrom2: { en: "Free from 18:30 · 4,79 ★", id: "Bebas mulai 18:30 · 4,79 ★" },
+  shiftCoverage: { en: "Shift coverage · today", id: "Cakupan shift · hari ini" },
+  shiftMorning: { en: "Morning 06–14", id: "Pagi 06–14" },
+  shiftAfternoon: { en: "Afternoon 14–22", id: "Siang 14–22" },
+  shiftNight: { en: "Night 22–06", id: "Malam 22–06" },
+
+  corpAccounts: { en: "CORPORATE ACCOUNTS", id: "AKUN KORPORAT" },
+  returningRate: { en: "RETURNING RATE", id: "TINGKAT KEMBALI" },
+  outstanding: { en: "OUTSTANDING", id: "TERTUNGGAK" },
+  colAccount: { en: "ACCOUNT", id: "AKUN" },
+  colType: { en: "TYPE", id: "TIPE" },
+  colTrips12mo: { en: "TRIPS · 12 MO", id: "PERJALANAN · 12 BLN" },
+  colLastTrip: { en: "LAST TRIP", id: "PERJALANAN TERAKHIR" },
+  colLifetime: { en: "LIFETIME", id: "SEUMUR HIDUP" },
+
+  revenueAugust: { en: "REVENUE · AUGUST", id: "PENDAPATAN · AGUSTUS" },
+  vsJuly: { en: "▲ 18,2% vs July", id: "▲ 18,2% vs Juli" },
+  revenueByService: { en: "Revenue by service", id: "Pendapatan per layanan" },
+  svcAirport: { en: "Airport transfer", id: "Transfer bandara" },
+  svcCorporate: { en: "Corporate charter", id: "Sewa korporat" },
+  svcWedding: { en: "Wedding & event", id: "Pernikahan & acara" },
+  svcTour: { en: "Tour package", id: "Paket wisata" },
+  colInvoice: { en: "INVOICE", id: "FAKTUR" },
+  colIssued: { en: "ISSUED", id: "DITERBITKAN" },
+  colAmount: { en: "AMOUNT", id: "JUMLAH" },
+
+  serviceSchedule: { en: "Service schedule", id: "Jadwal servis" },
+  odometerTitle: { en: "Odometer vs interval", id: "Odometer vs interval" },
+  odo1: { en: "overdue 402 km", id: "terlambat 402 km" },
+  odo2: { en: "1.790 km left", id: "sisa 1.790 km" },
+  odo3: { en: "4.310 km left", id: "sisa 4.310 km" },
+  odo4: { en: "7.520 km left", id: "sisa 7.520 km" },
+  maintSpend: { en: "MAINTENANCE SPEND", id: "PENGELUARAN PERAWATAN" },
+  maintSpendSub: { en: "This quarter · 6,9% of revenue", id: "Kuartal ini · 6,9% dari pendapatan" },
+  maintDowntime: { en: "Downtime this month: 4,2 days across 3 units — 1,1 days better than target.", id: "Downtime bulan ini: 4,2 hari pada 3 unit — 1,1 hari lebih baik dari target." },
+
+  bookingLabel: { en: "BOOKING", id: "PEMESANAN" },
+  createdText: { en: "created 21 Aug 09:12", id: "dibuat 21 Agu 09:12" },
+  itinerary: { en: "ITINERARY", id: "RUTE PERJALANAN" },
+  arrivesEarly: { en: "driver arrives 15 min early", id: "pengemudi tiba 15 menit lebih awal" },
+  estArrival: { en: "est. arrival", id: "estimasi tiba" },
+  passengers: { en: "PASSENGERS", id: "PENUMPANG" },
+  duration: { en: "DURATION", id: "DURASI" },
+  assigned: { en: "ASSIGNED", id: "DITUGASKAN" },
+  change: { en: "Change", id: "Ubah" },
+  priceBreakdown: { en: "PRICE BREAKDOWN", id: "RINCIAN HARGA" },
+  vehicleDriver: { en: "Vehicle & driver", id: "Kendaraan & pengemudi" },
+  tollParking: { en: "Toll & parking", id: "Tol & parkir" },
+  overtimeBuffer: { en: "Overtime buffer 2h", id: "Buffer lembur 2 jam" },
+  total: { en: "Total", id: "Total" },
+  confirmDispatch: { en: "Confirm & dispatch", id: "Konfirmasi & berangkatkan" },
+  invoiceBtn: { en: "Invoice", id: "Faktur" },
+
+  newBookingTitle: { en: "New booking", id: "Pemesanan baru" },
+  customerLabel: { en: "Customer", id: "Pelanggan" },
+  serviceTypeLabel: { en: "Service type", id: "Jenis layanan" },
+  serviceTypeValue: { en: "Corporate charter ▾", id: "Sewa korporat ▾" },
+  pickupLabel: { en: "Pickup", id: "Penjemputan" },
+  destinationLabel: { en: "Destination", id: "Tujuan" },
+  dateLabel: { en: "Date", id: "Tanggal" },
+  dateValue: { en: "23 Aug 2026", id: "23 Agu 2026" },
+  pickupTimeLabel: { en: "Pickup time", id: "Waktu jemput" },
+  passengersLabel: { en: "Passengers", id: "Penumpang" },
+  availableUnitsText: { en: "3 units available for 23 Aug 08:30", id: "3 unit tersedia untuk 23 Agu 08:30" },
+  captainChairs: { en: "captain chairs", id: "kursi kapten" },
+  luggage6: { en: "luggage 6", id: "bagasi 6" },
+  tripLabel: { en: "Trip", id: "Perjalanan" },
+  whenLabel: { en: "When", id: "Waktu" },
+  whenValue: { en: "23 Aug 2026 · 08:30", id: "23 Agu 2026 · 08:30" },
+  vehicleLabel: { en: "Vehicle", id: "Kendaraan" },
+  driverLabel: { en: "Driver", id: "Pengemudi" },
+  invoiceToAccount: { en: "Invoice to account ✓", id: "Faktur ke akun ✓" },
+  sendWhatsapp: { en: "Send WhatsApp confirmation ✓", id: "Kirim konfirmasi WhatsApp ✓" },
+  back: { en: "Back", id: "Kembali" }
+};
+
+const NAV_LABELS = {
+  dashboard: { en: "Dashboard", id: "Dashboard" },
+  fleet: { en: "Fleet", id: "Armada" },
+  bookings: { en: "Bookings", id: "Pemesanan" },
+  drivers: { en: "Drivers", id: "Pengemudi" },
+  customers: { en: "Customers", id: "Pelanggan" },
+  revenue: { en: "Revenue", id: "Pendapatan" },
+  maintenance: { en: "Maintenance", id: "Perawatan" }
+};
+
+const NAV_OPS = [
+  { id: "dashboard", badge: "" },
+  { id: "fleet", badge: "24" },
+  { id: "bookings", badge: "12" },
+  { id: "drivers", badge: "" },
+  { id: "customers", badge: "" }
+];
+const NAV_INSIGHT = [
+  { id: "revenue", badge: "" },
+  { id: "maintenance", badge: "" }
+];
+const TITLES = {
+  dashboard: { en: ["Good morning, Rizky", "Saturday, 22 August · 14 trips scheduled today"], id: ["Selamat pagi, Rizky", "Sabtu, 22 Agustus · 14 perjalanan dijadwalkan hari ini"] },
+  bookings: { en: ["Bookings", "12 active today · 214 this month"], id: ["Pemesanan", "12 aktif hari ini · 214 bulan ini"] },
+  fleet: { en: ["Fleet", "24 units · 6 available now"], id: ["Armada", "24 unit · 6 tersedia sekarang"] },
+  drivers: { en: ["Drivers", "16 active · 1 trip unassigned"], id: ["Pengemudi", "16 aktif · 1 perjalanan belum ditugaskan"] },
+  customers: { en: ["Customers", "28 corporate accounts · 486 individuals"], id: ["Pelanggan", "28 akun korporat · 486 individu"] },
+  revenue: { en: ["Revenue", "August 2026 · Rp 612,4 jt booked"], id: ["Pendapatan", "Agustus 2026 · Rp 612,4 jt terpesan"] },
+  maintenance: { en: ["Maintenance", "3 units in service · 1 overdue"], id: ["Perawatan", "3 unit dalam servis · 1 terlambat"] }
+};
+const BOOKINGS = [
+  { ref: "ARZ-2481", customer: "Nadia Prameswari", type: "Individual", vehicle: "HiAce Premio", route: "CGK → Bandung", time: "Today 06:00", status: "On trip", amount: "Rp 2.400.000", from: "Terminal 3 CGK", to: "Dago, Bandung", eta: "11:30", pax: "9 pax", duration: "1 day", driver: "Fahmi Ramadhan", driverMeta: "6 yrs · 4,95 ★ · English", base: "Rp 1.915.000" },
+  { ref: "ARZ-2480", customer: "PT Sinar Mandiri", type: "Corporate", vehicle: "Alphard", route: "Hotel Mulia → CGK", time: "Today 14:30", status: "Pickup 14:30", amount: "Rp 1.850.000", from: "Hotel Mulia, Senayan", to: "Terminal 3 CGK", eta: "15:40", pax: "4 pax", duration: "4 hours", driver: "Agus Setiawan", driverMeta: "9 yrs · 4,91 ★ · English", base: "Rp 1.365.000" },
+  { ref: "ARZ-2479", customer: "Reza Hakim", type: "Individual", vehicle: "HiAce Commuter", route: "Bekasi → Pelabuhan Ratu", time: "Tomorrow 05:30", status: "Confirmed", amount: "Rp 3.100.000", from: "Grand Galaxy, Bekasi", to: "Pelabuhan Ratu", eta: "10:15", pax: "13 pax", duration: "2 days", driver: "Yoga Pratama", driverMeta: "4 yrs · 4,79 ★", base: "Rp 2.615.000" },
+  { ref: "ARZ-2478", customer: "Grace Situmorang", type: "Individual", vehicle: "Innova Zenix", route: "Kemang → Puncak", time: "Today 19:15", status: "Awaiting driver", amount: "Rp 1.250.000", from: "Kemang Raya", to: "Puncak, Cisarua", eta: "22:00", pax: "4 pax", duration: "1 day", driver: "Unassigned", driverMeta: "Pick a driver to dispatch", base: "Rp 765.000" },
+  { ref: "ARZ-2477", customer: "Wedding Ardhi & Kirana", type: "Event · 4 units", vehicle: "Mixed fleet", route: "Bogor city loop", time: "25 Aug 09:00", status: "Confirmed", amount: "Rp 9.600.000", from: "Kebun Raya Bogor", to: "Hotel Salak", eta: "20:00", pax: "38 pax", duration: "12 hours", driver: "Team of 4", driverMeta: "Lead driver Dedi Kurniawan", base: "Rp 9.115.000" },
+  { ref: "ARZ-2476", customer: "Astra Digital", type: "Corporate", vehicle: "Alphard", route: "SCBD → Bandara Halim", time: "26 Aug 07:00", status: "Confirmed", amount: "Rp 1.700.000", from: "SCBD Lot 8", to: "Halim Perdanakusuma", eta: "08:10", pax: "3 pax", duration: "3 hours", driver: "Agus Setiawan", driverMeta: "9 yrs · 4,91 ★ · English", base: "Rp 1.215.000" },
+  { ref: "ARZ-2475", customer: "Hendra Wijaya", type: "Individual", vehicle: "HiAce Premio", route: "Depok → Yogyakarta", time: "28 Aug 20:00", status: "Deposit due", amount: "Rp 7.250.000", from: "Margonda, Depok", to: "Malioboro, Yogyakarta", eta: "06:30 +1", pax: "10 pax", duration: "3 days", driver: "Unassigned", driverMeta: "Assign 48h before departure", base: "Rp 6.765.000" },
+  { ref: "ARZ-2474", customer: "Kemenparekraf", type: "Government", vehicle: "Mixed fleet", route: "Jakarta → Labuan Bajo tour", time: "30 Aug 04:00", status: "Quote sent", amount: "Rp 24.800.000", from: "Kantor Kemenparekraf", to: "Labuan Bajo", eta: "—", pax: "26 pax", duration: "5 days", driver: "Team of 3", driverMeta: "Pending confirmation", base: "Rp 23.100.000" }
+];
+const FLEET = [
+  { name: "HiAce Premio", plate: "B 1907 ARZ", seats: 11, km: "84.210 km", status: "Available", rate: "Rp 1.450.000 / day", util: "88%", photo: "hiace premio photo" },
+  { name: "Alphard Executive", plate: "B 2288 ARZ", seats: 6, km: "41.905 km", status: "On trip", rate: "Rp 2.100.000 / day", util: "81%", photo: "alphard photo" },
+  { name: "Innova Zenix", plate: "B 1145 ARZ", seats: 7, km: "22.480 km", status: "Available", rate: "Rp 1.100.000 / day", util: "72%", photo: "innova zenix photo" },
+  { name: "HiAce Commuter", plate: "B 1730 ARZ", seats: 14, km: "130.402 km", status: "In service", rate: "Rp 1.250.000 / day", util: "64%", photo: "hiace commuter photo" },
+  { name: "Elf Long", plate: "B 1622 ARZ", seats: 19, km: "97.640 km", status: "On trip", rate: "Rp 1.650.000 / day", util: "77%", photo: "elf long photo" },
+  { name: "Medium Bus", plate: "B 7411 ARZ", seats: 31, km: "205.118 km", status: "Available", rate: "Rp 3.400.000 / day", util: "58%", photo: "medium bus photo" }
+];
+const DRIVERS = [
+  { name: "Fahmi Ramadhan", meta: "6 yrs · SIM A Umum · English", assigned: "HiAce Premio", status: "On trip", rating: "4,95" },
+  { name: "Agus Setiawan", meta: "9 yrs · SIM A Umum · English", assigned: "Alphard", status: "Pickup 14:30", rating: "4,91" },
+  { name: "Dedi Kurniawan", meta: "7 yrs · SIM B1 Umum", assigned: "Elf Long", status: "Free 17:00", rating: "4,88" },
+  { name: "Yoga Pratama", meta: "4 yrs · SIM A Umum", assigned: "HiAce Commuter", status: "Free 18:30", rating: "4,79" },
+  { name: "Bagus Nurcahyo", meta: "11 yrs · SIM B2 Umum", assigned: "Medium Bus", status: "Off duty", rating: "4,84" },
+  { name: "Rangga Saputra", meta: "3 yrs · SIM A Umum", assigned: "Innova Zenix", status: "Available", rating: "4,72" }
+];
+const CUSTOMERS = [
+  { name: "PT Sinar Mandiri", contact: "finance@sinarmandiri.co.id", type: "Corporate", trips: "84 trips", last: "Today", value: "Rp 148 jt" },
+  { name: "Astra Digital", contact: "travel@astradigital.com", type: "Corporate", trips: "61 trips", last: "3 days ago", value: "Rp 112 jt" },
+  { name: "Kemenparekraf", contact: "logistik@kemenparekraf.go.id", type: "Government", trips: "22 trips", last: "1 week ago", value: "Rp 96 jt" },
+  { name: "Nadia Prameswari", contact: "+62 812 9004 1188", type: "Individual", trips: "14 trips", last: "Today", value: "Rp 28 jt" },
+  { name: "Hotel Mulia Senayan", contact: "concierge@hotelmulia.com", type: "Partner", trips: "39 trips", last: "Yesterday", value: "Rp 71 jt" },
+  { name: "Reza Hakim", contact: "+62 811 2277 5510", type: "Individual", trips: "9 trips", last: "2 weeks ago", value: "Rp 19 jt" }
+];
+const INVOICES = [
+  { no: "INV-0912", account: "PT Sinar Mandiri", issued: "16 Aug 2026", status: "Overdue 6d", amount: "Rp 14,2 jt" },
+  { no: "INV-0911", account: "Astra Digital", issued: "15 Aug 2026", status: "Paid", amount: "Rp 22,8 jt" },
+  { no: "INV-0910", account: "Kemenparekraf", issued: "12 Aug 2026", status: "Sent", amount: "Rp 24,8 jt" },
+  { no: "INV-0909", account: "Hotel Mulia Senayan", issued: "10 Aug 2026", status: "Paid", amount: "Rp 9,4 jt" },
+  { no: "INV-0908", account: "Wedding Ardhi & Kirana", issued: "8 Aug 2026", status: "Deposit paid", amount: "Rp 9,6 jt" }
+];
+const SERVICES = [
+  { day: "23", mon: "AUG", vehicle: "HiAce Commuter · B 1730 ARZ", work: "60k service · brake pads · overdue 402 km", status: "Overdue", cost: "Rp 4.200.000" },
+  { day: "25", mon: "AUG", vehicle: "Innova Zenix · B 1145 ARZ", work: "Oil & filter · tyre rotation", status: "Scheduled", cost: "Rp 1.350.000" },
+  { day: "27", mon: "AUG", vehicle: "Medium Bus · B 7411 ARZ", work: "AC blower replacement", status: "Workshop", cost: "Rp 6.800.000" },
+  { day: "01", mon: "SEP", vehicle: "HiAce Premio · B 1907 ARZ", work: "90k major service", status: "Scheduled", cost: "Rp 5.100.000" },
+  { day: "04", mon: "SEP", vehicle: "Alphard · B 2288 ARZ", work: "Interior detailing · leather care", status: "Booked", cost: "Rp 2.400.000" }
+];
+const FILTERS = [
+  { key: "All", en: "All", idt: "Semua" },
+  { key: "Today", en: "Today", idt: "Hari ini" },
+  { key: "Awaiting driver", en: "Awaiting driver", idt: "Menunggu pengemudi" },
+  { key: "Unpaid", en: "Unpaid", idt: "Belum dibayar" },
+  { key: "Quotes", en: "Quotes", idt: "Penawaran" }
+];
+
+const WORD_MAP_ID = {
+  "Awaiting driver": "Menunggu pengemudi",
+  "Deposit due": "DP jatuh tempo",
+  "Quote sent": "Penawaran terkirim",
+  "Deposit paid": "DP lunas",
+  "Off duty": "Tidak bertugas",
+  "In service": "Dalam servis",
+  "On trip": "Dalam perjalanan",
+  "Event · 4 units": "Acara · 4 unit",
+  "Government": "Pemerintah",
+  "Individual": "Individu",
+  "Corporate": "Korporat",
+  "Partner": "Mitra",
+  "Available": "Tersedia",
+  "Confirmed": "Dikonfirmasi",
+  "Overdue": "Terlambat",
+  "overdue": "terlambat",
+  "Scheduled": "Terjadwal",
+  "Workshop": "Bengkel",
+  "Booked": "Dipesan",
+  "Paid": "Lunas",
+  "Sent": "Terkirim",
+  "Pickup": "Jemput",
+  "Free": "Bebas",
+  "Tomorrow": "Besok",
+  "Today": "Hari ini",
+  "Yesterday": "Kemarin",
+  "weeks ago": "minggu lalu",
+  "week ago": "minggu lalu",
+  "days ago": "hari lalu",
+  "days": "hari",
+  "day": "hari",
+  "hours": "jam",
+  "hour": "jam",
+  "trips": "perjalanan",
+  "yrs": "thn",
+  "Aug": "Agu",
+  "AUG": "AGU"
+};
+const WORD_KEYS_SORTED = Object.keys(WORD_MAP_ID).sort((a, b) => b.length - a.length);
+function trWords(str, lang) {
+  if (lang !== "id" || !str) return str;
+  let out = str;
+  WORD_KEYS_SORTED.forEach((k) => { out = out.split(k).join(WORD_MAP_ID[k]); });
+  return out;
+}
+
+const ACTIVE_LANG_STYLE = "font-size:11px;font-weight:600;padding:6px 11px;border-radius:6px;background:#593203;color:#fff;cursor:pointer";
+const INACTIVE_LANG_STYLE = "font-size:11px;font-weight:500;padding:6px 11px;border-radius:6px;color:rgba(24,24,24,.5);cursor:pointer";
+
+class Component extends DCLogic {
+  state = { screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en" };
+
+  go = (id) => () => this.setState({ screen: id, detail: null });
+
+  renderVals() {
+    const s = this.state;
+    const lang = s.lang;
+    const L = {};
+    Object.keys(STR).forEach((k) => { L[k] = STR[k][lang]; });
+
+    const nav = (list) => list.map((n) => ({
+      label: NAV_LABELS[n.id][lang], badge: n.badge || "",
+      active: s.screen === n.id, inactive: s.screen !== n.id, go: this.go(n.id)
+    }));
+    const withOpen = (b) => Object.assign({}, b, {
+      open: () => this.setState({ detail: b }),
+      status: trWords(b.status, lang), time: trWords(b.time, lang), type: trWords(b.type, lang)
+    });
+    const filtered = BOOKINGS.filter((b) => {
+      if (s.filter === "Today") return b.time.indexOf("Today") === 0;
+      if (s.filter === "Awaiting driver") return b.driver === "Unassigned";
+      if (s.filter === "Unpaid") return b.status === "Deposit due";
+      if (s.filter === "Quotes") return b.status === "Quote sent";
+      return true;
+    }).map(withOpen);
+    const t = TITLES[s.screen][lang];
+    const stepLabels = {
+      1: { en: "Trip details", id: "Detail perjalanan" },
+      2: { en: "Pick a vehicle", id: "Pilih kendaraan" },
+      3: { en: "Review & confirm", id: "Tinjau & konfirmasi" }
+    };
+    const stepHints = {
+      1: { en: "Availability is checked in the next step", id: "Ketersediaan dicek di langkah berikutnya" },
+      2: { en: "Driver auto-assigned by shift", id: "Pengemudi ditugaskan otomatis sesuai shift" },
+      3: { en: "Confirmation sent to customer", id: "Konfirmasi dikirim ke pelanggan" }
+    };
+    const fleetTr = FLEET.map((v) => Object.assign({}, v, { status: trWords(v.status, lang), rate: trWords(v.rate, lang) }));
+    const driversTr = DRIVERS.map((d) => Object.assign({}, d, { status: trWords(d.status, lang), meta: trWords(d.meta, lang) }));
+    const customersTr = CUSTOMERS.map((c) => Object.assign({}, c, { type: trWords(c.type, lang), last: trWords(c.last, lang), trips: trWords(c.trips, lang) }));
+    const invoicesTr = INVOICES.map((i) => Object.assign({}, i, { status: trWords(i.status, lang), issued: trWords(i.issued, lang) }));
+    const servicesTr = SERVICES.map((sv) => Object.assign({}, sv, { status: trWords(sv.status, lang), work: trWords(sv.work, lang), mon: trWords(sv.mon, lang) }));
+    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang) }) : null;
+
+    return {
+      L,
+      langEnStyle: lang === "en" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
+      langIdStyle: lang === "id" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
+      setLangEn: () => this.setState({ lang: "en" }),
+      setLangId: () => this.setState({ lang: "id" }),
+      navOps: nav(NAV_OPS), navInsight: nav(NAV_INSIGHT),
+      pageTitle: t[0], pageSub: t[1],
+      isDashboard: s.screen === "dashboard", isBookings: s.screen === "bookings",
+      isFleet: s.screen === "fleet", isDrivers: s.screen === "drivers",
+      isCustomers: s.screen === "customers", isRevenue: s.screen === "revenue",
+      isMaintenance: s.screen === "maintenance",
+      goBookings: this.go("bookings"), goDrivers: this.go("drivers"), goMaintenance: this.go("maintenance"),
+      todayBookings: BOOKINGS.slice(0, 5).map(withOpen),
+      bookingRows: filtered, bookingCount: filtered.length,
+      bookingsCountText: lang === "id" ? (filtered.length + " pemesanan · Agu 2026") : (filtered.length + " bookings · Aug 2026"),
+      showingOfText: lang === "id" ? ("Menampilkan " + filtered.length + " dari 214") : ("Showing " + filtered.length + " of 214"),
+      bookingFilters: FILTERS.map((f) => ({
+        label: lang === "id" ? f.idt : f.en, active: s.filter === f.key, inactive: s.filter !== f.key,
+        go: () => this.setState({ filter: f.key })
+      })),
+      fleet: fleetTr, drivers: driversTr, customers: customersTr, invoices: invoicesTr, services: servicesTr,
+      detail: detailTr,
+      closeDetail: () => this.setState({ detail: null }),
+      stop: (e) => e.stopPropagation(),
+      showNew: s.showNew, step: s.step,
+      stepLabel: stepLabels[s.step][lang], stepHint: stepHints[s.step][lang],
+      stepOfText: (lang === "id" ? "Langkah " : "Step ") + s.step + (lang === "id" ? " dari 3 · " : " of 3 · ") + stepLabels[s.step][lang],
+      isStep1: s.step === 1, isStep2: s.step === 2, isStep3: s.step === 3,
+      stepTwoDone: s.step > 1, stepTwoOpen: s.step <= 1,
+      stepThreeDone: s.step > 2, stepThreeOpen: s.step <= 2,
+      nextLabel: s.step === 3 ? (lang === "id" ? "Buat pemesanan" : "Create booking") : (lang === "id" ? "Lanjut" : "Continue"),
+      openNewBooking: () => this.setState({ showNew: true, step: 1 }),
+      closeNewBooking: () => this.setState({ showNew: false }),
+      nextStep: () => this.setState((p) => p.step === 3 ? { showNew: false, step: 1, screen: "bookings" } : { step: p.step + 1 }),
+      prevStep: () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>
