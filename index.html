@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <script src="./support.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 <x-dc>
@@ -75,6 +76,15 @@
 <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);border:2px solid #F6E6BE"></div>
 <div style="line-height:1.15"><div style="font-size:12px;font-weight:500">Rizky A.</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ L.opsManager }}</div></div>
 </div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
+<div style="font-size:10px;font-weight:600;color:#4d6a30;background:rgba(93,138,58,.12);border-radius:20px;padding:5px 9px">{{ L.adminBadge }}</div>
+<div onClick="{{ logout }}" style="font-size:11px;font-weight:600;color:#824703;cursor:pointer">{{ L.logout }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ openLogin }}" style="font-size:11px;font-weight:600;color:#824703;padding-left:6px;border-left:1px solid rgba(89,50,3,.1);cursor:pointer;white-space:nowrap">{{ L.login }}</div>
+</sc-if>
 </div>
 </div>
 
@@ -211,6 +221,9 @@
 </sc-if>
 </sc-for>
 <div style="margin-left:auto;font-size:11.5px;color:rgba(24,24,24,.5)">{{ bookingsCountText }}</div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ addBooking }}" style="font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer">{{ L.addBtn }}</div>
+</sc-if>
 </div>
 
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 8px">
@@ -224,7 +237,13 @@
 <div>{{ b.vehicle }}</div>
 <div style="color:rgba(24,24,24,.62)"><div>{{ b.route }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.42)">{{ b.time }}</div></div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
-<div style="text-align:right;font-weight:500">{{ b.amount }}</div>
+<div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ b.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+<div onClick="{{ b.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</sc-if>
+<span>{{ b.amount }}</span>
+</div>
 </div>
 </sc-for>
 <div style="display:flex;align-items:center;padding:14px 4px 10px;font-size:11px;color:rgba(24,24,24,.45)">
@@ -244,11 +263,14 @@
 <sc-if value="{{ isFleet }}" hint-placeholder-val="{{ false }}">
 <div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.totalUnits }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">24</div></div>
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.available }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#4d6a30">6</div></div>
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.onTrip }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#824703">18</div></div>
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.inService }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">3</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.totalUnits }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ fleetTotalCount }}</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.available }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#4d6a30">{{ fleetAvailableCount }}</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.onTrip }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#824703">{{ fleetOnTripCount }}</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.inService }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ fleetInServiceCount }}</div></div>
 </div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ addFleet }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
+</sc-if>
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
 <sc-for list="{{ fleet }}" as="v" hint-placeholder-count="6">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;overflow:hidden" style-hover="border-color:#DBAF5D">
@@ -263,7 +285,13 @@
 <div style="margin-top:10px;height:5px;border-radius:4px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div>
 <div style="display:flex;gap:8px;margin-top:15px;font-size:11px">
 <div onClick="{{ openNewBooking }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.assignTrip }}</div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ v.edit }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.edit }}</div>
+<div onClick="{{ v.remove }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(168,71,31,.3);color:#a8471f;cursor:pointer">{{ L.deleteBtn }}</div>
+</sc-if>
+<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.details }}</div>
+</sc-if>
 </div>
 </div>
 </div>
@@ -275,7 +303,11 @@
 <sc-if value="{{ isDrivers }}" hint-placeholder-val="{{ false }}">
 <div style="padding:24px 28px 34px;display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
-<div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.driverRoster }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ L.rosterSummary }}</div></div>
+<div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.driverRoster }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ L.rosterSummary }}</div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ addDriver }}" style="margin-left:12px;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:6px 12px;cursor:pointer">{{ L.addBtn }}</div>
+</sc-if>
+</div>
 <sc-for list="{{ drivers }}" as="d" hint-placeholder-count="6">
 <div style="display:flex;align-items:center;gap:13px;padding:13px 2px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div>
@@ -283,6 +315,12 @@
 <div style="font-size:11.5px;color:rgba(24,24,24,.6);width:130px">{{ d.assigned }}</div>
 <div style="font-size:11px;font-weight:600;color:#593203;background:rgba(89,50,3,.08);border-radius:20px;padding:5px 10px">{{ d.status }}</div>
 <div style="font-size:11.5px;font-weight:500;width:52px;text-align:right">{{ d.rating }} ★</div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:9px;margin-left:9px">
+<div onClick="{{ d.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+<div onClick="{{ d.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</div>
+</sc-if>
 </div>
 </sc-for>
 </div>
@@ -323,6 +361,9 @@
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.returningRate }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">64%</div></div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.outstanding }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">Rp 38,4 jt</div></div>
 </div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ addCustomer }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
+</sc-if>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
 <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
 <div>{{ L.colAccount }}</div><div>{{ L.colType }}</div><div>{{ L.colTrips12mo }}</div><div>{{ L.colLastTrip }}</div><div style="text-align:right">{{ L.colLifetime }}</div>
@@ -331,7 +372,13 @@
 <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="display:flex;align-items:center;gap:11px"><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div><div><div style="font-weight:500">{{ c.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ c.contact }}</div></div></div>
 <div style="color:rgba(24,24,24,.62)">{{ c.type }}</div><div>{{ c.trips }}</div><div style="color:rgba(24,24,24,.62)">{{ c.last }}</div>
-<div style="text-align:right;font-weight:500">{{ c.value }}</div>
+<div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ c.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+<div onClick="{{ c.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</sc-if>
+<span>{{ c.value }}</span>
+</div>
 </div>
 </sc-for>
 </div>
@@ -366,6 +413,9 @@
 </div>
 </div>
 </div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ addInvoice }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
+</sc-if>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
 <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
 <div>{{ L.colInvoice }}</div><div>{{ L.colAccount }}</div><div>{{ L.colIssued }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colAmount }}</div>
@@ -374,7 +424,13 @@
 <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ i.status }}</span></div>
-<div style="text-align:right;font-weight:500">{{ i.amount }}</div>
+<div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ i.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+<div onClick="{{ i.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</sc-if>
+<span>{{ i.amount }}</span>
+</div>
 </div>
 </sc-for>
 </div>
@@ -553,6 +609,67 @@
 </div>
 </sc-if>
 
+<sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeLogin }}">
+<div style="width:360px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
+<div style="font-size:17px;font-weight:600;margin-bottom:4px">{{ L.loginTitle }}</div>
+<div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.loginSub }}</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.emailLabel }}</div>
+<input type="email" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.passwordLabel }}</div>
+<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;color:#a8471f">{{ loginError }}</div>
+</sc-if>
+<div onClick="{{ submitLogin }}" style="margin-top:6px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.loginBtn }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showForm }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeForm }}">
+<div style="width:520px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
+<div style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
+<div style="font-size:17px;font-weight:600">{{ formTitle }}</div>
+<div onClick="{{ closeForm }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
+</div>
+<div style="padding:22px 26px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<sc-for list="{{ formFields }}" as="fld" hint-placeholder-count="6">
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ fld.label }}</div>
+<input value="{{ fld.value }}" onChange="{{ fld.onChange }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
+<div style="padding:0 26px 14px;font-size:11px;color:#a8471f">{{ formError }}</div>
+</sc-if>
+<div style="padding:16px 26px 22px;border-top:1px solid rgba(89,50,3,.09);display:flex;align-items:center;gap:10px">
+<div onClick="{{ closeForm }}" style="font-size:12px;color:rgba(24,24,24,.55);padding:11px 15px;border-radius:10px;border:1px solid rgba(89,50,3,.14);cursor:pointer">{{ L.cancelBtn }}</div>
+<div onClick="{{ saveForm }}" style="margin-left:auto;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px 20px;cursor:pointer">{{ L.saveBtn }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ confirmDelete }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:90;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ cancelDeleteConfirm }}">
+<div style="width:320px;background:#fff;border-radius:16px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:24px" onClick="{{ stop }}">
+<div style="font-size:15px;font-weight:600;margin-bottom:18px">{{ L.confirmDelete }}</div>
+<div style="display:flex;gap:10px">
+<div onClick="{{ cancelDeleteConfirm }}" style="flex:1;text-align:center;padding:11px;border-radius:10px;border:1px solid rgba(89,50,3,.14);color:rgba(24,24,24,.6);cursor:pointer">{{ L.cancelBtn }}</div>
+<div onClick="{{ confirmDeleteNow }}" style="flex:1;text-align:center;padding:11px;border-radius:10px;background:#a8471f;color:#fff;font-weight:600;cursor:pointer">{{ L.deleteBtn }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:940}}">
@@ -565,6 +682,66 @@ const STR = {
   searchPh: { en: "Search booking or plate", id: "Cari pemesanan atau plat" },
   newBooking: { en: "+ New booking", id: "+ Pemesanan baru" },
   opsManager: { en: "Ops manager", id: "Manajer operasional" },
+
+  login: { en: "Admin login", id: "Login admin" },
+  logout: { en: "Log out", id: "Keluar" },
+  adminBadge: { en: "ADMIN", id: "ADMIN" },
+  loginTitle: { en: "Admin login", id: "Login admin" },
+  loginSub: { en: "Sign in to add, edit or delete data.", id: "Masuk untuk menambah, mengubah, atau menghapus data." },
+  emailLabel: { en: "Email", id: "Email" },
+  passwordLabel: { en: "Password", id: "Kata sandi" },
+  loginBtn: { en: "Sign in", id: "Masuk" },
+  loginErrorGeneric: { en: "Invalid email or password.", id: "Email atau kata sandi salah." },
+  addBtn: { en: "+ Add", id: "+ Tambah" },
+  edit: { en: "Edit", id: "Ubah" },
+  deleteBtn: { en: "Delete", id: "Hapus" },
+  cancelBtn: { en: "Cancel", id: "Batal" },
+  saveBtn: { en: "Save", id: "Simpan" },
+  confirmDelete: { en: "Delete this record?", id: "Hapus data ini?" },
+  saveErrorGeneric: { en: "Could not save. Please try again.", id: "Gagal menyimpan. Silakan coba lagi." },
+  formTitleAddBooking: { en: "Add booking", id: "Tambah pemesanan" },
+  formTitleEditBooking: { en: "Edit booking", id: "Ubah pemesanan" },
+  formTitleAddFleet: { en: "Add vehicle", id: "Tambah kendaraan" },
+  formTitleEditFleet: { en: "Edit vehicle", id: "Ubah kendaraan" },
+  formTitleAddDriver: { en: "Add driver", id: "Tambah pengemudi" },
+  formTitleEditDriver: { en: "Edit driver", id: "Ubah pengemudi" },
+  formTitleAddCustomer: { en: "Add customer", id: "Tambah pelanggan" },
+  formTitleEditCustomer: { en: "Edit customer", id: "Ubah pelanggan" },
+  formTitleAddInvoice: { en: "Add invoice", id: "Tambah faktur" },
+  formTitleEditInvoice: { en: "Edit invoice", id: "Ubah faktur" },
+  fldRef: { en: "Reference", id: "Referensi" },
+  fldCustomer: { en: "Customer", id: "Pelanggan" },
+  fldType: { en: "Type", id: "Tipe" },
+  fldVehicle: { en: "Vehicle", id: "Kendaraan" },
+  fldRoute: { en: "Route", id: "Rute" },
+  fldTime: { en: "Time", id: "Waktu" },
+  fldStatus: { en: "Status", id: "Status" },
+  fldAmount: { en: "Amount", id: "Jumlah" },
+  fldFrom: { en: "From", id: "Dari" },
+  fldTo: { en: "To", id: "Ke" },
+  fldEta: { en: "ETA", id: "Estimasi tiba" },
+  fldPax: { en: "Passengers", id: "Penumpang" },
+  fldDuration: { en: "Duration", id: "Durasi" },
+  fldDriver: { en: "Driver", id: "Pengemudi" },
+  fldDriverMeta: { en: "Driver info", id: "Info pengemudi" },
+  fldBase: { en: "Base price", id: "Harga dasar" },
+  fldName: { en: "Name", id: "Nama" },
+  fldPlate: { en: "Plate", id: "Plat nomor" },
+  fldSeats: { en: "Seats", id: "Kursi" },
+  fldKm: { en: "Odometer", id: "Odometer" },
+  fldRate: { en: "Rate", id: "Tarif" },
+  fldUtil: { en: "Utilisation", id: "Utilisasi" },
+  fldPhoto: { en: "Photo label", id: "Label foto" },
+  fldMeta: { en: "Driver info", id: "Info pengemudi" },
+  fldAssigned: { en: "Assigned vehicle", id: "Kendaraan ditugaskan" },
+  fldRating: { en: "Rating", id: "Penilaian" },
+  fldContact: { en: "Contact", id: "Kontak" },
+  fldTrips: { en: "Trips", id: "Perjalanan" },
+  fldLast: { en: "Last trip", id: "Perjalanan terakhir" },
+  fldValue: { en: "Lifetime value", id: "Nilai seumur hidup" },
+  fldNo: { en: "Invoice no.", id: "No. faktur" },
+  fldAccount: { en: "Account", id: "Akun" },
+  fldIssued: { en: "Issued", id: "Diterbitkan" },
 
   kpiFleetOnRoad: { en: "FLEET ON ROAD", id: "ARMADA DI JALAN" },
   unitsWord: { en: "units", id: "unit" },
@@ -730,47 +907,50 @@ const TITLES = {
   revenue: { en: ["Revenue", "August 2026 · Rp 612,4 jt booked"], id: ["Pendapatan", "Agustus 2026 · Rp 612,4 jt terpesan"] },
   maintenance: { en: ["Maintenance", "3 units in service · 1 overdue"], id: ["Perawatan", "3 unit dalam servis · 1 terlambat"] }
 };
-const BOOKINGS = [
-  { ref: "ARZ-2481", customer: "Nadia Prameswari", type: "Individual", vehicle: "HiAce Premio", route: "CGK → Bandung", time: "Today 06:00", status: "On trip", amount: "Rp 2.400.000", from: "Terminal 3 CGK", to: "Dago, Bandung", eta: "11:30", pax: "9 pax", duration: "1 day", driver: "Fahmi Ramadhan", driverMeta: "6 yrs · 4,95 ★ · English", base: "Rp 1.915.000" },
-  { ref: "ARZ-2480", customer: "PT Sinar Mandiri", type: "Corporate", vehicle: "Alphard", route: "Hotel Mulia → CGK", time: "Today 14:30", status: "Pickup 14:30", amount: "Rp 1.850.000", from: "Hotel Mulia, Senayan", to: "Terminal 3 CGK", eta: "15:40", pax: "4 pax", duration: "4 hours", driver: "Agus Setiawan", driverMeta: "9 yrs · 4,91 ★ · English", base: "Rp 1.365.000" },
-  { ref: "ARZ-2479", customer: "Reza Hakim", type: "Individual", vehicle: "HiAce Commuter", route: "Bekasi → Pelabuhan Ratu", time: "Tomorrow 05:30", status: "Confirmed", amount: "Rp 3.100.000", from: "Grand Galaxy, Bekasi", to: "Pelabuhan Ratu", eta: "10:15", pax: "13 pax", duration: "2 days", driver: "Yoga Pratama", driverMeta: "4 yrs · 4,79 ★", base: "Rp 2.615.000" },
-  { ref: "ARZ-2478", customer: "Grace Situmorang", type: "Individual", vehicle: "Innova Zenix", route: "Kemang → Puncak", time: "Today 19:15", status: "Awaiting driver", amount: "Rp 1.250.000", from: "Kemang Raya", to: "Puncak, Cisarua", eta: "22:00", pax: "4 pax", duration: "1 day", driver: "Unassigned", driverMeta: "Pick a driver to dispatch", base: "Rp 765.000" },
-  { ref: "ARZ-2477", customer: "Wedding Ardhi & Kirana", type: "Event · 4 units", vehicle: "Mixed fleet", route: "Bogor city loop", time: "25 Aug 09:00", status: "Confirmed", amount: "Rp 9.600.000", from: "Kebun Raya Bogor", to: "Hotel Salak", eta: "20:00", pax: "38 pax", duration: "12 hours", driver: "Team of 4", driverMeta: "Lead driver Dedi Kurniawan", base: "Rp 9.115.000" },
-  { ref: "ARZ-2476", customer: "Astra Digital", type: "Corporate", vehicle: "Alphard", route: "SCBD → Bandara Halim", time: "26 Aug 07:00", status: "Confirmed", amount: "Rp 1.700.000", from: "SCBD Lot 8", to: "Halim Perdanakusuma", eta: "08:10", pax: "3 pax", duration: "3 hours", driver: "Agus Setiawan", driverMeta: "9 yrs · 4,91 ★ · English", base: "Rp 1.215.000" },
-  { ref: "ARZ-2475", customer: "Hendra Wijaya", type: "Individual", vehicle: "HiAce Premio", route: "Depok → Yogyakarta", time: "28 Aug 20:00", status: "Deposit due", amount: "Rp 7.250.000", from: "Margonda, Depok", to: "Malioboro, Yogyakarta", eta: "06:30 +1", pax: "10 pax", duration: "3 days", driver: "Unassigned", driverMeta: "Assign 48h before departure", base: "Rp 6.765.000" },
-  { ref: "ARZ-2474", customer: "Kemenparekraf", type: "Government", vehicle: "Mixed fleet", route: "Jakarta → Labuan Bajo tour", time: "30 Aug 04:00", status: "Quote sent", amount: "Rp 24.800.000", from: "Kantor Kemenparekraf", to: "Labuan Bajo", eta: "—", pax: "26 pax", duration: "5 days", driver: "Team of 3", driverMeta: "Pending confirmation", base: "Rp 23.100.000" }
-];
-const FLEET = [
-  { name: "HiAce Premio", plate: "B 1907 ARZ", seats: 11, km: "84.210 km", status: "Available", rate: "Rp 1.450.000 / day", util: "88%", photo: "hiace premio photo" },
-  { name: "Alphard Executive", plate: "B 2288 ARZ", seats: 6, km: "41.905 km", status: "On trip", rate: "Rp 2.100.000 / day", util: "81%", photo: "alphard photo" },
-  { name: "Innova Zenix", plate: "B 1145 ARZ", seats: 7, km: "22.480 km", status: "Available", rate: "Rp 1.100.000 / day", util: "72%", photo: "innova zenix photo" },
-  { name: "HiAce Commuter", plate: "B 1730 ARZ", seats: 14, km: "130.402 km", status: "In service", rate: "Rp 1.250.000 / day", util: "64%", photo: "hiace commuter photo" },
-  { name: "Elf Long", plate: "B 1622 ARZ", seats: 19, km: "97.640 km", status: "On trip", rate: "Rp 1.650.000 / day", util: "77%", photo: "elf long photo" },
-  { name: "Medium Bus", plate: "B 7411 ARZ", seats: 31, km: "205.118 km", status: "Available", rate: "Rp 3.400.000 / day", util: "58%", photo: "medium bus photo" }
-];
-const DRIVERS = [
-  { name: "Fahmi Ramadhan", meta: "6 yrs · SIM A Umum · English", assigned: "HiAce Premio", status: "On trip", rating: "4,95" },
-  { name: "Agus Setiawan", meta: "9 yrs · SIM A Umum · English", assigned: "Alphard", status: "Pickup 14:30", rating: "4,91" },
-  { name: "Dedi Kurniawan", meta: "7 yrs · SIM B1 Umum", assigned: "Elf Long", status: "Free 17:00", rating: "4,88" },
-  { name: "Yoga Pratama", meta: "4 yrs · SIM A Umum", assigned: "HiAce Commuter", status: "Free 18:30", rating: "4,79" },
-  { name: "Bagus Nurcahyo", meta: "11 yrs · SIM B2 Umum", assigned: "Medium Bus", status: "Off duty", rating: "4,84" },
-  { name: "Rangga Saputra", meta: "3 yrs · SIM A Umum", assigned: "Innova Zenix", status: "Available", rating: "4,72" }
-];
-const CUSTOMERS = [
-  { name: "PT Sinar Mandiri", contact: "finance@sinarmandiri.co.id", type: "Corporate", trips: "84 trips", last: "Today", value: "Rp 148 jt" },
-  { name: "Astra Digital", contact: "travel@astradigital.com", type: "Corporate", trips: "61 trips", last: "3 days ago", value: "Rp 112 jt" },
-  { name: "Kemenparekraf", contact: "logistik@kemenparekraf.go.id", type: "Government", trips: "22 trips", last: "1 week ago", value: "Rp 96 jt" },
-  { name: "Nadia Prameswari", contact: "+62 812 9004 1188", type: "Individual", trips: "14 trips", last: "Today", value: "Rp 28 jt" },
-  { name: "Hotel Mulia Senayan", contact: "concierge@hotelmulia.com", type: "Partner", trips: "39 trips", last: "Yesterday", value: "Rp 71 jt" },
-  { name: "Reza Hakim", contact: "+62 811 2277 5510", type: "Individual", trips: "9 trips", last: "2 weeks ago", value: "Rp 19 jt" }
-];
-const INVOICES = [
-  { no: "INV-0912", account: "PT Sinar Mandiri", issued: "16 Aug 2026", status: "Overdue 6d", amount: "Rp 14,2 jt" },
-  { no: "INV-0911", account: "Astra Digital", issued: "15 Aug 2026", status: "Paid", amount: "Rp 22,8 jt" },
-  { no: "INV-0910", account: "Kemenparekraf", issued: "12 Aug 2026", status: "Sent", amount: "Rp 24,8 jt" },
-  { no: "INV-0909", account: "Hotel Mulia Senayan", issued: "10 Aug 2026", status: "Paid", amount: "Rp 9,4 jt" },
-  { no: "INV-0908", account: "Wedding Ardhi & Kirana", issued: "8 Aug 2026", status: "Deposit paid", amount: "Rp 9,6 jt" }
-];
+const SUPABASE_URL = "https://ourypitmnfthvyjbpfvn.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cnlwaXRtbmZ0aHZ5amJwZnZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1MjM4NjUsImV4cCI6MjEwMzA5OTg2NX0.SFv1TcTq97WR3DaayJTXYCgBsOvevpH3ONmel1KJnWA";
+let sbClient = null;
+function getSupabase() {
+  if (!sbClient && window.supabase) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return sbClient;
+}
+
+const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices" };
+const TYPE_SUFFIX = { booking: "Booking", fleet: "Fleet", driver: "Driver", customer: "Customer", invoice: "Invoice" };
+const FIELD_DEFS = {
+  booking: [
+    { key: "ref", labelKey: "fldRef" }, { key: "customer", labelKey: "fldCustomer" },
+    { key: "type", labelKey: "fldType" }, { key: "vehicle", labelKey: "fldVehicle" },
+    { key: "route", labelKey: "fldRoute" }, { key: "time", labelKey: "fldTime" },
+    { key: "status", labelKey: "fldStatus" }, { key: "amount", labelKey: "fldAmount" },
+    { key: "from_location", labelKey: "fldFrom" }, { key: "to_location", labelKey: "fldTo" },
+    { key: "eta", labelKey: "fldEta" }, { key: "pax", labelKey: "fldPax" },
+    { key: "duration", labelKey: "fldDuration" }, { key: "driver", labelKey: "fldDriver" },
+    { key: "driver_meta", labelKey: "fldDriverMeta" }, { key: "base", labelKey: "fldBase" }
+  ],
+  fleet: [
+    { key: "name", labelKey: "fldName" }, { key: "plate", labelKey: "fldPlate" },
+    { key: "seats", labelKey: "fldSeats" }, { key: "km", labelKey: "fldKm" },
+    { key: "status", labelKey: "fldStatus" }, { key: "rate", labelKey: "fldRate" },
+    { key: "util", labelKey: "fldUtil" }, { key: "photo", labelKey: "fldPhoto" }
+  ],
+  driver: [
+    { key: "name", labelKey: "fldName" }, { key: "meta", labelKey: "fldMeta" },
+    { key: "assigned", labelKey: "fldAssigned" }, { key: "status", labelKey: "fldStatus" },
+    { key: "rating", labelKey: "fldRating" }
+  ],
+  customer: [
+    { key: "name", labelKey: "fldName" }, { key: "contact", labelKey: "fldContact" },
+    { key: "type", labelKey: "fldType" }, { key: "trips", labelKey: "fldTrips" },
+    { key: "last", labelKey: "fldLast" }, { key: "value", labelKey: "fldValue" }
+  ],
+  invoice: [
+    { key: "no", labelKey: "fldNo" }, { key: "account", labelKey: "fldAccount" },
+    { key: "issued", labelKey: "fldIssued" }, { key: "status", labelKey: "fldStatus" },
+    { key: "amount", labelKey: "fldAmount" }
+  ]
+};
+
 const SERVICES = [
   { day: "23", mon: "AUG", vehicle: "HiAce Commuter · B 1730 ARZ", work: "60k service · brake pads · overdue 402 km", status: "Overdue", cost: "Rp 4.200.000" },
   { day: "25", mon: "AUG", vehicle: "Innova Zenix · B 1145 ARZ", work: "Oil & filter · tyre rotation", status: "Scheduled", cost: "Rp 1.350.000" },
@@ -837,15 +1017,101 @@ const ACTIVE_LANG_STYLE = "font-size:11px;font-weight:600;padding:6px 11px;borde
 const INACTIVE_LANG_STYLE = "font-size:11px;font-weight:500;padding:6px 11px;border-radius:6px;color:rgba(24,24,24,.5);cursor:pointer";
 
 class Component extends DCLogic {
-  state = { screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en" };
+  state = {
+    screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en",
+    session: null, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
+    bookings: [], fleet: [], drivers: [], customers: [], invoices: [], loaded: false,
+    showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
+    confirmDelete: null
+  };
+
+  componentDidMount() {
+    const client = getSupabase();
+    if (!client) return;
+    client.auth.getSession().then((res) => { if (res.data) this.setState({ session: res.data.session }); });
+    client.auth.onAuthStateChange((_evt, session) => this.setState({ session }));
+    this.loadAll();
+  }
+
+  loadAll = () => {
+    const client = getSupabase();
+    if (!client) return Promise.resolve();
+    return Promise.all([
+      client.from("bookings").select("*").order("created_at", { ascending: false }),
+      client.from("fleet").select("*").order("created_at", { ascending: false }),
+      client.from("drivers").select("*").order("created_at", { ascending: false }),
+      client.from("customers").select("*").order("created_at", { ascending: false }),
+      client.from("invoices").select("*").order("created_at", { ascending: false })
+    ]).then((res) => {
+      const b = (res[0].data || []).map((r) => Object.assign({}, r, { from: r.from_location, to: r.to_location }));
+      this.setState({ bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [], invoices: res[4].data || [], loaded: true });
+    });
+  };
 
   go = (id) => () => this.setState({ screen: id, detail: null });
+
+  openLogin = () => this.setState({ showLogin: true, loginError: "" });
+  closeLogin = () => this.setState({ showLogin: false });
+  setLoginEmail = (e) => this.setState({ loginEmail: e.target.value });
+  setLoginPassword = (e) => this.setState({ loginPassword: e.target.value });
+  submitLogin = () => {
+    const client = getSupabase();
+    if (!client) return;
+    const lang = this.state.lang;
+    client.auth.signInWithPassword({ email: this.state.loginEmail, password: this.state.loginPassword }).then((res) => {
+      if (res.error) { this.setState({ loginError: STR.loginErrorGeneric[lang] }); return; }
+      this.setState({ session: res.data.session, showLogin: false, loginEmail: "", loginPassword: "" });
+    });
+  };
+  logout = () => {
+    const client = getSupabase();
+    if (client) client.auth.signOut();
+    this.setState({ session: null });
+  };
+
+  openFormFor = (type, mode, row) => {
+    const defs = FIELD_DEFS[type];
+    const values = {};
+    defs.forEach((f) => { values[f.key] = row && row[f.key] != null ? String(row[f.key]) : ""; });
+    this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "" });
+  };
+  closeForm = () => this.setState({ showForm: false });
+  setFormField = (key) => (e) => {
+    const v = e.target.value;
+    this.setState((p) => ({ formValues: Object.assign({}, p.formValues, { [key]: v }) }));
+  };
+  saveForm = () => {
+    const client = getSupabase();
+    const s = this.state;
+    if (!client || !s.session || !s.formType) return;
+    const table = TABLE_NAMES[s.formType];
+    const payload = Object.assign({}, s.formValues);
+    if (s.formType === "fleet") payload.seats = Number(payload.seats) || 0;
+    const lang = s.lang;
+    const req = s.formMode === "add" ? client.from(table).insert(payload) : client.from(table).update(payload).eq("id", s.formEditId);
+    req.then((res) => {
+      if (res.error) { this.setState({ formError: STR.saveErrorGeneric[lang] }); return; }
+      this.loadAll().then(() => this.setState({ showForm: false }));
+    });
+  };
+  askDelete = (type, id) => { this.setState({ confirmDelete: { type: type, id: id } }); };
+  cancelDeleteConfirm = () => this.setState({ confirmDelete: null });
+  confirmDeleteNow = () => {
+    const client = getSupabase();
+    const cd = this.state.confirmDelete;
+    if (!client || !this.state.session || !cd) return;
+    client.from(TABLE_NAMES[cd.type]).delete().eq("id", cd.id).then(() => {
+      this.setState({ confirmDelete: null });
+      this.loadAll();
+    });
+  };
 
   renderVals() {
     const s = this.state;
     const lang = s.lang;
     const L = {};
     Object.keys(STR).forEach((k) => { L[k] = STR[k][lang]; });
+    const isAdmin = !!s.session;
 
     const nav = (list) => list.map((n) => ({
       label: NAV_LABELS[n.id][lang], badge: n.badge || "",
@@ -853,10 +1119,12 @@ class Component extends DCLogic {
     }));
     const withOpen = (b) => Object.assign({}, b, {
       open: () => this.setState({ detail: b }),
+      edit: (e) => { e.stopPropagation(); this.openFormFor("booking", "edit", b); },
+      remove: (e) => { e.stopPropagation(); this.askDelete("booking", b.id); },
       status: trWords(b.status, lang), time: trWords(b.time, lang), type: trWords(b.type, lang)
     });
-    const filtered = BOOKINGS.filter((b) => {
-      if (s.filter === "Today") return b.time.indexOf("Today") === 0;
+    const filtered = s.bookings.filter((b) => {
+      if (s.filter === "Today") return (b.time || "").indexOf("Today") === 0;
       if (s.filter === "Awaiting driver") return b.driver === "Unassigned";
       if (s.filter === "Unpaid") return b.status === "Deposit due";
       if (s.filter === "Quotes") return b.status === "Quote sent";
@@ -873,12 +1141,44 @@ class Component extends DCLogic {
       2: { en: "Driver auto-assigned by shift", id: "Pengemudi ditugaskan otomatis sesuai shift" },
       3: { en: "Confirmation sent to customer", id: "Konfirmasi dikirim ke pelanggan" }
     };
-    const fleetTr = FLEET.map((v) => Object.assign({}, v, { status: trWords(v.status, lang), rate: trWords(v.rate, lang) }));
-    const driversTr = DRIVERS.map((d) => Object.assign({}, d, { status: trWords(d.status, lang), meta: trWords(d.meta, lang) }));
-    const customersTr = CUSTOMERS.map((c) => Object.assign({}, c, { type: trWords(c.type, lang), last: trWords(c.last, lang), trips: trWords(c.trips, lang) }));
-    const invoicesTr = INVOICES.map((i) => Object.assign({}, i, { status: trWords(i.status, lang), issued: trWords(i.issued, lang) }));
+    const fleetTr = s.fleet.map((v) => Object.assign({}, v, {
+      status: trWords(v.status, lang), rate: trWords(v.rate, lang),
+      edit: (e) => { e.stopPropagation(); this.openFormFor("fleet", "edit", v); },
+      remove: (e) => { e.stopPropagation(); this.askDelete("fleet", v.id); }
+    }));
+    const driversTr = s.drivers.map((d) => Object.assign({}, d, {
+      status: trWords(d.status, lang), meta: trWords(d.meta, lang),
+      edit: (e) => { e.stopPropagation(); this.openFormFor("driver", "edit", d); },
+      remove: (e) => { e.stopPropagation(); this.askDelete("driver", d.id); }
+    }));
+    const customersTr = s.customers.map((c) => Object.assign({}, c, {
+      type: trWords(c.type, lang), last: trWords(c.last, lang), trips: trWords(c.trips, lang),
+      edit: (e) => { e.stopPropagation(); this.openFormFor("customer", "edit", c); },
+      remove: (e) => { e.stopPropagation(); this.askDelete("customer", c.id); }
+    }));
+    const invoicesTr = s.invoices.map((i) => Object.assign({}, i, {
+      status: trWords(i.status, lang), issued: trWords(i.issued, lang),
+      edit: (e) => { e.stopPropagation(); this.openFormFor("invoice", "edit", i); },
+      remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); }
+    }));
     const servicesTr = SERVICES.map((sv) => Object.assign({}, sv, { status: trWords(sv.status, lang), work: trWords(sv.work, lang), mon: trWords(sv.mon, lang) }));
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang) }) : null;
+
+    const fleetAvailableCount = s.fleet.filter((v) => v.status === "Available").length;
+    let pageSub = t[1];
+    if (s.screen === "fleet") {
+      pageSub = lang === "id"
+        ? (s.fleet.length + " unit · " + fleetAvailableCount + " tersedia sekarang")
+        : (s.fleet.length + " units · " + fleetAvailableCount + " available now");
+    }
+
+    const formDefs = s.formType ? FIELD_DEFS[s.formType] : [];
+    const formFields = formDefs.map((f) => ({
+      label: STR[f.labelKey][lang],
+      value: s.formValues[f.key] || "",
+      onChange: this.setFormField(f.key)
+    }));
+    const formTitle = s.formType ? STR["formTitle" + (s.formMode === "add" ? "Add" : "Edit") + TYPE_SUFFIX[s.formType]][lang] : "";
 
     return {
       L,
@@ -887,21 +1187,25 @@ class Component extends DCLogic {
       setLangEn: () => this.setState({ lang: "en" }),
       setLangId: () => this.setState({ lang: "id" }),
       navOps: nav(NAV_OPS), navInsight: nav(NAV_INSIGHT),
-      pageTitle: t[0], pageSub: t[1],
+      pageTitle: t[0], pageSub: pageSub,
       isDashboard: s.screen === "dashboard", isBookings: s.screen === "bookings",
       isFleet: s.screen === "fleet", isDrivers: s.screen === "drivers",
       isCustomers: s.screen === "customers", isRevenue: s.screen === "revenue",
       isMaintenance: s.screen === "maintenance",
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"), goMaintenance: this.go("maintenance"),
-      todayBookings: BOOKINGS.slice(0, 5).map(withOpen),
+      todayBookings: s.bookings.slice(0, 5).map(withOpen),
       bookingRows: filtered, bookingCount: filtered.length,
       bookingsCountText: lang === "id" ? (filtered.length + " pemesanan · Agu 2026") : (filtered.length + " bookings · Aug 2026"),
-      showingOfText: lang === "id" ? ("Menampilkan " + filtered.length + " dari 214") : ("Showing " + filtered.length + " of 214"),
+      showingOfText: lang === "id" ? ("Menampilkan " + filtered.length + " dari " + s.bookings.length) : ("Showing " + filtered.length + " of " + s.bookings.length),
       bookingFilters: FILTERS.map((f) => ({
         label: lang === "id" ? f.idt : f.en, active: s.filter === f.key, inactive: s.filter !== f.key,
         go: () => this.setState({ filter: f.key })
       })),
       fleet: fleetTr, drivers: driversTr, customers: customersTr, invoices: invoicesTr, services: servicesTr,
+      fleetTotalCount: s.fleet.length,
+      fleetAvailableCount: fleetAvailableCount,
+      fleetOnTripCount: s.fleet.filter((v) => v.status === "On trip").length,
+      fleetInServiceCount: s.fleet.filter((v) => v.status === "In service").length,
       detail: detailTr,
       closeDetail: () => this.setState({ detail: null }),
       stop: (e) => e.stopPropagation(),
@@ -915,7 +1219,23 @@ class Component extends DCLogic {
       openNewBooking: () => this.setState({ showNew: true, step: 1 }),
       closeNewBooking: () => this.setState({ showNew: false }),
       nextStep: () => this.setState((p) => p.step === 3 ? { showNew: false, step: 1, screen: "bookings" } : { step: p.step + 1 }),
-      prevStep: () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1 })
+      prevStep: () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1 }),
+
+      isAdmin: isAdmin, isGuest: !isAdmin,
+      showLogin: s.showLogin, openLogin: this.openLogin, closeLogin: this.closeLogin,
+      loginEmail: s.loginEmail, loginPassword: s.loginPassword,
+      setLoginEmail: this.setLoginEmail, setLoginPassword: this.setLoginPassword,
+      loginError: s.loginError, submitLogin: this.submitLogin, logout: this.logout,
+
+      addBooking: () => this.openFormFor("booking", "add", null),
+      addFleet: () => this.openFormFor("fleet", "add", null),
+      addDriver: () => this.openFormFor("driver", "add", null),
+      addCustomer: () => this.openFormFor("customer", "add", null),
+      addInvoice: () => this.openFormFor("invoice", "add", null),
+      showForm: s.showForm, closeForm: this.closeForm, saveForm: this.saveForm,
+      formTitle: formTitle, formFields: formFields, formError: s.formError,
+
+      confirmDelete: s.confirmDelete, cancelDeleteConfirm: this.cancelDeleteConfirm, confirmDeleteNow: this.confirmDeleteNow
     };
   }
 }
