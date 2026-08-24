@@ -999,8 +999,8 @@ const TITLES = {
   revenue: { en: ["Revenue", "August 2026 · Rp 612,4 jt booked"], id: ["Pendapatan", "Agustus 2026 · Rp 612,4 jt terpesan"] },
   maintenance: { en: ["Maintenance", "3 units in service · 1 overdue"], id: ["Perawatan", "3 unit dalam servis · 1 terlambat"] }
 };
-const SUPABASE_URL = "https://ourypitmnfthvyjbpfvn.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91cnlwaXRtbmZ0aHZ5amJwZnZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1MjM4NjUsImV4cCI6MjEwMzA5OTg2NX0.SFv1TcTq97WR3DaayJTXYCgBsOvevpH3ONmel1KJnWA";
+const SUPABASE_URL = "https://apjlwgidhtyqhpuyeomq.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwamx3Z2lkaHR5cWhwdXllb21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NjgxNjMsImV4cCI6MjEwMzE0NDE2M30.1euYKx9zMEKZnsQV7EPk56qUi3T3L-M9_yWS5kNJrwU";
 let sbClient = null;
 function getSupabase() {
   if (!sbClient && window.supabase) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
