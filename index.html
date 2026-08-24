@@ -40,6 +40,39 @@ a{color:#824703}a:hover{color:#DBAF5D}
 }
 </style></helmet>
 
+<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#F4F1EC;padding:24px">
+<div style="width:100%;max-width:380px">
+<div style="display:flex;align-items:center;justify-content:center;margin-bottom:28px">
+<img src="logo.png" alt="Atharrazka Transport" style="height:40px;width:auto">
+</div>
+<div style="background:#fff;border-radius:18px;box-shadow:0 20px 50px rgba(89,50,3,.12);padding:32px;border:1px solid rgba(89,50,3,.08)">
+<div style="display:flex;justify-content:center;gap:2px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:8px;padding:3px;margin:0 auto 22px;width:fit-content">
+<div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
+<div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
+</div>
+<div style="font-size:19px;font-weight:600;text-align:center;margin-bottom:4px">{{ L.loginTitle }}</div>
+<div style="font-size:12px;color:rgba(24,24,24,.5);text-align:center;margin-bottom:24px">{{ L.loginSub }}</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.emailLabel }}</div>
+<input type="email" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
+</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.passwordLabel }}</div>
+<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
+</div>
+<sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:#a8471f">{{ loginError }}</div>
+</sc-if>
+<div onClick="{{ submitLogin }}" style="margin-top:4px;text-align:center;font-size:13px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:13px;cursor:pointer">{{ L.loginBtn }}</div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ true }}">
 <div class="app-shell" style="display:flex;min-height:100vh;background:#F4F1EC">
 
 <div class="sidebar {{ sidebarClass }}" style="width:238px;flex:none;background:#fff;border-right:1px solid rgba(89,50,3,.09);padding:22px 18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh;box-sizing:border-box">
@@ -697,6 +730,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 </div>
+</sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:940}}">
 const STR = {
@@ -1075,9 +1109,15 @@ class Component extends DCLogic {
   componentDidMount() {
     const client = getSupabase();
     if (!client) return;
-    client.auth.getSession().then((res) => { if (res.data) this.setState({ session: res.data.session }); });
-    client.auth.onAuthStateChange((_evt, session) => this.setState({ session }));
-    this.loadAll();
+    client.auth.getSession().then((res) => {
+      const session = res.data ? res.data.session : null;
+      this.setState({ session: session });
+      if (session) this.loadAll();
+    });
+    client.auth.onAuthStateChange((_evt, session) => {
+      this.setState({ session: session });
+      if (session) this.loadAll();
+    });
   }
 
   loadAll = () => {
