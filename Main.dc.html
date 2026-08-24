@@ -24,6 +24,8 @@ a{color:#824703}a:hover{color:#DBAF5D}
 .dc-spinner{width:34px;height:34px;border-radius:50%;border:3px solid rgba(89,50,3,.14);border-top-color:#824703;animation:dcSpin .75s linear infinite}
 .dc-loading-text{font-size:11.5px;color:rgba(24,24,24,.42);letter-spacing:.02em}
 .dc-bar{transform-origin:bottom;animation:dcBarGrow .55s cubic-bezier(.22,1,.36,1) both}
+.dc-bar-hover{transition:transform .16s ease,filter .16s ease;cursor:pointer}
+.dc-bar-hover:hover{transform:scaleY(1.04);filter:brightness(1.08)}
 .dc-live-dot{width:6px;height:6px;border-radius:50%;background:#5b7a3a;display:inline-block;animation:dcPulse 1.6s ease-in-out infinite}
 @media (max-width:860px){
   .app-shell{flex-direction:column}
@@ -184,22 +186,22 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiFleetOnRoad }}</div>
-<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">18</span><span style="font-size:12px;color:rgba(24,24,24,.45)">/ 24 {{ L.unitsWord }}</span></div>
-<div style="margin-top:12px;height:5px;border-radius:4px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:75%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">{{ fleetOnRoadCount }}</span><span style="font-size:12px;color:rgba(24,24,24,.45)">/ {{ fleetTotalCount }} {{ L.unitsWord }}</span></div>
+<div style="margin-top:12px;height:5px;border-radius:4px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:{{ fleetOnRoadPct }}%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div>
 </div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiRevenueToday }}</div>
-<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">Rp 24,8</span><span style="font-size:12px;color:rgba(24,24,24,.45)">jt</span></div>
-<div style="margin-top:12px;font-size:11.5px;color:#5b7a3a">{{ L.vsYesterday }}</div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">{{ revenueTodayLabel }}</span></div>
+<div style="margin-top:12px;font-size:11.5px;color:rgba(24,24,24,.45)">{{ tripsTodayLabel }}</div>
 </div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiUtilisation }}</div>
-<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">82%</span></div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">{{ utilAvgLabel }}</span></div>
 <div style="margin-top:12px;font-size:11.5px;color:rgba(24,24,24,.45)">{{ L.targetAvg }}</div>
 </div>
 <div style="background:linear-gradient(135deg,#181818,#2c2116);border-radius:14px;padding:18px;color:#fff">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.kpiRating }}</div>
-<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">4,92</span><span style="font-size:12px;color:rgba(255,255,255,.5)">/ 5,0</span></div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">{{ ratingLabel }}</span></div>
 <div style="margin-top:12px;font-size:11.5px;color:rgba(255,255,255,.55)">{{ L.reviewsMonth }}</div>
 </div>
 </div>
@@ -210,30 +212,23 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
 <div style="font-size:14px;font-weight:600">{{ L.chartTitle }}</div>
-<div style="font-size:11px;color:rgba(24,24,24,.45)">{{ L.chartSub }}</div>
+<div style="font-size:11px;color:rgba(24,24,24,.45)">{{ chartSubLabel }}</div>
 <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:#5b7a3a;font-weight:600"><span class="dc-live-dot"></span>{{ L.liveNow }}</div>
 <div style="margin-left:auto;display:flex;gap:6px;font-size:10.5px">
-<span style="padding:5px 10px;border-radius:7px;background:#593203;color:#fff;font-weight:500">{{ L.tab12 }}</span>
-<span style="padding:5px 10px;border-radius:7px;color:rgba(24,24,24,.5)">{{ L.tab30 }}</span>
-<span style="padding:5px 10px;border-radius:7px;color:rgba(24,24,24,.5)">{{ L.tabQtr }}</span>
+<sc-for list="{{ chartTabs }}" as="tab" hint-placeholder-count="3">
+<span onClick="{{ tab.go }}" style="{{ tab.style }}">{{ tab.label }}</span>
+</sc-for>
 </div>
 </div>
 <div style="display:flex;align-items:flex-end;gap:12px;height:158px">
-<div class="dc-bar" style="flex:1;height:38%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.02s"></div>
-<div class="dc-bar" style="flex:1;height:52%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.06s"></div>
-<div class="dc-bar" style="flex:1;height:44%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.10s"></div>
-<div class="dc-bar" style="flex:1;height:67%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.14s"></div>
-<div class="dc-bar" style="flex:1;height:58%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.18s"></div>
-<div class="dc-bar" style="flex:1;height:76%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#DBAF5D,#824703);animation-delay:.22s"></div>
-<div class="dc-bar" style="flex:1;height:92%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#F6E6BE,#C08A2E);animation-delay:.26s"></div>
-<div class="dc-bar" style="flex:1;height:64%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.30s"></div>
-<div class="dc-bar" style="flex:1;height:71%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.34s"></div>
-<div class="dc-bar" style="flex:1;height:49%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.38s"></div>
-<div class="dc-bar" style="flex:1;height:83%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.42s"></div>
-<div class="dc-bar" style="flex:1;height:60%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.46s"></div>
+<sc-for list="{{ chartBars }}" as="bar" hint-placeholder-count="12">
+<div class="dc-bar dc-bar-hover" title="{{ bar.tooltip }}" style="{{ bar.style }}"></div>
+</sc-for>
 </div>
 <div style="display:flex;justify-content:space-between;margin-top:9px;font-size:10px;color:rgba(24,24,24,.38)">
-<span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span>
+<sc-for list="{{ chartBars }}" as="bar" hint-placeholder-count="12">
+<span>{{ bar.label }}</span>
+</sc-for>
 </div>
 </div>
 
@@ -260,7 +255,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 
 <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;overflow:hidden">
-<div style="padding:16px 18px 12px;display:flex;align-items:baseline"><div style="font-size:14px;font-weight:600">{{ L.liveFleet }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ L.liveFleetMoving }}</div></div>
+<div style="padding:16px 18px 12px;display:flex;align-items:baseline"><div style="font-size:14px;font-weight:600">{{ L.liveFleet }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ liveFleetMovingLabel }}</div></div>
 <div style="height:196px;background:repeating-linear-gradient(135deg,#F4F1EC 0 9px,#EDE6D8 9px 18px);display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(89,50,3,.07)">
 <span style="font:11px ui-monospace,Menlo,monospace;color:rgba(89,50,3,.5);background:rgba(255,255,255,.75);padding:6px 10px;border-radius:6px">{{ L.liveMapPh }}</span>
 </div>
@@ -268,34 +263,37 @@ a{color:#824703}a:hover{color:#DBAF5D}
 
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
 <div style="font-size:14px;font-weight:600;margin-bottom:14px">{{ L.needsAttention }}</div>
+<sc-if value="{{ hasAttentionItems }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;flex-direction:column;gap:11px">
-<div style="display:flex;gap:11px;align-items:flex-start;padding-bottom:11px;border-bottom:1px solid rgba(89,50,3,.07)">
-<div style="width:7px;height:7px;border-radius:50%;background:#a8471f;margin-top:5px;flex:none"></div>
-<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ L.attn1Title }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ L.attn1Sub }}</div></div>
-<div onClick="{{ goDrivers }}" style="font-size:10.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.assignAction }}</div>
+<sc-for list="{{ needsAttentionItems }}" as="item" hint-placeholder-count="3">
+<div style="{{ item.rowStyle }}">
+<div style="{{ item.dotStyle }}"></div>
+<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ item.title }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ item.sub }}</div></div>
+<div onClick="{{ item.action }}" style="font-size:10.5px;font-weight:600;color:#824703;cursor:pointer">{{ item.actionLabel }}</div>
 </div>
-<div style="display:flex;gap:11px;align-items:flex-start;padding-bottom:11px;border-bottom:1px solid rgba(89,50,3,.07)">
-<div style="width:7px;height:7px;border-radius:50%;background:#DBAF5D;margin-top:5px;flex:none"></div>
-<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ L.attn2Title }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ L.attn2Sub }}</div></div>
-<div onClick="{{ goMaintenance }}" style="font-size:10.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.bookAction }}</div>
+</sc-for>
 </div>
-<div style="display:flex;gap:11px;align-items:flex-start">
-<div style="width:7px;height:7px;border-radius:50%;background:rgba(89,50,3,.35);margin-top:5px;flex:none"></div>
-<div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ L.attn3Title }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ L.attn3Sub }}</div></div>
-<div style="font-size:10.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.remindAction }}</div>
-</div>
-</div>
+</sc-if>
+<sc-if value="{{ noAttentionItems }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12px;color:rgba(24,24,24,.45);padding:4px 0">{{ L.allClear }}</div>
+</sc-if>
 </div>
 
 <div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:18px;color:#fff">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.nextPickups }}</div>
+<sc-if value="{{ hasNextPickups }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;flex-direction:column;gap:13px;margin-top:14px">
-<div style="display:flex;gap:12px;align-items:baseline"><div style="font-size:12px;font-weight:600;color:#DBAF5D;width:44px;flex:none">14:30</div><div><div style="font-size:12.5px">{{ L.pickup1a }}</div><div style="font-size:10.5px;color:rgba(255,255,255,.55)">{{ L.pickup1b }}</div></div></div>
+<sc-for list="{{ nextPickupItems }}" as="p" hint-placeholder-count="3">
+<div style="display:flex;gap:12px;align-items:baseline"><div style="font-size:12px;font-weight:600;color:#DBAF5D;width:44px;flex:none">{{ p.time }}</div><div><div style="font-size:12.5px">{{ p.line1 }}</div><div style="font-size:10.5px;color:rgba(255,255,255,.55)">{{ p.line2 }}</div></div></div>
+<sc-if value="{{ p.showDivider }}" hint-placeholder-val="{{ true }}">
 <div style="height:1px;background:rgba(255,255,255,.12)"></div>
-<div style="display:flex;gap:12px;align-items:baseline"><div style="font-size:12px;font-weight:600;color:#DBAF5D;width:44px;flex:none">16:00</div><div><div style="font-size:12.5px">{{ L.pickup2a }}</div><div style="font-size:10.5px;color:rgba(255,255,255,.55)">{{ L.pickup2b }}</div></div></div>
-<div style="height:1px;background:rgba(255,255,255,.12)"></div>
-<div style="display:flex;gap:12px;align-items:baseline"><div style="font-size:12px;font-weight:600;color:#DBAF5D;width:44px;flex:none">19:15</div><div><div style="font-size:12.5px">{{ L.pickup3a }}</div><div style="font-size:10.5px;color:rgba(255,255,255,.55)">{{ L.pickup3b }}</div></div></div>
+</sc-if>
+</sc-for>
 </div>
+</sc-if>
+<sc-if value="{{ noNextPickups }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:14px">{{ L.noPickups }}</div>
+</sc-if>
 </div>
 </div>
 </div>
@@ -832,18 +830,15 @@ const STR = {
   kpiFleetOnRoad: { en: "FLEET ON ROAD", id: "ARMADA DI JALAN" },
   unitsWord: { en: "units", id: "unit" },
   kpiRevenueToday: { en: "REVENUE TODAY", id: "PENDAPATAN HARI INI" },
-  vsYesterday: { en: "▲ 12,4% vs yesterday", id: "▲ 12,4% vs kemarin" },
   kpiUtilisation: { en: "UTILISATION", id: "UTILISASI" },
-  targetAvg: { en: "Target 78% · 7-day avg", id: "Target 78% · rata-rata 7 hari" },
+  targetAvg: { en: "Target 78%", id: "Target 78%" },
   kpiRating: { en: "RATING", id: "PENILAIAN" },
-  reviewsMonth: { en: "312 reviews this month", id: "312 ulasan bulan ini" },
+  reviewsMonth: { en: "Not connected yet", id: "Belum terhubung" },
   chartTitle: { en: "Trips & revenue", id: "Perjalanan & pendapatan" },
-  chartSub: { en: "last 12 days", id: "12 hari terakhir" },
   liveNow: { en: "Live", id: "Langsung" },
   loadingText: { en: "Loading your dashboard…", id: "Memuat dashboard Anda…" },
-  tab12: { en: "12d", id: "12h" },
-  tab30: { en: "30d", id: "30h" },
-  tabQtr: { en: "Qtr", id: "Kwartal" },
+  allClear: { en: "All caught up — nothing needs attention.", id: "Semua aman — tidak ada yang perlu diperhatikan." },
+  noPickups: { en: "No pickups scheduled yet.", id: "Belum ada jemputan terjadwal." },
   todaysBookings: { en: "Today's bookings", id: "Pemesanan hari ini" },
   viewAll: { en: "View all", id: "Lihat semua" },
   colCustomer: { en: "CUSTOMER", id: "PELANGGAN" },
@@ -852,25 +847,12 @@ const STR = {
   colStatus: { en: "STATUS", id: "STATUS" },
   colTotal: { en: "TOTAL", id: "TOTAL" },
   liveFleet: { en: "Live fleet", id: "Armada langsung" },
-  liveFleetMoving: { en: "18 moving", id: "18 bergerak" },
   liveMapPh: { en: "live map · drop mapbox view", id: "peta langsung · pasang tampilan mapbox" },
   needsAttention: { en: "Needs attention", id: "Perlu perhatian" },
-  attn1Title: { en: "ARZ-2478 has no driver", id: "ARZ-2478 belum ada pengemudi" },
-  attn1Sub: { en: "Pickup in 4h · Kemang → Puncak", id: "Jemput 4 jam lagi · Kemang → Puncak" },
-  attn2Title: { en: "B 1730 ARZ service overdue", id: "B 1730 ARZ servis terlambat" },
-  attn2Sub: { en: "130.402 km · 402 km past interval", id: "130.402 km · 402 km melewati interval" },
-  attn3Title: { en: "Invoice PT Sinar Mandiri unpaid", id: "Faktur PT Sinar Mandiri belum dibayar" },
-  attn3Sub: { en: "Rp 14.200.000 · 6 days overdue", id: "Rp 14.200.000 · terlambat 6 hari" },
   assignAction: { en: "Assign", id: "Tugaskan" },
   bookAction: { en: "Book", id: "Pesan" },
   remindAction: { en: "Remind", id: "Ingatkan" },
   nextPickups: { en: "NEXT PICKUPS", id: "JEMPUT BERIKUTNYA" },
-  pickup1a: { en: "Hotel Mulia · PT Sinar Mandiri", id: "Hotel Mulia · PT Sinar Mandiri" },
-  pickup1b: { en: "Driver Agus · Alphard", id: "Sopir Agus · Alphard" },
-  pickup2a: { en: "Terminal 3 CGK · Nadia P.", id: "Terminal 3 CGK · Nadia P." },
-  pickup2b: { en: "Driver Fahmi · HiAce Premio", id: "Sopir Fahmi · HiAce Premio" },
-  pickup3a: { en: "Kemang · Grace S.", id: "Kemang · Grace S." },
-  pickup3b: { en: "Unassigned · Innova Zenix", id: "Belum ditugaskan · Innova Zenix" },
 
   colRef: { en: "REF", id: "REF" },
   colRouteTime: { en: "ROUTE & TIME", id: "RUTE & WAKTU" },
@@ -1124,6 +1106,90 @@ function hoursToDurationLabel(hoursStr) {
   const h = Math.round(n * 10) / 10;
   return h === 1 ? "1 hour" : (h + " hours");
 }
+function formatRupiah(n) {
+  if (!n) return "Rp 0";
+  return "Rp " + Math.round(n).toLocaleString("id-ID");
+}
+function formatRupiahShort(n) {
+  if (!n) return "Rp 0";
+  if (n >= 1000000) {
+    const jt = Math.round((n / 1000000) * 10) / 10;
+    const jtStr = jt % 1 === 0 ? String(jt) : String(jt).replace(".", ",");
+    return "Rp " + jtStr + " jt";
+  }
+  return formatRupiah(n);
+}
+function extractTimeHHMM(str) {
+  if (!str) return "–";
+  const m = String(str).match(/\d{1,2}:\d{2}/);
+  return m ? m[0] : "–";
+}
+function formatTodayLong(lang) {
+  const monthsEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthsId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const daysId = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const d = new Date();
+  const day = lang === "id" ? daysId[d.getDay()] : daysEn[d.getDay()];
+  const mon = lang === "id" ? monthsId[d.getMonth()] : monthsEn[d.getMonth()];
+  return day + ", " + d.getDate() + " " + mon;
+}
+const CHART_RANGE_LABEL = { dtd: { en: "DtD", id: "DtD" }, mtd: { en: "MtD", id: "MtD" }, ytd: { en: "YtD", id: "YtD" } };
+const CHART_RANGE_SUB = {
+  dtd: { en: "last 12 days", id: "12 hari terakhir" },
+  mtd: { en: "this month", id: "bulan ini" },
+  ytd: { en: "this year", id: "tahun ini" }
+};
+function buildChartBars(bookings, range, lang) {
+  const now = new Date();
+  const buckets = [];
+  if (range === "mtd") {
+    const totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const weekCount = Math.ceil(totalDays / 7);
+    for (let w = 0; w < weekCount; w++) {
+      const start = new Date(now.getFullYear(), now.getMonth(), w * 7 + 1);
+      const end = new Date(now.getFullYear(), now.getMonth(), Math.min(w * 7 + 8, totalDays + 1));
+      buckets.push({ label: "W" + (w + 1), start: start, end: end });
+    }
+  } else if (range === "ytd") {
+    const monthsShort = lang === "id"
+      ? ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+      : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    for (let m = 0; m <= now.getMonth(); m++) {
+      const start = new Date(now.getFullYear(), m, 1);
+      const end = new Date(now.getFullYear(), m + 1, 1);
+      buckets.push({ label: monthsShort[m], start: start, end: end });
+    }
+  } else {
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const end = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+      buckets.push({ label: String(d.getDate()), start: d, end: end });
+    }
+  }
+  buckets.forEach((b) => { b.value = 0; b.trips = 0; });
+  bookings.forEach((bk) => {
+    if (!bk.created_at) return;
+    const dt = new Date(bk.created_at);
+    const bucket = buckets.find((b) => dt >= b.start && dt < b.end);
+    if (bucket) { bucket.value += parseAmount(bk.amount); bucket.trips += 1; }
+  });
+  const maxVal = Math.max(0, ...buckets.map((b) => b.value));
+  return buckets.map((b, i) => {
+    const pct = maxVal > 0 && b.value > 0 ? Math.max(8, Math.round((b.value / maxVal) * 100)) : 4;
+    const bg = maxVal > 0 && b.value === maxVal
+      ? "linear-gradient(180deg,#F6E6BE,#C08A2E)"
+      : (b.value > 0 ? "linear-gradient(180deg,#DBAF5D,#824703)" : "rgba(89,50,3,.14)");
+    const delay = (i * 0.04).toFixed(2);
+    const tooltip = lang === "id"
+      ? (b.trips + " perjalanan · " + formatRupiahShort(b.value))
+      : (b.trips + " trips · " + formatRupiahShort(b.value));
+    return {
+      label: b.label, tooltip: tooltip,
+      style: "flex:1;height:" + pct + "%;border-radius:6px 6px 2px 2px;background:" + bg + ";animation-delay:" + delay + "s"
+    };
+  });
+}
 
 const ACTIVE_LANG_STYLE = "font-size:11px;font-weight:600;padding:6px 11px;border-radius:6px;background:#593203;color:#fff;cursor:pointer";
 const INACTIVE_LANG_STYLE = "font-size:11px;font-weight:500;padding:6px 11px;border-radius:6px;color:rgba(24,24,24,.5);cursor:pointer";
@@ -1136,7 +1202,7 @@ class Component extends DCLogic {
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
-    mobileNavOpen: false, todaySortKey: null, todaySortDir: 1
+    mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd"
   };
 
   componentDidMount() {
@@ -1361,12 +1427,83 @@ class Component extends DCLogic {
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang) }) : null;
 
     const fleetAvailableCount = s.fleet.filter((v) => v.status === "Available").length;
+    const fleetOnTripCountVal = s.fleet.filter((v) => v.status === "On trip").length;
+    const fleetInServiceCountVal = s.fleet.filter((v) => v.status === "In service").length;
     let pageSub = t[1];
     if (s.screen === "fleet") {
       pageSub = lang === "id"
         ? (s.fleet.length + " unit · " + fleetAvailableCount + " tersedia sekarang")
         : (s.fleet.length + " units · " + fleetAvailableCount + " available now");
     }
+
+    const todayDateStr = this.formatToday();
+    const todaysBookingsAll = s.bookings.filter((b) => (b.time || "").indexOf(todayDateStr) === 0);
+    const revenueTodayNum = todaysBookingsAll.reduce((sum, b) => sum + parseAmount(b.amount), 0);
+    const revenueTodayLabel = formatRupiahShort(revenueTodayNum);
+    const tripsTodayLabel = lang === "id"
+      ? (todaysBookingsAll.length + " perjalanan hari ini")
+      : (todaysBookingsAll.length + " trips today");
+    if (s.screen === "dashboard") {
+      pageSub = formatTodayLong(lang) + " · " + tripsTodayLabel;
+    }
+
+    const fleetOnRoadPct = s.fleet.length ? Math.round((fleetOnTripCountVal / s.fleet.length) * 100) : 0;
+    const liveFleetMovingLabel = lang === "id" ? (fleetOnTripCountVal + " bergerak") : (fleetOnTripCountVal + " moving");
+    const utilVals = s.fleet.map((v) => parseFloat(String(v.util || "").replace(/[^0-9.]/g, ""))).filter((n) => !isNaN(n));
+    const utilAvgLabel = utilVals.length ? Math.round(utilVals.reduce((a, b) => a + b, 0) / utilVals.length) + "%" : "0%";
+
+    const unassignedBooking = s.bookings.find((b) => b.driver === "Unassigned");
+    const inServiceVehicle = s.fleet.find((v) => v.status === "In service");
+    const unpaidInvoice = s.invoices.find((i) => i.status && i.status !== "Paid");
+    const attentionRaw = [];
+    if (unassignedBooking) {
+      attentionRaw.push({
+        dot: "#a8471f",
+        title: unassignedBooking.ref + (lang === "id" ? " belum ada pengemudi" : " has no driver"),
+        sub: trWords(unassignedBooking.route || "", lang),
+        actionLabel: L.assignAction, action: this.go("drivers")
+      });
+    }
+    if (inServiceVehicle) {
+      attentionRaw.push({
+        dot: "#DBAF5D",
+        title: inServiceVehicle.name + (lang === "id" ? " sedang dalam servis" : " is in service"),
+        sub: inServiceVehicle.plate || "",
+        actionLabel: L.bookAction, action: this.go("maintenance")
+      });
+    }
+    if (unpaidInvoice) {
+      attentionRaw.push({
+        dot: "rgba(89,50,3,.35)",
+        title: (lang === "id" ? "Faktur " : "Invoice ") + unpaidInvoice.account + (lang === "id" ? " belum dibayar" : " unpaid"),
+        sub: unpaidInvoice.amount || "",
+        actionLabel: L.remindAction, action: this.go("revenue")
+      });
+    }
+    const needsAttentionItems = attentionRaw.map((it, i) => Object.assign({}, it, {
+      rowStyle: "display:flex;gap:11px;align-items:flex-start" + (i < attentionRaw.length - 1 ? ";padding-bottom:11px;border-bottom:1px solid rgba(89,50,3,.07)" : ""),
+      dotStyle: "width:7px;height:7px;border-radius:50%;background:" + it.dot + ";margin-top:5px;flex:none"
+    }));
+    const hasAttentionItems = needsAttentionItems.length > 0;
+
+    const upcomingRaw = s.bookings.slice(0, 3);
+    const nextPickupItems = upcomingRaw.map((b, i) => ({
+      time: extractTimeHHMM(b.time),
+      line1: b.customer,
+      line2: b.vehicle + (b.driver && b.driver !== "Unassigned" ? " · " + b.driver : ""),
+      showDivider: i < upcomingRaw.length - 1
+    }));
+    const hasNextPickups = nextPickupItems.length > 0;
+
+    const chartBars = buildChartBars(s.bookings, s.chartRange, lang);
+    const chartTabs = ["dtd", "mtd", "ytd"].map((r) => ({
+      label: CHART_RANGE_LABEL[r][lang],
+      style: s.chartRange === r
+        ? "padding:5px 10px;border-radius:7px;background:#593203;color:#fff;font-weight:500;cursor:pointer"
+        : "padding:5px 10px;border-radius:7px;color:rgba(24,24,24,.5);cursor:pointer",
+      go: () => this.setState({ chartRange: r })
+    }));
+    const chartSubLabel = CHART_RANGE_SUB[s.chartRange][lang];
 
     const formDefs = s.formType ? FIELD_DEFS[s.formType] : [];
     const formFields = formDefs.map((f) => ({
@@ -1440,8 +1577,15 @@ class Component extends DCLogic {
       fleet: fleetTr, drivers: driversTr, customers: customersTr, invoices: invoicesTr, services: servicesTr,
       fleetTotalCount: s.fleet.length,
       fleetAvailableCount: fleetAvailableCount,
-      fleetOnTripCount: s.fleet.filter((v) => v.status === "On trip").length,
-      fleetInServiceCount: s.fleet.filter((v) => v.status === "In service").length,
+      fleetOnTripCount: fleetOnTripCountVal,
+      fleetInServiceCount: fleetInServiceCountVal,
+      fleetOnRoadCount: fleetOnTripCountVal, fleetOnRoadPct: fleetOnRoadPct,
+      revenueTodayLabel: revenueTodayLabel, tripsTodayLabel: tripsTodayLabel,
+      utilAvgLabel: utilAvgLabel, ratingLabel: "–",
+      needsAttentionItems: needsAttentionItems, hasAttentionItems: hasAttentionItems, noAttentionItems: !hasAttentionItems,
+      nextPickupItems: nextPickupItems, hasNextPickups: hasNextPickups, noNextPickups: !hasNextPickups,
+      chartBars: chartBars, chartTabs: chartTabs, chartSubLabel: chartSubLabel,
+      liveFleetMovingLabel: liveFleetMovingLabel,
       detail: detailTr,
       closeDetail: () => this.setState({ detail: null }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
