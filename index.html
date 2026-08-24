@@ -9,11 +9,40 @@
 </head>
 <body>
 <x-dc>
-<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"><style>body{margin:0;background:#F4F1EC;font-family:Poppins,system-ui,sans-serif;color:#181818}a{color:#824703}a:hover{color:#DBAF5D}</style></helmet>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"><style>
+body{margin:0;background:#F4F1EC;font-family:Poppins,system-ui,sans-serif;color:#181818}
+a{color:#824703}a:hover{color:#DBAF5D}
+.mobile-menu-btn{display:none}
+.mobile-overlay{display:none}
+.data-grid-wrap{overflow-x:visible}
+@media (max-width:860px){
+  .app-shell{flex-direction:column}
+  .sidebar{position:fixed!important;top:0;left:0;height:100vh!important;width:80vw!important;max-width:300px;transform:translateX(-100%);transition:transform .22s ease;z-index:100;box-shadow:20px 0 40px rgba(24,24,24,.15)}
+  .sidebar.nav-open{transform:translateX(0)}
+  .mobile-menu-btn{display:flex!important;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1px solid rgba(89,50,3,.14);cursor:pointer;flex:none}
+  .mobile-overlay.nav-open{display:block;position:fixed;inset:0;background:rgba(24,24,24,.4);z-index:99}
+  .header-bar{padding:14px 16px!important;gap:10px!important;flex-wrap:wrap}
+  .header-actions{gap:8px!important}
+  .header-search{display:none!important}
+  .profile-block{display:none!important}
+  .page-title{font-size:16px!important}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)!important}
+  .stat-grid-3{grid-template-columns:repeat(2,1fr)!important}
+  .two-col{grid-template-columns:1fr!important}
+  .fleet-grid{grid-template-columns:1fr!important}
+  .form-grid-2,.form-grid-3{grid-template-columns:1fr!important}
+  .screen-pad{padding:16px 14px 24px!important}
+  .data-grid-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  .tbl-min{min-width:640px!important}
+  .modal-panel{width:92vw!important;max-width:none!important}
+  .detail-drawer{width:92vw!important}
+  .sidebar-name{display:none}
+}
+</style></helmet>
 
-<div style="display:flex;min-height:100vh;background:#F4F1EC">
+<div class="app-shell" style="display:flex;min-height:100vh;background:#F4F1EC">
 
-<div style="width:238px;flex:none;background:#fff;border-right:1px solid rgba(89,50,3,.09);padding:22px 18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh;box-sizing:border-box">
+<div class="sidebar {{ sidebarClass }}" style="width:238px;flex:none;background:#fff;border-right:1px solid rgba(89,50,3,.09);padding:22px 18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh;box-sizing:border-box">
 <div style="display:flex;align-items:center;gap:9px">
 <img src="logo.png" alt="Atharrazka Transport" style="height:32px;width:auto;display:block">
 <div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(89,50,3,.55);border:1px solid rgba(89,50,3,.2);border-radius:5px;padding:3px 6px;margin-top:2px">OPS</div>
@@ -56,25 +85,29 @@
 <div onClick="{{ goMaintenance }}" style="margin-top:12px;font-size:11px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:8px;padding:8px 12px;display:inline-block;cursor:pointer">{{ L.promoBtn }}</div>
 </div>
 </div>
+<div class="mobile-overlay {{ sidebarClass }}" onClick="{{ closeMobileNav }}"></div>
 
 <div style="flex:1;min-width:0;display:flex;flex-direction:column">
 
-<div style="display:flex;align-items:center;gap:18px;padding:18px 28px;background:#fff;border-bottom:1px solid rgba(89,50,3,.09);position:sticky;top:0;z-index:20">
-<div>
-<div style="font-size:19px;font-weight:600;letter-spacing:-.3px">{{ pageTitle }}</div>
+<div class="header-bar" style="display:flex;align-items:center;gap:18px;padding:18px 28px;background:#fff;border-bottom:1px solid rgba(89,50,3,.09);position:sticky;top:0;z-index:20">
+<div class="mobile-menu-btn" onClick="{{ openMobileNav }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</div>
+<div class="page-title-wrap">
+<div class="page-title" style="font-size:19px;font-weight:600;letter-spacing:-.3px">{{ pageTitle }}</div>
 <div style="font-size:11.5px;color:rgba(24,24,24,.5)">{{ pageSub }}</div>
 </div>
-<div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+<div class="header-actions" style="margin-left:auto;display:flex;align-items:center;gap:12px">
 <div style="display:flex;align-items:center;gap:2px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:8px;padding:3px">
 <div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
 <div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
 </div>
-<div style="display:flex;align-items:center;gap:9px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:9px;padding:9px 13px;width:230px;font-size:12px;color:rgba(24,24,24,.42)">
+<div class="header-search" style="display:flex;align-items:center;gap:9px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:9px;padding:9px 13px;width:230px;font-size:12px;color:rgba(24,24,24,.42)">
 <div style="width:11px;height:11px;border:1.6px solid rgba(89,50,3,.4);border-radius:50%"></div>{{ L.searchPh }}</div>
-<div onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer">{{ L.newBooking }}</div>
-<div style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
+<div onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.newBooking }}</div>
+<div class="profile-block" style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
 <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);border:2px solid #F6E6BE"></div>
-<div style="line-height:1.15"><div style="font-size:12px;font-weight:500">Rizky A.</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ L.opsManager }}</div></div>
+<div style="line-height:1.15"><div style="font-size:12px;font-weight:500">Fadlan</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ L.opsManager }}</div></div>
 </div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;align-items:center;gap:8px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
@@ -89,9 +122,9 @@
 </div>
 
 <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
-<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:20px">
+<div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:20px">
 
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<div class="kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiFleetOnRoad }}</div>
 <div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">18</span><span style="font-size:12px;color:rgba(24,24,24,.45)">/ 24 {{ L.unitsWord }}</span></div>
@@ -114,7 +147,7 @@
 </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start">
+<div class="two-col" style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start">
 <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
 
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
@@ -146,16 +179,16 @@
 </div>
 </div>
 
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
+<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="display:flex;align-items:baseline;margin-bottom:16px">
 <div style="font-size:14px;font-weight:600">{{ L.todaysBookings }}</div>
 <div onClick="{{ goBookings }}" style="margin-left:auto;font-size:11px;color:#824703;font-weight:500;cursor:pointer">{{ L.viewAll }}</div>
 </div>
-<div style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:0 4px 10px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div class="tbl-min" style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:0 4px 10px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
 <div>{{ L.colCustomer }}</div><div>{{ L.colVehicle }}</div><div>{{ L.colRoute }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colTotal }}</div>
 </div>
 <sc-for list="{{ todayBookings }}" as="b" hint-placeholder-count="5">
-<div onClick="{{ b.open }}" style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:13px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
+<div class="tbl-min" onClick="{{ b.open }}" style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:13px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
 <div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.ref }}</div></div>
 <div>{{ b.vehicle }}</div><div style="color:rgba(24,24,24,.62)">{{ b.route }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
@@ -210,7 +243,7 @@
 </sc-if>
 
 <sc-if value="{{ isBookings }}" hint-placeholder-val="{{ false }}">
-<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
 <div style="display:flex;align-items:center;gap:10px">
 <sc-for list="{{ bookingFilters }}" as="f" hint-placeholder-count="4">
 <sc-if value="{{ f.active }}" hint-placeholder-val="{{ false }}">
@@ -226,12 +259,12 @@
 </sc-if>
 </div>
 
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 8px">
-<div style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 8px">
+<div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
 <div>{{ L.colRef }}</div><div>{{ L.colCustomer }}</div><div>{{ L.colVehicle }}</div><div>{{ L.colRouteTime }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colTotal }}</div>
 </div>
 <sc-for list="{{ bookingRows }}" as="b" hint-placeholder-count="8">
-<div onClick="{{ b.open }}" style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
+<div class="tbl-min" onClick="{{ b.open }}" style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
 <div style="font-weight:500;color:#824703">{{ b.ref }}</div>
 <div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.type }}</div></div>
 <div>{{ b.vehicle }}</div>
@@ -261,8 +294,8 @@
 </sc-if>
 
 <sc-if value="{{ isFleet }}" hint-placeholder-val="{{ false }}">
-<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div class="kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.totalUnits }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ fleetTotalCount }}</div></div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.available }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#4d6a30">{{ fleetAvailableCount }}</div></div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.onTrip }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#824703">{{ fleetOnTripCount }}</div></div>
@@ -271,7 +304,7 @@
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addFleet }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
 </sc-if>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+<div class="fleet-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
 <sc-for list="{{ fleet }}" as="v" hint-placeholder-count="6">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;overflow:hidden" style-hover="border-color:#DBAF5D">
 <div style="height:132px;background:repeating-linear-gradient(115deg,#F4F1EC 0 9px,#E7DFCE 9px 18px);display:flex;align-items:center;justify-content:center">
@@ -301,7 +334,7 @@
 </sc-if>
 
 <sc-if value="{{ isDrivers }}" hint-placeholder-val="{{ false }}">
-<div style="padding:24px 28px 34px;display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start">
+<div class="screen-pad two-col" style="padding:24px 28px 34px;display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.driverRoster }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ L.rosterSummary }}</div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
@@ -355,8 +388,8 @@
 </sc-if>
 
 <sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
-<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+<div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div class="stat-grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.corpAccounts }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">28</div></div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.returningRate }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">64%</div></div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.outstanding }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">Rp 38,4 jt</div></div>
@@ -364,12 +397,12 @@
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addCustomer }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
 </sc-if>
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
-<div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
+<div class="tbl-min" style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
 <div>{{ L.colAccount }}</div><div>{{ L.colType }}</div><div>{{ L.colTrips12mo }}</div><div>{{ L.colLastTrip }}</div><div style="text-align:right">{{ L.colLifetime }}</div>
 </div>
 <sc-for list="{{ customers }}" as="c" hint-placeholder-count="6">
-<div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
+<div class="tbl-min" style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="display:flex;align-items:center;gap:11px"><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div><div><div style="font-weight:500">{{ c.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ c.contact }}</div></div></div>
 <div style="color:rgba(24,24,24,.62)">{{ c.type }}</div><div>{{ c.trips }}</div><div style="color:rgba(24,24,24,.62)">{{ c.last }}</div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
@@ -386,8 +419,8 @@
 </sc-if>
 
 <sc-if value="{{ isRevenue }}" hint-placeholder-val="{{ false }}">
-<div style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
-<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start">
+<div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div class="two-col" style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:22px">
 <div style="display:flex;align-items:baseline;gap:12px"><div><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.revenueAugust }}</div><div style="font-size:30px;font-weight:600;letter-spacing:-1px;margin-top:7px">Rp 612,4 jt</div></div>
 <div style="margin-left:auto;font-size:11.5px;color:#5b7a3a">{{ L.vsJuly }}</div></div>
@@ -416,12 +449,12 @@
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addInvoice }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
 </sc-if>
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
-<div style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
+<div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
 <div>{{ L.colInvoice }}</div><div>{{ L.colAccount }}</div><div>{{ L.colIssued }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colAmount }}</div>
 </div>
 <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
-<div style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
+<div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ i.status }}</span></div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
@@ -438,7 +471,7 @@
 </sc-if>
 
 <sc-if value="{{ isMaintenance }}" hint-placeholder-val="{{ false }}">
-<div style="padding:24px 28px 34px;display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start">
+<div class="screen-pad two-col" style="padding:24px 28px 34px;display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="font-size:14px;font-weight:600;margin-bottom:16px">{{ L.serviceSchedule }}</div>
 <sc-for list="{{ services }}" as="s" hint-placeholder-count="5">
@@ -474,7 +507,7 @@
 
 <sc-if value="{{ detail }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.42);z-index:60;display:flex;justify-content:flex-end" onClick="{{ closeDetail }}">
-<div style="width:452px;height:100%;background:#fff;box-shadow:-20px 0 50px rgba(24,24,24,.2);overflow-y:auto" onClick="{{ stop }}">
+<div class="detail-drawer" style="width:452px;height:100%;background:#fff;box-shadow:-20px 0 50px rgba(24,24,24,.2);overflow-y:auto" onClick="{{ stop }}">
 <div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);padding:22px 24px;color:#fff">
 <div style="display:flex;align-items:flex-start"><div>
 <div style="font-size:10px;font-weight:600;letter-spacing:.12em;color:#DBAF5D">{{ L.bookingLabel }} {{ detail.ref }}</div>
@@ -520,8 +553,8 @@
 </div>
 </div>
 <div style="display:flex;gap:10px;font-size:12px">
-<div style="flex:1;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.confirmDispatch }}</div>
-<div style="padding:12px 16px;border-radius:10px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.invoiceBtn }}</div>
+<div onClick="{{ confirmDispatchBtn }}" style="flex:1;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.confirmDispatch }}</div>
+<div onClick="{{ createInvoiceBtn }}" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.invoiceBtn }}</div>
 </div>
 </div>
 </div>
@@ -530,7 +563,7 @@
 
 <sc-if value="{{ showNew }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeNewBooking }}">
-<div style="width:660px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
+<div class="modal-panel" style="width:660px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
 <div style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
 <div><div style="font-size:17px;font-weight:600">{{ L.newBookingTitle }}</div><div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-top:2px">{{ stepOfText }}</div></div>
 <div onClick="{{ closeNewBooking }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
@@ -545,53 +578,46 @@
 
 <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
 <div style="padding:22px 26px;display:flex;flex-direction:column;gap:16px">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">PT Sinar Mandiri</div></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.serviceTypeLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;color:rgba(24,24,24,.55)">{{ L.serviceTypeValue }}</div></div>
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }}</div><input value="{{ newBooking.customer }}" onChange="{{ setNewCustomer }}" placeholder="PT Sinar Mandiri" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.serviceTypeLabel }}</div><input value="{{ newBooking.serviceType }}" onChange="{{ setNewServiceType }}" placeholder="Corporate charter" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">Hotel Mulia, Senayan</div></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">Terminal 3 CGK</div></div>
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupLabel }}</div><input value="{{ newBooking.pickup }}" onChange="{{ setNewPickup }}" placeholder="Hotel Mulia, Senayan" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }}</div><input value="{{ newBooking.destination }}" onChange="{{ setNewDestination }}" placeholder="Terminal 3 CGK" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">{{ L.dateValue }}</div></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">08:30</div></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }}</div><div style="border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px">6</div></div>
+<div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }}</div><input value="{{ newBooking.date }}" onChange="{{ setNewDate }}" placeholder="23 Aug 2026" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }}</div><input value="{{ newBooking.pickupTime }}" onChange="{{ setNewPickupTime }}" placeholder="08:30" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }}</div><input value="{{ newBooking.passengers }}" onChange="{{ setNewPassengers }}" placeholder="6" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.durationHoursLabel }}</div><input value="{{ newBooking.durationHours }}" onChange="{{ setNewDurationHours }}" placeholder="4" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 </sc-if>
 
 <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
 <div style="padding:22px 26px;display:flex;flex-direction:column;gap:12px">
 <div style="font-size:11.5px;color:rgba(24,24,24,.55)">{{ L.availableUnitsText }}</div>
-<div style="border:2px solid #DBAF5D;border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;background:rgba(219,175,93,.08)">
+<sc-for list="{{ vehicleOptions }}" as="veh" hint-placeholder-count="3">
+<div onClick="{{ veh.select }}" style="{{ veh.cardStyle }}">
 <div style="width:76px;height:52px;flex:none;border-radius:9px;background:repeating-linear-gradient(115deg,#F4F1EC 0 8px,#E7DFCE 8px 16px)"></div>
-<div style="flex:1"><div style="font-size:13px;font-weight:600">Alphard Executive</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">B 2288 ARZ · 6 {{ L.seatsWord }} · {{ L.captainChairs }}</div></div>
-<div style="font-size:12.5px;font-weight:600;color:#824703">Rp 2.100.000</div>
+<div style="flex:1"><div style="font-size:13px;font-weight:600">{{ veh.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ veh.meta }}</div></div>
+<div style="font-size:12.5px;font-weight:600;color:#824703">{{ veh.price }}</div>
 </div>
-<div style="border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center">
-<div style="width:76px;height:52px;flex:none;border-radius:9px;background:repeating-linear-gradient(115deg,#F4F1EC 0 8px,#E7DFCE 8px 16px)"></div>
-<div style="flex:1"><div style="font-size:13px;font-weight:600">HiAce Premio</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">B 1907 ARZ · 11 {{ L.seatsWord }} · {{ L.luggage6 }}</div></div>
-<div style="font-size:12.5px;font-weight:600;color:#824703">Rp 1.450.000</div>
-</div>
-<div style="border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center">
-<div style="width:76px;height:52px;flex:none;border-radius:9px;background:repeating-linear-gradient(115deg,#F4F1EC 0 8px,#E7DFCE 8px 16px)"></div>
-<div style="flex:1"><div style="font-size:13px;font-weight:600">Innova Zenix</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">B 1145 ARZ · 7 {{ L.seatsWord }}</div></div>
-<div style="font-size:12.5px;font-weight:600;color:#824703">Rp 1.100.000</div>
-</div>
+</sc-for>
 </div>
 </sc-if>
 
 <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
 <div style="padding:22px 26px;display:flex;flex-direction:column;gap:18px">
 <div style="background:#F4F1EC;border-radius:13px;padding:18px;display:flex;flex-direction:column;gap:10px;font-size:12.5px">
-<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.customerLabel }}</span><span style="margin-left:auto;font-weight:500">PT Sinar Mandiri</span></div>
-<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.tripLabel }}</span><span style="margin-left:auto;font-weight:500">Hotel Mulia → CGK T3</span></div>
-<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.whenLabel }}</span><span style="margin-left:auto;font-weight:500">{{ L.whenValue }}</span></div>
-<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }}</span><span style="margin-left:auto;font-weight:500">Alphard Executive · B 2288 ARZ</span></div>
-<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.driverLabel }}</span><span style="margin-left:auto;font-weight:500">Agus Setiawan · 4,91 ★</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.customerLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingCustomerText }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.tripLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingTripText }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.whenLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingWhenText }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehicleLabel }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.driverLabel }}</span><span style="margin-left:auto;font-weight:500">{{ L.autoAssignDriver }}</span></div>
 <div style="height:1px;background:rgba(89,50,3,.12)"></div>
-<div style="display:flex;font-size:15px;font-weight:600"><span>{{ L.total }}</span><span style="margin-left:auto">Rp 2.100.000</span></div>
+<div style="display:flex;font-size:15px;font-weight:600"><span>{{ L.total }}</span><span style="margin-left:auto">{{ selectedVehiclePrice }}</span></div>
 </div>
 <div style="display:flex;gap:10px">
 <div style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:rgba(24,24,24,.6)">{{ L.invoiceToAccount }}</div>
@@ -611,7 +637,7 @@
 
 <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeLogin }}">
-<div style="width:360px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
+<div class="modal-panel" style="width:360px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
 <div style="font-size:17px;font-weight:600;margin-bottom:4px">{{ L.loginTitle }}</div>
 <div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.loginSub }}</div>
 <div style="display:flex;flex-direction:column;gap:12px">
@@ -634,12 +660,12 @@
 
 <sc-if value="{{ showForm }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeForm }}">
-<div style="width:520px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
+<div class="modal-panel" style="width:520px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
 <div style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
 <div style="font-size:17px;font-weight:600">{{ formTitle }}</div>
 <div onClick="{{ closeForm }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
 </div>
-<div style="padding:22px 26px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="form-grid-2" style="padding:22px 26px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
 <sc-for list="{{ formFields }}" as="fld" hint-placeholder-count="6">
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ fld.label }}</div>
@@ -864,7 +890,11 @@ const STR = {
   dateValue: { en: "23 Aug 2026", id: "23 Agu 2026" },
   pickupTimeLabel: { en: "Pickup time", id: "Waktu jemput" },
   passengersLabel: { en: "Passengers", id: "Penumpang" },
-  availableUnitsText: { en: "3 units available for 23 Aug 08:30", id: "3 unit tersedia untuk 23 Agu 08:30" },
+  durationHoursLabel: { en: "Duration (hours)", id: "Durasi (jam)" },
+  availableUnitsText: { en: "3 units available", id: "3 unit tersedia" },
+  autoAssignDriver: { en: "Auto-assigned by shift", id: "Ditugaskan otomatis sesuai shift" },
+  captainChairsNote: { en: " · captain chairs", id: " · kursi kapten" },
+  luggage6Note: { en: " · luggage 6", id: " · bagasi 6" },
   captainChairs: { en: "captain chairs", id: "kursi kapten" },
   luggage6: { en: "luggage 6", id: "bagasi 6" },
   tripLabel: { en: "Trip", id: "Perjalanan" },
@@ -899,7 +929,7 @@ const NAV_INSIGHT = [
   { id: "maintenance", badge: "" }
 ];
 const TITLES = {
-  dashboard: { en: ["Good morning, Rizky", "Saturday, 22 August · 14 trips scheduled today"], id: ["Selamat pagi, Rizky", "Sabtu, 22 Agustus · 14 perjalanan dijadwalkan hari ini"] },
+  dashboard: { en: ["Good morning, Fadlan", "Saturday, 22 August · 14 trips scheduled today"], id: ["Selamat pagi, Fadlan", "Sabtu, 22 Agustus · 14 perjalanan dijadwalkan hari ini"] },
   bookings: { en: ["Bookings", "12 active today · 214 this month"], id: ["Pemesanan", "12 aktif hari ini · 214 bulan ini"] },
   fleet: { en: ["Fleet", "24 units · 6 available now"], id: ["Armada", "24 unit · 6 tersedia sekarang"] },
   drivers: { en: ["Drivers", "16 active · 1 trip unassigned"], id: ["Pengemudi", "16 aktif · 1 perjalanan belum ditugaskan"] },
@@ -916,6 +946,11 @@ function getSupabase() {
 }
 
 const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices" };
+const VEHICLE_OPTIONS = [
+  { name: "Alphard Executive", plate: "B 2288 ARZ", seats: "6", noteKey: "captainChairsNote", price: "Rp 2.100.000" },
+  { name: "HiAce Premio", plate: "B 1907 ARZ", seats: "11", noteKey: "luggage6Note", price: "Rp 1.450.000" },
+  { name: "Innova Zenix", plate: "B 1145 ARZ", seats: "7", noteKey: null, price: "Rp 1.100.000" }
+];
 const TYPE_SUFFIX = { booking: "Booking", fleet: "Fleet", driver: "Driver", customer: "Customer", invoice: "Invoice" };
 const FIELD_DEFS = {
   booking: [
@@ -1012,6 +1047,16 @@ function trWords(str, lang) {
   WORD_KEYS_SORTED.forEach((k) => { out = out.split(k).join(WORD_MAP_ID[k]); });
   return out;
 }
+function hoursToDurationLabel(hoursStr) {
+  const n = parseFloat(hoursStr);
+  if (!n || n <= 0) return "-";
+  if (n >= 24) {
+    const days = Math.round((n / 24) * 10) / 10;
+    return days === 1 ? "1 day" : (days + " days");
+  }
+  const h = Math.round(n * 10) / 10;
+  return h === 1 ? "1 hour" : (h + " hours");
+}
 
 const ACTIVE_LANG_STYLE = "font-size:11px;font-weight:600;padding:6px 11px;border-radius:6px;background:#593203;color:#fff;cursor:pointer";
 const INACTIVE_LANG_STYLE = "font-size:11px;font-weight:500;padding:6px 11px;border-radius:6px;color:rgba(24,24,24,.5);cursor:pointer";
@@ -1022,7 +1067,9 @@ class Component extends DCLogic {
     session: null, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
-    confirmDelete: null
+    confirmDelete: null,
+    newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
+    mobileNavOpen: false
   };
 
   componentDidMount() {
@@ -1048,7 +1095,37 @@ class Component extends DCLogic {
     });
   };
 
-  go = (id) => () => this.setState({ screen: id, detail: null });
+  go = (id) => () => this.setState({ screen: id, detail: null, mobileNavOpen: false });
+  openMobileNav = () => this.setState({ mobileNavOpen: true });
+  closeMobileNav = () => this.setState({ mobileNavOpen: false });
+  formatToday = () => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const d = new Date();
+    return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+  };
+  confirmDispatchBtn = () => {
+    if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
+    const client = getSupabase();
+    const d = this.state.detail;
+    if (!client || !d) return;
+    client.from("bookings").update({ status: "Confirmed" }).eq("id", d.id).then((res) => {
+      if (res.error) return;
+      this.setState({ detail: null });
+      this.loadAll();
+    });
+  };
+  createInvoiceBtn = () => {
+    if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
+    const client = getSupabase();
+    const d = this.state.detail;
+    if (!client || !d) return;
+    const no = "INV-" + Math.floor(1000 + Math.random() * 9000);
+    client.from("invoices").insert({ no: no, account: d.customer, issued: this.formatToday(), status: "Sent", amount: d.amount }).then((res) => {
+      if (res.error) return;
+      this.setState({ detail: null, screen: "revenue" });
+      this.loadAll();
+    });
+  };
 
   openLogin = () => this.setState({ showLogin: true, loginError: "" });
   closeLogin = () => this.setState({ showLogin: false });
@@ -1102,6 +1179,47 @@ class Component extends DCLogic {
     if (!client || !this.state.session || !cd) return;
     client.from(TABLE_NAMES[cd.type]).delete().eq("id", cd.id).then(() => {
       this.setState({ confirmDelete: null });
+      this.loadAll();
+    });
+  };
+
+  openNewBooking = () => {
+    if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
+    this.setState({
+      showNew: true, step: 1,
+      newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 }
+    });
+  };
+  closeNewBooking = () => this.setState({ showNew: false });
+  setNewBookingField = (key) => (e) => {
+    const v = e.target.value;
+    this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { [key]: v }) }));
+  };
+  selectVehicle = (i) => () => {
+    this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { vehicleIndex: i }) }));
+  };
+  nextStep = () => {
+    if (this.state.step === 3) { this.submitNewBooking(); return; }
+    this.setState((p) => ({ step: p.step + 1 }));
+  };
+  prevStep = () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1 });
+  submitNewBooking = () => {
+    const client = getSupabase();
+    const nb = this.state.newBooking;
+    if (!client || !this.state.session) return;
+    const vehicle = VEHICLE_OPTIONS[nb.vehicleIndex];
+    const ref = "ARZ-" + Math.floor(1000 + Math.random() * 9000);
+    const payload = {
+      ref: ref, customer: nb.customer || "-", type: nb.serviceType || "-",
+      vehicle: vehicle.name, route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
+      time: (nb.date || "-") + " " + (nb.pickupTime || ""), status: "Confirmed",
+      amount: vehicle.price, from_location: nb.pickup || "", to_location: nb.destination || "",
+      eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(nb.durationHours), driver: "Unassigned",
+      driver_meta: "", base: vehicle.price
+    };
+    client.from("bookings").insert(payload).then((res) => {
+      if (res.error) return;
+      this.setState({ showNew: false });
       this.loadAll();
     });
   };
@@ -1180,6 +1298,23 @@ class Component extends DCLogic {
     }));
     const formTitle = s.formType ? STR["formTitle" + (s.formMode === "add" ? "Add" : "Edit") + TYPE_SUFFIX[s.formType]][lang] : "";
 
+    const SELECTED_CARD = "border:2px solid #DBAF5D;border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;background:rgba(219,175,93,.08);cursor:pointer";
+    const UNSELECTED_CARD = "border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;cursor:pointer";
+    const vehicleOptions = VEHICLE_OPTIONS.map((v, i) => ({
+      name: v.name,
+      meta: v.plate + " · " + v.seats + " " + L.seatsWord + (v.noteKey ? L[v.noteKey] : ""),
+      price: v.price,
+      cardStyle: s.newBooking.vehicleIndex === i ? SELECTED_CARD : UNSELECTED_CARD,
+      select: this.selectVehicle(i)
+    }));
+    const selectedVehicle = VEHICLE_OPTIONS[s.newBooking.vehicleIndex];
+    const dash = lang === "id" ? "—" : "—";
+    const newBookingCustomerText = s.newBooking.customer || dash;
+    const newBookingTripText = (s.newBooking.pickup || dash) + " → " + (s.newBooking.destination || dash);
+    const newBookingWhenText = (s.newBooking.date || dash) + " · " + (s.newBooking.pickupTime || dash);
+    const selectedVehicleLabel = selectedVehicle.name + " · " + selectedVehicle.plate;
+    const selectedVehiclePrice = selectedVehicle.price;
+
     return {
       L,
       langEnStyle: lang === "en" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
@@ -1208,6 +1343,7 @@ class Component extends DCLogic {
       fleetInServiceCount: s.fleet.filter((v) => v.status === "In service").length,
       detail: detailTr,
       closeDetail: () => this.setState({ detail: null }),
+      confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
       stop: (e) => e.stopPropagation(),
       showNew: s.showNew, step: s.step,
       stepLabel: stepLabels[s.step][lang], stepHint: stepHints[s.step][lang],
@@ -1216,12 +1352,27 @@ class Component extends DCLogic {
       stepTwoDone: s.step > 1, stepTwoOpen: s.step <= 1,
       stepThreeDone: s.step > 2, stepThreeOpen: s.step <= 2,
       nextLabel: s.step === 3 ? (lang === "id" ? "Buat pemesanan" : "Create booking") : (lang === "id" ? "Lanjut" : "Continue"),
-      openNewBooking: () => this.setState({ showNew: true, step: 1 }),
-      closeNewBooking: () => this.setState({ showNew: false }),
-      nextStep: () => this.setState((p) => p.step === 3 ? { showNew: false, step: 1, screen: "bookings" } : { step: p.step + 1 }),
-      prevStep: () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1 }),
+      openNewBooking: this.openNewBooking, closeNewBooking: this.closeNewBooking,
+      nextStep: this.nextStep, prevStep: this.prevStep,
+      newBooking: s.newBooking,
+      setNewCustomer: this.setNewBookingField("customer"),
+      setNewServiceType: this.setNewBookingField("serviceType"),
+      setNewPickup: this.setNewBookingField("pickup"),
+      setNewDestination: this.setNewBookingField("destination"),
+      setNewDate: this.setNewBookingField("date"),
+      setNewPickupTime: this.setNewBookingField("pickupTime"),
+      setNewPassengers: this.setNewBookingField("passengers"),
+      setNewDurationHours: this.setNewBookingField("durationHours"),
+      vehicleOptions: vehicleOptions,
+      newBookingCustomerText: newBookingCustomerText,
+      newBookingTripText: newBookingTripText,
+      newBookingWhenText: newBookingWhenText,
+      selectedVehicleLabel: selectedVehicleLabel,
+      selectedVehiclePrice: selectedVehiclePrice,
 
       isAdmin: isAdmin, isGuest: !isAdmin,
+      sidebarClass: s.mobileNavOpen ? "nav-open" : "",
+      openMobileNav: this.openMobileNav, closeMobileNav: this.closeMobileNav,
       showLogin: s.showLogin, openLogin: this.openLogin, closeLogin: this.closeLogin,
       loginEmail: s.loginEmail, loginPassword: s.loginPassword,
       setLoginEmail: this.setLoginEmail, setLoginPassword: this.setLoginPassword,
