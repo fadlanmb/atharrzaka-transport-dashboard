@@ -15,6 +15,16 @@ a{color:#824703}a:hover{color:#DBAF5D}
 .mobile-menu-btn{display:none}
 .mobile-overlay{display:none}
 .data-grid-wrap{overflow-x:visible}
+@keyframes dcSpin{to{transform:rotate(360deg)}}
+@keyframes dcFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dcBarGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes dcPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.dc-loading-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#F4F1EC;animation:dcFadeIn .3s ease both}
+.dc-loading-wrap-inline{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;animation:dcFadeIn .3s ease both}
+.dc-spinner{width:34px;height:34px;border-radius:50%;border:3px solid rgba(89,50,3,.14);border-top-color:#824703;animation:dcSpin .75s linear infinite}
+.dc-loading-text{font-size:11.5px;color:rgba(24,24,24,.42);letter-spacing:.02em}
+.dc-bar{transform-origin:bottom;animation:dcBarGrow .55s cubic-bezier(.22,1,.36,1) both}
+.dc-live-dot{width:6px;height:6px;border-radius:50%;background:#5b7a3a;display:inline-block;animation:dcPulse 1.6s ease-in-out infinite}
 @media (max-width:860px){
   .app-shell{flex-direction:column}
   .sidebar{position:fixed!important;top:0;left:0;height:100vh!important;width:80vw!important;max-width:300px;transform:translateX(-100%);transition:transform .22s ease;z-index:100;box-shadow:20px 0 40px rgba(24,24,24,.15)}
@@ -41,6 +51,13 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </style></helmet>
 
 <div class="root-gate">
+<sc-if value="{{ showLoading }}" hint-placeholder-val="{{ false }}">
+<div class="dc-loading-wrap">
+<img src="logo.png" alt="Atharrazka Transport" style="height:38px;width:auto">
+<div class="dc-spinner"></div>
+</div>
+</sc-if>
+
 <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ false }}">
 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#F4F1EC;padding:24px">
 <div style="width:100%;max-width:380px">
@@ -52,8 +69,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
 <div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
 </div>
-<div style="font-size:19px;font-weight:600;text-align:center;margin-bottom:4px">{{ L.loginTitle }}</div>
-<div style="font-size:12px;color:rgba(24,24,24,.5);text-align:center;margin-bottom:24px">{{ L.loginSub }}</div>
+<div style="font-size:19px;font-weight:600;text-align:center;margin-bottom:24px">{{ L.loginTitle }}</div>
 <div style="display:flex;flex-direction:column;gap:14px">
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.emailLabel }}</div>
@@ -155,6 +171,13 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 </div>
 
+<sc-if value="{{ contentLoading }}" hint-placeholder-val="{{ false }}">
+<div class="dc-loading-wrap-inline">
+<div class="dc-spinner"></div>
+<div class="dc-loading-text">{{ L.loadingText }}</div>
+</div>
+</sc-if>
+
 <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
 <div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:20px">
 
@@ -188,6 +211,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
 <div style="font-size:14px;font-weight:600">{{ L.chartTitle }}</div>
 <div style="font-size:11px;color:rgba(24,24,24,.45)">{{ L.chartSub }}</div>
+<div style="display:flex;align-items:center;gap:5px;font-size:10px;color:#5b7a3a;font-weight:600"><span class="dc-live-dot"></span>{{ L.liveNow }}</div>
 <div style="margin-left:auto;display:flex;gap:6px;font-size:10.5px">
 <span style="padding:5px 10px;border-radius:7px;background:#593203;color:#fff;font-weight:500">{{ L.tab12 }}</span>
 <span style="padding:5px 10px;border-radius:7px;color:rgba(24,24,24,.5)">{{ L.tab30 }}</span>
@@ -195,18 +219,18 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 </div>
 <div style="display:flex;align-items:flex-end;gap:12px;height:158px">
-<div style="flex:1;height:38%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:52%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:44%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:67%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:58%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:76%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#DBAF5D,#824703)"></div>
-<div style="flex:1;height:92%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#F6E6BE,#C08A2E)"></div>
-<div style="flex:1;height:64%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:71%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:49%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:83%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
-<div style="flex:1;height:60%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14)"></div>
+<div class="dc-bar" style="flex:1;height:38%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.02s"></div>
+<div class="dc-bar" style="flex:1;height:52%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.06s"></div>
+<div class="dc-bar" style="flex:1;height:44%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.10s"></div>
+<div class="dc-bar" style="flex:1;height:67%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.14s"></div>
+<div class="dc-bar" style="flex:1;height:58%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.18s"></div>
+<div class="dc-bar" style="flex:1;height:76%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#DBAF5D,#824703);animation-delay:.22s"></div>
+<div class="dc-bar" style="flex:1;height:92%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#F6E6BE,#C08A2E);animation-delay:.26s"></div>
+<div class="dc-bar" style="flex:1;height:64%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.30s"></div>
+<div class="dc-bar" style="flex:1;height:71%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.34s"></div>
+<div class="dc-bar" style="flex:1;height:49%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.38s"></div>
+<div class="dc-bar" style="flex:1;height:83%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.42s"></div>
+<div class="dc-bar" style="flex:1;height:60%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.14);animation-delay:.46s"></div>
 </div>
 <div style="display:flex;justify-content:space-between;margin-top:9px;font-size:10px;color:rgba(24,24,24,.38)">
 <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span>
@@ -219,7 +243,9 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div onClick="{{ goBookings }}" style="margin-left:auto;font-size:11px;color:#824703;font-weight:500;cursor:pointer">{{ L.viewAll }}</div>
 </div>
 <div class="tbl-min" style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:0 4px 10px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
-<div>{{ L.colCustomer }}</div><div>{{ L.colVehicle }}</div><div>{{ L.colRoute }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colTotal }}</div>
+<sc-for list="{{ todayCols }}" as="col" hint-placeholder-count="5">
+<div onClick="{{ col.go }}" style="cursor:pointer;user-select:none;text-align:{{ col.align }}">{{ col.label }}</div>
+</sc-for>
 </div>
 <sc-for list="{{ todayBookings }}" as="b" hint-placeholder-count="5">
 <div class="tbl-min" onClick="{{ b.open }}" style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:13px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
@@ -672,8 +698,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeLogin }}">
 <div class="modal-panel" style="width:360px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
-<div style="font-size:17px;font-weight:600;margin-bottom:4px">{{ L.loginTitle }}</div>
-<div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.loginSub }}</div>
+<div style="font-size:17px;font-weight:600;margin-bottom:18px">{{ L.loginTitle }}</div>
 <div style="display:flex;flex-direction:column;gap:12px">
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.emailLabel }}</div>
@@ -749,7 +774,6 @@ const STR = {
   logout: { en: "Log out", id: "Keluar" },
   adminBadge: { en: "ADMIN", id: "ADMIN" },
   loginTitle: { en: "Admin login", id: "Login admin" },
-  loginSub: { en: "Sign in to add, edit or delete data.", id: "Masuk untuk menambah, mengubah, atau menghapus data." },
   emailLabel: { en: "Email", id: "Email" },
   passwordLabel: { en: "Password", id: "Kata sandi" },
   loginBtn: { en: "Sign in", id: "Masuk" },
@@ -815,6 +839,8 @@ const STR = {
   reviewsMonth: { en: "312 reviews this month", id: "312 ulasan bulan ini" },
   chartTitle: { en: "Trips & revenue", id: "Perjalanan & pendapatan" },
   chartSub: { en: "last 12 days", id: "12 hari terakhir" },
+  liveNow: { en: "Live", id: "Langsung" },
+  loadingText: { en: "Loading your dashboard…", id: "Memuat dashboard Anda…" },
   tab12: { en: "12d", id: "12h" },
   tab30: { en: "30d", id: "30h" },
   tabQtr: { en: "Qtr", id: "Kwartal" },
@@ -1083,6 +1109,11 @@ function trWords(str, lang) {
   WORD_KEYS_SORTED.forEach((k) => { out = out.split(k).join(WORD_MAP_ID[k]); });
   return out;
 }
+function parseAmount(str) {
+  if (!str) return 0;
+  const digits = String(str).replace(/[^0-9]/g, "");
+  return digits ? parseInt(digits, 10) : 0;
+}
 function hoursToDurationLabel(hoursStr) {
   const n = parseFloat(hoursStr);
   if (!n || n <= 0) return "-";
@@ -1100,25 +1131,25 @@ const INACTIVE_LANG_STYLE = "font-size:11px;font-weight:500;padding:6px 11px;bor
 class Component extends DCLogic {
   state = {
     screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en",
-    session: null, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
+    session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
-    mobileNavOpen: false
+    mobileNavOpen: false, todaySortKey: null, todaySortDir: 1
   };
 
   componentDidMount() {
     const client = getSupabase();
-    if (!client) return;
+    if (!client) { this.setState({ checkingSession: false }); return; }
     client.auth.getSession().then((res) => {
       const session = res.data ? res.data.session : null;
-      this.setState({ session: session });
+      this.setState({ session: session, checkingSession: false });
       if (session) this.loadAll();
     });
     client.auth.onAuthStateChange((_evt, session) => {
       this.setState({ session: session });
-      if (session) this.loadAll();
+      if (session) this.loadAll(); else this.setState({ loaded: false });
     });
   }
 
@@ -1140,6 +1171,9 @@ class Component extends DCLogic {
   go = (id) => () => this.setState({ screen: id, detail: null, mobileNavOpen: false });
   openMobileNav = () => this.setState({ mobileNavOpen: true });
   closeMobileNav = () => this.setState({ mobileNavOpen: false });
+  sortToday = (key) => () => {
+    this.setState((p) => ({ todaySortKey: key, todaySortDir: p.todaySortKey === key ? -p.todaySortDir : 1 }));
+  };
   formatToday = () => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const d = new Date();
@@ -1185,7 +1219,7 @@ class Component extends DCLogic {
   logout = () => {
     const client = getSupabase();
     if (client) client.auth.signOut();
-    this.setState({ session: null });
+    this.setState({ session: null, loaded: false });
   };
 
   openFormFor = (type, mode, row) => {
@@ -1271,7 +1305,9 @@ class Component extends DCLogic {
     const lang = s.lang;
     const L = {};
     Object.keys(STR).forEach((k) => { L[k] = STR[k][lang]; });
-    const isAdmin = !!s.session;
+    const isAdmin = !s.checkingSession && !!s.session;
+    const isGuest = !s.checkingSession && !s.session;
+    const contentLoading = isAdmin && !s.loaded;
 
     const nav = (list) => list.map((n) => ({
       label: NAV_LABELS[n.id][lang], badge: n.badge || "",
@@ -1365,12 +1401,35 @@ class Component extends DCLogic {
       setLangId: () => this.setState({ lang: "id" }),
       navOps: nav(NAV_OPS), navInsight: nav(NAV_INSIGHT),
       pageTitle: t[0], pageSub: pageSub,
-      isDashboard: s.screen === "dashboard", isBookings: s.screen === "bookings",
-      isFleet: s.screen === "fleet", isDrivers: s.screen === "drivers",
-      isCustomers: s.screen === "customers", isRevenue: s.screen === "revenue",
-      isMaintenance: s.screen === "maintenance",
+      showLoading: s.checkingSession, contentLoading: contentLoading,
+      isDashboard: s.screen === "dashboard" && s.loaded, isBookings: s.screen === "bookings" && s.loaded,
+      isFleet: s.screen === "fleet" && s.loaded, isDrivers: s.screen === "drivers" && s.loaded,
+      isCustomers: s.screen === "customers" && s.loaded, isRevenue: s.screen === "revenue" && s.loaded,
+      isMaintenance: s.screen === "maintenance" && s.loaded,
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"), goMaintenance: this.go("maintenance"),
-      todayBookings: s.bookings.slice(0, 5).map(withOpen),
+      todayCols: [
+        { key: "customer", label: L.colCustomer, align: "left" },
+        { key: "vehicle", label: L.colVehicle, align: "left" },
+        { key: "route", label: L.colRoute, align: "left" },
+        { key: "status", label: L.colStatus, align: "left" },
+        { key: "amount", label: L.colTotal, align: "right" }
+      ].map((c) => ({
+        label: c.label + (s.todaySortKey === c.key ? (s.todaySortDir === 1 ? " ▲" : " ▼") : ""),
+        align: c.align, go: this.sortToday(c.key)
+      })),
+      todayBookings: (() => {
+        const list = s.bookings.slice(0, 5).map(withOpen);
+        if (!s.todaySortKey) return list;
+        const key = s.todaySortKey, dir = s.todaySortDir;
+        return list.slice().sort((a, b) => {
+          let av, bv;
+          if (key === "amount") { av = parseAmount(a.amount); bv = parseAmount(b.amount); }
+          else { av = (a[key] || "").toString().toLowerCase(); bv = (b[key] || "").toString().toLowerCase(); }
+          if (av < bv) return -1 * dir;
+          if (av > bv) return 1 * dir;
+          return 0;
+        });
+      })(),
       bookingRows: filtered, bookingCount: filtered.length,
       bookingsCountText: lang === "id" ? (filtered.length + " pemesanan · Agu 2026") : (filtered.length + " bookings · Aug 2026"),
       showingOfText: lang === "id" ? ("Menampilkan " + filtered.length + " dari " + s.bookings.length) : ("Showing " + filtered.length + " of " + s.bookings.length),
@@ -1412,7 +1471,7 @@ class Component extends DCLogic {
       selectedVehicleLabel: selectedVehicleLabel,
       selectedVehiclePrice: selectedVehiclePrice,
 
-      isAdmin: isAdmin, isGuest: !isAdmin,
+      isAdmin: isAdmin, isGuest: isGuest,
       sidebarClass: s.mobileNavOpen ? "nav-open" : "",
       openMobileNav: this.openMobileNav, closeMobileNav: this.closeMobileNav,
       showLogin: s.showLogin, openLogin: this.openLogin, closeLogin: this.closeLogin,
