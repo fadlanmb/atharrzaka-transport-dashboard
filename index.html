@@ -645,9 +645,23 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }}</div><input value="{{ newBooking.destination }}" onChange="{{ setNewDestination }}" placeholder="Terminal 3 CGK" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 <div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }}</div><input value="{{ newBooking.date }}" onChange="{{ setNewDate }}" placeholder="23 Aug 2026" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }}</div><input value="{{ newBooking.pickupTime }}" onChange="{{ setNewPickupTime }}" placeholder="08:30" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }}</div><input value="{{ newBooking.passengers }}" onChange="{{ setNewPassengers }}" placeholder="6" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }}</div><input type="date" value="{{ newBooking.dateISO }}" onChange="{{ setNewDate }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }}</div>
+<select value="{{ newBooking.pickupTime }}" onChange="{{ setNewPickupTime }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ pickupTimeOptions }}" as="opt" hint-placeholder-count="6">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
+</div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }}</div>
+<select value="{{ newBooking.passengers }}" onChange="{{ setNewPassengers }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ passengerOptions }}" as="opt" hint-placeholder-count="6">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
+</div>
 </div>
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.durationHoursLabel }}</div><input value="{{ newBooking.durationHours }}" onChange="{{ setNewDurationHours }}" placeholder="4" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
@@ -934,6 +948,7 @@ const STR = {
   dateValue: { en: "23 Aug 2026", id: "23 Agu 2026" },
   pickupTimeLabel: { en: "Pickup time", id: "Waktu jemput" },
   passengersLabel: { en: "Passengers", id: "Penumpang" },
+  selectPh: { en: "Select…", id: "Pilih…" },
   durationHoursLabel: { en: "Duration (hours)", id: "Durasi (jam)" },
   availableUnitsText: { en: "3 units available", id: "3 unit tersedia" },
   autoAssignDriver: { en: "Auto-assigned by shift", id: "Ditugaskan otomatis sesuai shift" },
@@ -1106,6 +1121,25 @@ function hoursToDurationLabel(hoursStr) {
   const h = Math.round(n * 10) / 10;
   return h === 1 ? "1 hour" : (h + " hours");
 }
+function isoToDisplayDate(iso) {
+  if (!iso) return "";
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const parts = String(iso).split("-");
+  if (parts.length !== 3) return "";
+  const y = parts[0], m = parseInt(parts[1], 10) - 1, d = parseInt(parts[2], 10);
+  if (isNaN(m) || isNaN(d) || !months[m]) return "";
+  return d + " " + months[m] + " " + y;
+}
+const TIME_OPTIONS = (() => {
+  const out = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      out.push((h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m));
+    }
+  }
+  return out;
+})();
+const PASSENGER_OPTIONS = Array.from({ length: 45 }, (_, i) => String(i + 1));
 function formatRupiah(n) {
   if (!n) return "Rp 0";
   return "Rp " + Math.round(n).toLocaleString("id-ID");
@@ -1201,7 +1235,7 @@ class Component extends DCLogic {
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
-    newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
+    newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
     mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd"
   };
 
@@ -1329,13 +1363,18 @@ class Component extends DCLogic {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showNew: true, step: 1,
-      newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 }
+      newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 }
     });
   };
   closeNewBooking = () => this.setState({ showNew: false });
   setNewBookingField = (key) => (e) => {
     const v = e.target.value;
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { [key]: v }) }));
+  };
+  setNewDateField = (e) => {
+    const iso = e.target.value;
+    const display = isoToDisplayDate(iso);
+    this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { date: display, dateISO: iso }) }));
   };
   selectVehicle = (i) => () => {
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { vehicleIndex: i }) }));
@@ -1513,6 +1552,9 @@ class Component extends DCLogic {
     }));
     const formTitle = s.formType ? STR["formTitle" + (s.formMode === "add" ? "Add" : "Edit") + TYPE_SUFFIX[s.formType]][lang] : "";
 
+    const pickupTimeOptions = TIME_OPTIONS.map((t) => ({ value: t, label: t }));
+    const passengerOptions = PASSENGER_OPTIONS.map((p) => ({ value: p, label: p + " " + L.seatsWord }));
+
     const SELECTED_CARD = "border:2px solid #DBAF5D;border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;background:rgba(219,175,93,.08);cursor:pointer";
     const UNSELECTED_CARD = "border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;cursor:pointer";
     const vehicleOptions = VEHICLE_OPTIONS.map((v, i) => ({
@@ -1604,9 +1646,10 @@ class Component extends DCLogic {
       setNewServiceType: this.setNewBookingField("serviceType"),
       setNewPickup: this.setNewBookingField("pickup"),
       setNewDestination: this.setNewBookingField("destination"),
-      setNewDate: this.setNewBookingField("date"),
+      setNewDate: this.setNewDateField,
       setNewPickupTime: this.setNewBookingField("pickupTime"),
       setNewPassengers: this.setNewBookingField("passengers"),
+      pickupTimeOptions: pickupTimeOptions, passengerOptions: passengerOptions,
       setNewDurationHours: this.setNewBookingField("durationHours"),
       vehicleOptions: vehicleOptions,
       newBookingCustomerText: newBookingCustomerText,
