@@ -38,7 +38,6 @@ a{color:#824703}a:hover{color:#DBAF5D}
   .mobile-overlay.nav-open{display:block;position:fixed;inset:0;background:rgba(24,24,24,.4);z-index:99}
   .header-bar{padding:14px 16px!important;gap:10px!important;flex-wrap:wrap}
   .header-actions{gap:8px!important}
-  .header-search{display:none!important}
   .profile-block{display:none!important}
   .page-title{font-size:16px!important}
   .kpi-grid{grid-template-columns:repeat(2,1fr)!important}
@@ -157,8 +156,6 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
 <div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
 </div>
-<div class="header-search" style="display:flex;align-items:center;gap:9px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:9px;padding:9px 13px;width:230px;font-size:12px;color:rgba(24,24,24,.42)">
-<div style="width:11px;height:11px;border:1.6px solid rgba(89,50,3,.4);border-radius:50%"></div>{{ L.searchPh }}</div>
 <div onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.newBooking }}</div>
 <div class="profile-block" style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
 <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);border:2px solid #F6E6BE"></div>
@@ -502,27 +499,25 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
 <div class="two-col" style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:22px">
-<div style="display:flex;align-items:baseline;gap:12px"><div><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.revenueAugust }}</div><div style="font-size:30px;font-weight:600;letter-spacing:-1px;margin-top:7px">Rp 612,4 jt</div></div>
-<div style="margin-left:auto;font-size:11.5px;color:#5b7a3a">{{ L.vsJuly }}</div></div>
+<div style="display:flex;align-items:baseline;gap:12px"><div><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ revenuePeriodLabel }}</div><div style="font-size:30px;font-weight:600;letter-spacing:-1px;margin-top:7px">{{ revenueMonthLabel }}</div></div>
+<div style="margin-left:auto;font-size:11.5px;color:#5b7a3a">{{ revenueChangeLabel }}</div></div>
 <div style="display:flex;align-items:flex-end;gap:9px;height:180px;margin-top:26px">
-<div style="flex:1;height:44%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
-<div style="flex:1;height:58%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
-<div style="flex:1;height:51%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
-<div style="flex:1;height:69%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
-<div style="flex:1;height:62%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
-<div style="flex:1;height:78%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
-<div style="flex:1;height:88%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#F6E6BE,#C08A2E)"></div>
-<div style="flex:1;height:74%;border-radius:6px 6px 2px 2px;background:rgba(89,50,3,.13)"></div>
+<sc-for list="{{ revenueWeekBars }}" as="bar" hint-placeholder-count="5">
+<div style="{{ bar.style }}"></div>
+</sc-for>
 </div>
-<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:rgba(24,24,24,.38)"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span><span>W8</span></div>
+<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:rgba(24,24,24,.38)">
+<sc-for list="{{ revenueWeekBars }}" as="bar" hint-placeholder-count="5">
+<span>{{ bar.label }}</span>
+</sc-for>
+</div>
 </div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:22px">
 <div style="font-size:14px;font-weight:600;margin-bottom:18px">{{ L.revenueByService }}</div>
 <div style="display:flex;flex-direction:column;gap:15px">
-<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcAirport }}</span><span style="margin-left:auto;font-weight:500">Rp 238 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:88%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
-<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcCorporate }}</span><span style="margin-left:auto;font-weight:500">Rp 176 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:66%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
-<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcWedding }}</span><span style="margin-left:auto;font-weight:500">Rp 121 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:46%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
-<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ L.svcTour }}</span><span style="margin-left:auto;font-weight:500">Rp 77 jt</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:29%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+<sc-for list="{{ revenueByServiceRows }}" as="row" hint-placeholder-count="4">
+<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ row.label }}</span><span style="margin-left:auto;font-weight:500">{{ row.amountLabel }}</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:{{ row.pct }}%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+</sc-for>
 </div>
 </div>
 </div>
@@ -553,31 +548,46 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ isMaintenance }}" hint-placeholder-val="{{ false }}">
 <div class="screen-pad two-col" style="padding:24px 28px 34px;display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
-<div style="font-size:14px;font-weight:600;margin-bottom:16px">{{ L.serviceSchedule }}</div>
-<sc-for list="{{ services }}" as="s" hint-placeholder-count="5">
+<div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.serviceSchedule }}</div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ addMaintenance }}" style="margin-left:auto;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:8px 14px;cursor:pointer">{{ L.addBtn }}</div>
+</sc-if>
+</div>
+<sc-if value="{{ noServicesYet }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12px;color:rgba(24,24,24,.5);padding:10px 2px">{{ L.noServicesYet }}</div>
+</sc-if>
+<sc-for list="{{ services }}" as="sv" hint-placeholder-count="5">
 <div style="display:flex;align-items:center;gap:14px;padding:14px 2px;border-bottom:1px solid rgba(89,50,3,.06)">
-<div style="width:52px;flex:none;text-align:center;background:#F4F1EC;border-radius:10px;padding:8px 0"><div style="font-size:15px;font-weight:600;line-height:1">{{ s.day }}</div><div style="font-size:9.5px;color:rgba(24,24,24,.45);margin-top:2px">{{ s.mon }}</div></div>
-<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ s.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ s.work }}</div></div>
-<div style="font-size:11px;font-weight:600;color:#593203;background:rgba(89,50,3,.08);border-radius:20px;padding:5px 10px">{{ s.status }}</div>
-<div style="font-size:11.5px;font-weight:500;width:96px;text-align:right">{{ s.cost }}</div>
+<div style="width:78px;flex:none;text-align:center;background:#F4F1EC;border-radius:10px;padding:10px 4px;font-size:11px;font-weight:600">{{ sv.date }}</div>
+<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ sv.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ sv.work }}</div></div>
+<div style="font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;{{ sv.statusStyle }}">{{ sv.status }}</div>
+<div style="font-size:11.5px;font-weight:500;width:96px;text-align:right">{{ sv.cost }}</div>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px;flex:none">
+<div onClick="{{ sv.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+<div onClick="{{ sv.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</div>
+</sc-if>
 </div>
 </sc-for>
 </div>
 <div style="display:flex;flex-direction:column;gap:16px">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="font-size:14px;font-weight:600;margin-bottom:14px">{{ L.odometerTitle }}</div>
+<sc-if value="{{ noOdometerRows }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12px;color:rgba(24,24,24,.5)">{{ L.noOdometerYet }}</div>
+</sc-if>
 <div style="display:flex;flex-direction:column;gap:13px">
-<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 1730 ARZ</span><span style="margin-left:auto;color:#a8471f;font-weight:500">{{ L.odo1 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:100%;height:100%;background:linear-gradient(90deg,#824703,#a8471f)"></div></div></div>
-<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 1907 ARZ</span><span style="margin-left:auto;color:rgba(24,24,24,.5)">{{ L.odo2 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
-<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 2288 ARZ</span><span style="margin-left:auto;color:rgba(24,24,24,.5)">{{ L.odo3 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:56%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
-<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>B 1145 ARZ</span><span style="margin-left:auto;color:rgba(24,24,24,.5)">{{ L.odo4 }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:32%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+<sc-for list="{{ odometerRows }}" as="od" hint-placeholder-count="4">
+<div><div style="display:flex;font-size:11px;margin-bottom:5px"><span>{{ od.plate }}</span><span style="margin-left:auto;color:rgba(24,24,24,.5)">{{ od.remainLabel }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="{{ od.barStyle }}"></div></div></div>
+</sc-for>
 </div>
 </div>
 <div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:20px;color:#fff">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.maintSpend }}</div>
-<div style="font-size:26px;font-weight:600;margin-top:8px">Rp 42,7 jt</div>
-<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:4px">{{ L.maintSpendSub }}</div>
-<div style="margin-top:16px;font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.72)">{{ L.maintDowntime }}</div>
+<div style="font-size:26px;font-weight:600;margin-top:8px">{{ maintenanceSpendLabel }}</div>
+<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:4px">{{ maintenanceSpendSubLabel }}</div>
+<div style="margin-top:16px;font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.72)">{{ maintenanceDowntimeLabel }}</div>
 </div>
 </div>
 </div>
@@ -743,7 +753,14 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 <div style="display:flex;gap:10px">
 <div style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:rgba(24,24,24,.6)">{{ L.invoiceToAccount }}</div>
-<a href="{{ newBookingWaLink }}" target="_blank" rel="noopener noreferrer" style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:#824703;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">{{ L.sendWhatsapp }}</a>
+<sc-if value="{{ newBooking.waConfirmed }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;border:1px solid rgba(93,138,58,.35);background:rgba(93,138,58,.08);border-radius:10px;padding:12px 13px;font-size:12px;color:#4d6a30;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>{{ L.whatsappSent }}
+</div>
+</sc-if>
+<sc-if value="{{ newBookingWaNotConfirmed }}" hint-placeholder-val="{{ true }}">
+<a href="{{ newBookingWaLink }}" target="_blank" rel="noopener noreferrer" onClick="{{ confirmWhatsapp }}" style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:#824703;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">{{ L.sendWhatsapp }}</a>
+</sc-if>
 </div>
 </div>
 </sc-if>
@@ -852,7 +869,6 @@ const STR = {
   promoTitle: { en: "Comfort in every journey", id: "Kenyamanan di setiap perjalanan" },
   promoBody: { en: "3 vans due for service this week.", id: "3 van dijadwalkan servis minggu ini." },
   promoBtn: { en: "Schedule now", id: "Jadwalkan sekarang" },
-  searchPh: { en: "Search booking or plate", id: "Cari pemesanan atau plat" },
   newBooking: { en: "+ New booking", id: "+ Pemesanan baru" },
   opsManager: { en: "Ops manager", id: "Manajer operasional" },
 
@@ -881,6 +897,8 @@ const STR = {
   formTitleEditCustomer: { en: "Edit customer", id: "Ubah pelanggan" },
   formTitleAddInvoice: { en: "Add invoice", id: "Tambah faktur" },
   formTitleEditInvoice: { en: "Edit invoice", id: "Ubah faktur" },
+  formTitleAddMaintenance: { en: "Add service", id: "Tambah servis" },
+  formTitleEditMaintenance: { en: "Edit service", id: "Ubah servis" },
   fldRef: { en: "Reference", id: "Referensi" },
   fldCustomer: { en: "Customer", id: "Pelanggan" },
   fldType: { en: "Type", id: "Tipe" },
@@ -911,6 +929,11 @@ const STR = {
   fldTrips: { en: "Trips", id: "Perjalanan" },
   fldLast: { en: "Last trip", id: "Perjalanan terakhir" },
   fldValue: { en: "Lifetime value", id: "Nilai seumur hidup" },
+  fldWork: { en: "Work", id: "Pekerjaan" },
+  fldCost: { en: "Cost", id: "Biaya" },
+  fldDate: { en: "Date", id: "Tanggal" },
+  noServicesYet: { en: "No maintenance records yet — add one to schedule a service.", id: "Belum ada catatan servis — tambahkan untuk menjadwalkan servis." },
+  noOdometerYet: { en: "No vehicles in fleet yet.", id: "Belum ada armada." },
   fldNo: { en: "Invoice no.", id: "No. faktur" },
   fldAccount: { en: "Account", id: "Akun" },
   fldIssued: { en: "Issued", id: "Diterbitkan" },
@@ -976,26 +999,14 @@ const STR = {
   colLastTrip: { en: "LAST TRIP", id: "PERJALANAN TERAKHIR" },
   colLifetime: { en: "LIFETIME", id: "SEUMUR HIDUP" },
 
-  revenueAugust: { en: "REVENUE · AUGUST", id: "PENDAPATAN · AGUSTUS" },
-  vsJuly: { en: "▲ 18,2% vs July", id: "▲ 18,2% vs Juli" },
   revenueByService: { en: "Revenue by service", id: "Pendapatan per layanan" },
-  svcAirport: { en: "Airport transfer", id: "Transfer bandara" },
-  svcCorporate: { en: "Corporate charter", id: "Sewa korporat" },
-  svcWedding: { en: "Wedding & event", id: "Pernikahan & acara" },
-  svcTour: { en: "Tour package", id: "Paket wisata" },
   colInvoice: { en: "INVOICE", id: "FAKTUR" },
   colIssued: { en: "ISSUED", id: "DITERBITKAN" },
   colAmount: { en: "AMOUNT", id: "JUMLAH" },
 
   serviceSchedule: { en: "Service schedule", id: "Jadwal servis" },
   odometerTitle: { en: "Odometer vs interval", id: "Odometer vs interval" },
-  odo1: { en: "overdue 402 km", id: "terlambat 402 km" },
-  odo2: { en: "1.790 km left", id: "sisa 1.790 km" },
-  odo3: { en: "4.310 km left", id: "sisa 4.310 km" },
-  odo4: { en: "7.520 km left", id: "sisa 7.520 km" },
   maintSpend: { en: "MAINTENANCE SPEND", id: "PENGELUARAN PERAWATAN" },
-  maintSpendSub: { en: "This quarter · 6,9% of revenue", id: "Kuartal ini · 6,9% dari pendapatan" },
-  maintDowntime: { en: "Downtime this month: 4,2 days across 3 units — 1,1 days better than target.", id: "Downtime bulan ini: 4,2 hari pada 3 unit — 1,1 hari lebih baik dari target." },
 
   bookingLabel: { en: "BOOKING", id: "PEMESANAN" },
   createdText: { en: "created 21 Aug 09:12", id: "dibuat 21 Agu 09:12" },
@@ -1036,10 +1047,12 @@ const STR = {
   driverLabel: { en: "Driver", id: "Pengemudi" },
   invoiceToAccount: { en: "Invoice to account ✓", id: "Faktur ke akun ✓" },
   sendWhatsapp: { en: "Send WhatsApp confirmation", id: "Kirim konfirmasi WhatsApp" },
+  whatsappSent: { en: "Sent to WhatsApp", id: "Terkirim ke WhatsApp" },
   subtotalLabel: { en: "Subtotal", id: "Subtotal" },
   discountLabel: { en: "Discount", id: "Diskon" },
   newBookingRequiredError: { en: "Please fill in all fields before continuing.", id: "Mohon lengkapi semua kolom sebelum lanjut." },
   newBookingNoVehicleError: { en: "No vehicle available to select.", id: "Tidak ada kendaraan yang bisa dipilih." },
+  newBookingWaRequiredError: { en: "Please send the WhatsApp confirmation first.", id: "Mohon kirim konfirmasi WhatsApp terlebih dahulu." },
   back: { en: "Back", id: "Kembali" }
 };
 
@@ -1081,10 +1094,11 @@ function getSupabase() {
   return sbClient;
 }
 
-const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices" };
+const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices", maintenance: "maintenance" };
 const FLEET_STATUS_OPTIONS = ["Available", "On trip", "In service"];
 const INVOICE_STATUS_OPTIONS = ["Sent", "Paid", "Overdue", "Deposit paid"];
 const SERVICE_TYPE_OPTIONS = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package", "Individual"];
+const MAINTENANCE_STATUS_OPTIONS = ["Scheduled", "Workshop", "Overdue", "Done"];
 const TIME_OPTIONS = (() => {
   const out = [];
   for (let h = 0; h < 24; h++) {
@@ -1095,7 +1109,7 @@ const TIME_OPTIONS = (() => {
   return out;
 })();
 const PASSENGER_OPTIONS = Array.from({ length: 45 }, (_, i) => String(i + 1));
-const TYPE_SUFFIX = { booking: "Booking", fleet: "Fleet", driver: "Driver", customer: "Customer", invoice: "Invoice" };
+const TYPE_SUFFIX = { booking: "Booking", fleet: "Fleet", driver: "Driver", customer: "Customer", invoice: "Invoice", maintenance: "Maintenance" };
 const FIELD_DEFS = {
   booking: [
     { key: "ref", labelKey: "fldRef" }, { key: "customer", labelKey: "fldCustomer" },
@@ -1130,16 +1144,14 @@ const FIELD_DEFS = {
     { key: "issued", labelKey: "fldIssued" },
     { key: "status", labelKey: "fldStatus", type: "select", options: INVOICE_STATUS_OPTIONS },
     { key: "amount", labelKey: "fldAmount" }
+  ],
+  maintenance: [
+    { key: "vehicle", labelKey: "fldVehicle" }, { key: "date", labelKey: "fldDate" },
+    { key: "work", labelKey: "fldWork" },
+    { key: "status", labelKey: "fldStatus", type: "select", options: MAINTENANCE_STATUS_OPTIONS },
+    { key: "cost", labelKey: "fldCost" }
   ]
 };
-
-const SERVICES = [
-  { day: "23", mon: "AUG", vehicle: "HiAce Commuter · B 1730 ARZ", work: "60k service · brake pads · overdue 402 km", status: "Overdue", cost: "Rp 4.200.000" },
-  { day: "25", mon: "AUG", vehicle: "Innova Zenix · B 1145 ARZ", work: "Oil & filter · tyre rotation", status: "Scheduled", cost: "Rp 1.350.000" },
-  { day: "27", mon: "AUG", vehicle: "Medium Bus · B 7411 ARZ", work: "AC blower replacement", status: "Workshop", cost: "Rp 6.800.000" },
-  { day: "01", mon: "SEP", vehicle: "HiAce Premio · B 1907 ARZ", work: "90k major service", status: "Scheduled", cost: "Rp 5.100.000" },
-  { day: "04", mon: "SEP", vehicle: "Alphard · B 2288 ARZ", work: "Interior detailing · leather care", status: "Booked", cost: "Rp 2.400.000" }
-];
 const FILTERS = [
   { key: "All", en: "All", idt: "Semua" },
   { key: "Today", en: "Today", idt: "Hari ini" },
@@ -1251,18 +1263,26 @@ function shiftOverlapsWindow(start, end, winStart, winEnd) {
   const wins = winStart < winEnd ? [[winStart, winEnd]] : [[winStart, 1440], [0, winEnd]];
   return segs.some((a) => wins.some((b) => a[0] < b[1] && b[0] < a[1]));
 }
-function phoneToWaLink(phone) {
+function phoneToWaLink(phone, message) {
   if (!phone) return "";
   let digits = String(phone).replace(/[^0-9]/g, "");
   if (!digits) return "";
   if (digits.charAt(0) === "0") digits = "62" + digits.slice(1);
   else if (digits.slice(0, 2) !== "62") digits = "62" + digits;
-  return "https://wa.me/" + digits;
+  let url = "https://wa.me/" + digits;
+  if (message) url += "?text=" + encodeURIComponent(message);
+  return url;
 }
 function invoiceStatusStyle(status) {
   if (status === "Paid") return "background:rgba(93,138,58,.12);color:#4d6a30";
   if (status === "Overdue") return "background:rgba(168,71,31,.12);color:#a8471f";
   if (status === "Deposit paid") return "background:rgba(219,175,93,.22);color:#8a6614";
+  return "background:rgba(89,50,3,.08);color:#593203";
+}
+function maintenanceStatusStyle(status) {
+  if (status === "Done") return "background:rgba(93,138,58,.12);color:#4d6a30";
+  if (status === "Overdue") return "background:rgba(168,71,31,.12);color:#a8471f";
+  if (status === "Workshop") return "background:rgba(219,175,93,.22);color:#8a6614";
   return "background:rgba(89,50,3,.08);color:#593203";
 }
 function formatKm(km) {
@@ -1362,10 +1382,10 @@ class Component extends DCLogic {
   state = {
     screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en",
     session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
-    bookings: [], fleet: [], drivers: [], customers: [], invoices: [], loaded: false,
+    bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
-    newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "" },
+    newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "", waConfirmed: false },
     mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: ""
   };
@@ -1392,10 +1412,11 @@ class Component extends DCLogic {
       client.from("fleet").select("*").order("created_at", { ascending: false }),
       client.from("drivers").select("*").order("created_at", { ascending: false }),
       client.from("customers").select("*").order("created_at", { ascending: false }),
-      client.from("invoices").select("*").order("created_at", { ascending: false })
+      client.from("invoices").select("*").order("created_at", { ascending: false }),
+      client.from("maintenance").select("*").order("created_at", { ascending: false })
     ]).then((res) => {
       const b = (res[0].data || []).map((r) => Object.assign({}, r, { from: r.from_location, to: r.to_location }));
-      this.setState({ bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [], invoices: res[4].data || [], loaded: true });
+      this.setState({ bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [], invoices: res[4].data || [], maintenance: res[5].data || [], loaded: true });
     });
   };
 
@@ -1528,7 +1549,7 @@ class Component extends DCLogic {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showNew: true, step: 1, newBookingError: "",
-      newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "" }
+      newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "", waConfirmed: false }
     });
   };
   closeNewBooking = () => this.setState({ showNew: false, newBookingError: "" });
@@ -1544,6 +1565,9 @@ class Component extends DCLogic {
   selectVehicle = (i) => () => {
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { vehicleIndex: i }) }));
   };
+  confirmWhatsapp = () => {
+    this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { waConfirmed: true }) }));
+  };
   isStep1Valid = () => {
     const nb = this.state.newBooking;
     return [nb.customer, nb.phone, nb.serviceType, nb.pickup, nb.destination, nb.date, nb.pickupTime, nb.passengers, nb.durationHours]
@@ -1557,6 +1581,10 @@ class Component extends DCLogic {
     }
     if (this.state.step === 2 && pickBookingFleet(this.state.fleet).length === 0) {
       this.setState({ newBookingError: STR.newBookingNoVehicleError[lang] });
+      return;
+    }
+    if (this.state.step === 3 && !this.state.newBooking.waConfirmed) {
+      this.setState({ newBookingError: STR.newBookingWaRequiredError[lang] });
       return;
     }
     this.setState({ newBookingError: "" });
@@ -1580,7 +1608,7 @@ class Component extends DCLogic {
     const payload = {
       ref: ref, customer: nb.customer || "-", phone: nb.phone || "", type: nb.serviceType || "-",
       vehicle: vehicle.name, route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
-      time: (nb.date || "-") + " " + (nb.pickupTime || ""), status: "Confirmed",
+      time: (nb.date || "-") + " " + (nb.pickupTime || ""), status: "Awaiting driver",
       amount: finalPrice, from_location: nb.pickup || "", to_location: nb.destination || "",
       eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(nb.durationHours), driver: "Unassigned",
       driver_meta: "", base: price
@@ -1720,7 +1748,14 @@ class Component extends DCLogic {
       edit: (e) => { e.stopPropagation(); this.openFormFor("invoice", "edit", i); },
       remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); }
     }));
-    const servicesTr = SERVICES.map((sv) => Object.assign({}, sv, { status: trWords(sv.status, lang), work: trWords(sv.work, lang), mon: trWords(sv.mon, lang) }));
+    const servicesTr = s.maintenance.map((sv) => Object.assign({}, sv, {
+      status: trWords(sv.status, lang), work: trWords(sv.work, lang),
+      statusStyle: maintenanceStatusStyle(sv.status),
+      edit: (e) => { e.stopPropagation(); this.openFormFor("maintenance", "edit", sv); },
+      remove: (e) => { e.stopPropagation(); this.askDelete("maintenance", sv.id); }
+    }));
+    const hasServices = servicesTr.length > 0;
+    const noServicesYet = !hasServices;
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone }) : null;
 
     const fleetAvailableCount = s.fleet.filter((v) => v.status === "Available").length;
@@ -1765,6 +1800,75 @@ class Component extends DCLogic {
         ? (corpCount + " akun korporat · " + (s.customers.length - corpCount) + " individu")
         : (corpCount + " corporate accounts · " + (s.customers.length - corpCount) + " individuals");
     }
+    if (s.screen === "revenue") {
+      pageSub = lang === "id"
+        ? (curMonthYear + " · " + revenueMonthLabel + " terpesan")
+        : (curMonthYear + " · " + revenueMonthLabel + " booked");
+    }
+    if (s.screen === "maintenance") {
+      const overdueCount = s.maintenance.filter((m) => m.status === "Overdue").length;
+      pageSub = lang === "id"
+        ? (fleetInServiceCountVal + " unit dalam servis · " + overdueCount + " terlambat")
+        : (fleetInServiceCountVal + " units in service · " + overdueCount + " overdue");
+    }
+
+    const prevMonthStart = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+    const bookingsPrevMonth = s.bookings.filter((b) => b.created_at && new Date(b.created_at) >= prevMonthStart && new Date(b.created_at) < monthStart);
+    const revenuePrevMonthNum = bookingsPrevMonth.reduce((sum, b) => sum + parseAmount(b.amount), 0);
+    const revenueChangePct = revenuePrevMonthNum > 0
+      ? Math.round(((revenueMonthNum - revenuePrevMonthNum) / revenuePrevMonthNum) * 100)
+      : (revenueMonthNum > 0 ? 100 : 0);
+    const prevMonthAbbr = trWords(monthsAbbr[(new Date().getMonth() + 11) % 12], lang);
+    const revenueChangeLabel = (revenueChangePct >= 0 ? "▲ " : "▼ ") + Math.abs(revenueChangePct) + "% " + (lang === "id" ? ("vs " + prevMonthAbbr) : ("vs " + prevMonthAbbr));
+    const revenuePeriodLabel = (lang === "id" ? "PENDAPATAN · " : "REVENUE · ") + trWords(monthsAbbr[new Date().getMonth()], lang).toUpperCase();
+
+    const weekBuckets = [0, 0, 0, 0, 0];
+    bookingsThisMonth.forEach((b) => {
+      const d = new Date(b.created_at);
+      const idx = Math.min(4, Math.floor((d.getDate() - 1) / 7));
+      weekBuckets[idx] += parseAmount(b.amount);
+    });
+    const maxWeek = Math.max(1, weekBuckets[0], weekBuckets[1], weekBuckets[2], weekBuckets[3], weekBuckets[4]);
+    const revenueWeekBars = weekBuckets.map((v, i) => ({
+      style: "flex:1;height:" + Math.max(4, Math.round((v / maxWeek) * 100)) + "%;border-radius:6px 6px 2px 2px;background:" + (v > 0 && v === maxWeek ? "linear-gradient(180deg,#F6E6BE,#C08A2E)" : "rgba(89,50,3,.13)"),
+      label: "W" + (i + 1)
+    }));
+
+    const serviceRevenueMap = {};
+    SERVICE_TYPE_OPTIONS.forEach((t2) => { serviceRevenueMap[t2] = 0; });
+    s.bookings.forEach((b) => { if (serviceRevenueMap.hasOwnProperty(b.type)) serviceRevenueMap[b.type] += parseAmount(b.amount); });
+    const maxServiceRevenue = Math.max(1, serviceRevenueMap["Airport transfer"], serviceRevenueMap["Corporate charter"], serviceRevenueMap["Wedding & event"], serviceRevenueMap["Tour package"]);
+    const revenueByServiceRows = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package"].map((t2) => ({
+      label: trWords(t2, lang), amountLabel: formatRupiahShort(serviceRevenueMap[t2]),
+      pct: Math.round((serviceRevenueMap[t2] / maxServiceRevenue) * 100)
+    }));
+
+    const odometerRows = s.fleet.map((v) => {
+      const km = parseFloat(v.km) || 0;
+      const interval = 100000;
+      const pct = Math.min(100, Math.round((km / interval) * 100));
+      const remain = interval - (km % interval);
+      return {
+        plate: v.plate || v.name, pct: pct,
+        overLimit: pct >= 90,
+        barStyle: "width:" + pct + "%;height:100%;background:linear-gradient(90deg,#824703," + (pct >= 90 ? "#a8471f" : "#DBAF5D") + ")",
+        remainLabel: pct >= 90
+          ? (lang === "id" ? "mendekati interval servis" : "near service interval")
+          : (lang === "id" ? ("sisa " + Math.round(remain).toLocaleString("id-ID") + " km") : (Math.round(remain).toLocaleString("id-ID") + " km left"))
+      };
+    });
+    const hasOdometerRows = odometerRows.length > 0;
+    const noOdometerRows = !hasOdometerRows;
+
+    const maintenanceSpendNum = s.maintenance.reduce((sum, m) => sum + parseAmount(m.cost), 0);
+    const maintenanceSpendLabel = formatRupiahShort(maintenanceSpendNum);
+    const maintenanceSpendPct = revenueMonthNum > 0 ? Math.round((maintenanceSpendNum / revenueMonthNum) * 100) : 0;
+    const maintenanceSpendSubLabel = lang === "id"
+      ? ("Bulan ini · " + maintenanceSpendPct + "% dari pendapatan")
+      : ("This month · " + maintenanceSpendPct + "% of revenue");
+    const maintenanceDowntimeLabel = fleetInServiceCountVal > 0
+      ? (lang === "id" ? (fleetInServiceCountVal + " unit sedang dalam servis saat ini.") : (fleetInServiceCountVal + " unit" + (fleetInServiceCountVal === 1 ? "" : "s") + " currently in service."))
+      : (lang === "id" ? "Tidak ada unit dalam servis saat ini." : "No units currently in service.");
 
     const fleetOnRoadPct = s.fleet.length ? Math.round((fleetOnTripCountVal / s.fleet.length) * 100) : 0;
     const liveFleetMovingLabel = lang === "id" ? (fleetOnTripCountVal + " bergerak") : (fleetOnTripCountVal + " moving");
@@ -1870,7 +1974,26 @@ class Component extends DCLogic {
     const newBookingSubtotalNum = parseAmount(selectedVehiclePrice);
     const newBookingDiscountNum = parseAmount(s.newBooking.discount);
     const newBookingTotalLabel = formatRupiah(Math.max(0, newBookingSubtotalNum - newBookingDiscountNum));
-    const newBookingWaLink = phoneToWaLink(s.newBooking.phone);
+    const nb = s.newBooking;
+    const waMessage = lang === "id"
+      ? ("Halo " + (nb.customer || "-") + ", berikut konfirmasi pemesanan Anda di Atharrzaka Transport:\n" +
+         "- Layanan: " + (trWords(nb.serviceType, lang) || "-") + "\n" +
+         "- Rute: " + (nb.pickup || "-") + " -> " + (nb.destination || "-") + "\n" +
+         "- Tanggal: " + (nb.date || "-") + " pukul " + (nb.pickupTime || "-") + "\n" +
+         "- Penumpang: " + (nb.passengers || "-") + " orang\n" +
+         "- Kendaraan: " + selectedVehicleLabel + "\n" +
+         "- Total: " + newBookingTotalLabel + "\n" +
+         "Mohon konfirmasi untuk melanjutkan. Terima kasih.")
+      : ("Hi " + (nb.customer || "-") + ", here is your booking confirmation with Atharrzaka Transport:\n" +
+         "- Service: " + (nb.serviceType || "-") + "\n" +
+         "- Route: " + (nb.pickup || "-") + " -> " + (nb.destination || "-") + "\n" +
+         "- Date: " + (nb.date || "-") + " at " + (nb.pickupTime || "-") + "\n" +
+         "- Passengers: " + (nb.passengers || "-") + "\n" +
+         "- Vehicle: " + selectedVehicleLabel + "\n" +
+         "- Total: " + newBookingTotalLabel + "\n" +
+         "Please confirm to proceed. Thank you.");
+    const newBookingWaLink = phoneToWaLink(nb.phone, waMessage);
+    const newBookingWaNotConfirmed = !nb.waConfirmed;
     const serviceTypeOptions = SERVICE_TYPE_OPTIONS.map((v) => ({ value: v, label: trWords(v, lang) }));
 
     return {
@@ -1920,6 +2043,12 @@ class Component extends DCLogic {
         go: () => this.setState({ filter: f.key, bookingsPage: 1 })
       })),
       fleet: fleetTr, drivers: driversSorted, customers: customersTr, invoices: invoicesTr, services: servicesTr,
+      hasServices: hasServices, noServicesYet: noServicesYet,
+      revenuePeriodLabel: revenuePeriodLabel, revenueChangeLabel: revenueChangeLabel,
+      revenueMonthLabel: revenueMonthLabel, revenueWeekBars: revenueWeekBars, revenueByServiceRows: revenueByServiceRows,
+      odometerRows: odometerRows, hasOdometerRows: hasOdometerRows, noOdometerRows: noOdometerRows,
+      maintenanceSpendLabel: maintenanceSpendLabel, maintenanceSpendSubLabel: maintenanceSpendSubLabel,
+      maintenanceDowntimeLabel: maintenanceDowntimeLabel,
       driverCols: driverCols, driverRosterSummary: driverRosterSummary,
       hasUnassignedTrip: hasUnassignedTrip, noUnassignedTrip: noUnassignedTrip,
       unassignedTripLabel: unassignedTripLabel, unassignedTripSub: unassignedTripSub,
@@ -1966,6 +2095,7 @@ class Component extends DCLogic {
       availableUnitsText: availableUnitsText,
       newBookingCustomerText: newBookingCustomerText, newBookingPhoneText: newBookingPhoneText,
       newBookingTotalLabel: newBookingTotalLabel, newBookingWaLink: newBookingWaLink,
+      newBookingWaNotConfirmed: newBookingWaNotConfirmed, confirmWhatsapp: this.confirmWhatsapp,
       serviceTypeOptions: serviceTypeOptions, newBookingError: s.newBookingError,
       newBookingTripText: newBookingTripText,
       newBookingWhenText: newBookingWhenText,
@@ -1985,6 +2115,7 @@ class Component extends DCLogic {
       addDriver: () => this.openFormFor("driver", "add", null),
       addCustomer: () => this.openFormFor("customer", "add", null),
       addInvoice: () => this.openFormFor("invoice", "add", null),
+      addMaintenance: () => this.openFormFor("maintenance", "add", null),
       showForm: s.showForm, closeForm: this.closeForm, saveForm: this.saveForm,
       formTitle: formTitle, formFields: formFields, formError: s.formError,
 
