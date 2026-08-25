@@ -526,18 +526,18 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 <div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
-<div>{{ L.colInvoice }}</div><div>{{ L.colAccount }}</div><div>{{ L.colIssued }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colAmount }}</div>
+<div>{{ L.colInvoice }}</div><div>{{ L.colAccount }}</div><div>{{ L.colIssued }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colBalance }}</div>
 </div>
 <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
-<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.status }}</span></div>
+<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.statusLabel }}</span></div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ i.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ i.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
-<span>{{ i.amount }}</span>
+<span>{{ i.balanceDueLabel }}</span>
 </div>
 </div>
 </sc-for>
@@ -907,6 +907,10 @@ const STR = {
   fldTime: { en: "Time", id: "Waktu" },
   fldStatus: { en: "Status", id: "Status" },
   fldAmount: { en: "Amount", id: "Jumlah" },
+  fldSubtotal: { en: "Subtotal", id: "Subtotal" },
+  fldDiscount: { en: "Discount", id: "Diskon" },
+  fldDownPayment: { en: "Down payment", id: "Uang muka" },
+  fldReceivePayment: { en: "Receive payment", id: "Pembayaran diterima" },
   fldFrom: { en: "From", id: "Dari" },
   fldTo: { en: "To", id: "Ke" },
   fldEta: { en: "ETA", id: "Estimasi tiba" },
@@ -1002,7 +1006,7 @@ const STR = {
   revenueByService: { en: "Revenue by service", id: "Pendapatan per layanan" },
   colInvoice: { en: "INVOICE", id: "FAKTUR" },
   colIssued: { en: "ISSUED", id: "DITERBITKAN" },
-  colAmount: { en: "AMOUNT", id: "JUMLAH" },
+  colBalance: { en: "BALANCE DUE", id: "SISA TAGIHAN" },
 
   serviceSchedule: { en: "Service schedule", id: "Jadwal servis" },
   odometerTitle: { en: "Odometer vs interval", id: "Odometer vs interval" },
@@ -1096,7 +1100,6 @@ function getSupabase() {
 
 const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices", maintenance: "maintenance" };
 const FLEET_STATUS_OPTIONS = ["Available", "On trip", "In service"];
-const INVOICE_STATUS_OPTIONS = ["Sent", "Paid", "Overdue", "Deposit paid"];
 const SERVICE_TYPE_OPTIONS = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package", "Individual"];
 const MAINTENANCE_STATUS_OPTIONS = ["Scheduled", "Workshop", "Overdue", "Done"];
 const TIME_OPTIONS = (() => {
@@ -1142,8 +1145,8 @@ const FIELD_DEFS = {
   invoice: [
     { key: "no", labelKey: "fldNo" }, { key: "account", labelKey: "fldAccount" },
     { key: "issued", labelKey: "fldIssued" },
-    { key: "status", labelKey: "fldStatus", type: "select", options: INVOICE_STATUS_OPTIONS },
-    { key: "amount", labelKey: "fldAmount" }
+    { key: "subtotal", labelKey: "fldSubtotal" }, { key: "discount", labelKey: "fldDiscount" },
+    { key: "down_payment", labelKey: "fldDownPayment" }, { key: "receive_payment", labelKey: "fldReceivePayment" }
   ],
   maintenance: [
     { key: "vehicle", labelKey: "fldVehicle" }, { key: "date", labelKey: "fldDate" },
@@ -1215,6 +1218,13 @@ function parseAmount(str) {
   const digits = String(str).replace(/[^0-9]/g, "");
   return digits ? parseInt(digits, 10) : 0;
 }
+function invoiceBalanceDue(i) {
+  const subtotalNum = parseAmount(i.subtotal || i.amount);
+  const discountNum = parseAmount(i.discount);
+  const dpNum = parseAmount(i.down_payment);
+  const receivedNum = parseAmount(i.receive_payment);
+  return Math.max(0, subtotalNum - discountNum - dpNum - receivedNum);
+}
 function hoursToDurationLabel(hoursStr) {
   const n = parseFloat(hoursStr);
   if (!n || n <= 0) return "-";
@@ -1273,11 +1283,10 @@ function phoneToWaLink(phone, message) {
   if (message) url += "?text=" + encodeURIComponent(message);
   return url;
 }
-function invoiceStatusStyle(status) {
-  if (status === "Paid") return "background:rgba(93,138,58,.12);color:#4d6a30";
-  if (status === "Overdue") return "background:rgba(168,71,31,.12);color:#a8471f";
-  if (status === "Deposit paid") return "background:rgba(219,175,93,.22);color:#8a6614";
-  return "background:rgba(89,50,3,.08);color:#593203";
+function invoicePaymentStatusStyle(key) {
+  if (key === "paid") return "background:rgba(93,138,58,.12);color:#4d6a30";
+  if (key === "partial") return "background:rgba(219,175,93,.22);color:#8a6614";
+  return "background:rgba(168,71,31,.12);color:#a8471f";
 }
 function maintenanceStatusStyle(status) {
   if (status === "Done") return "background:rgba(93,138,58,.12);color:#4d6a30";
@@ -1461,7 +1470,14 @@ class Component extends DCLogic {
     const d = this.state.detail;
     if (!client || !d) return;
     const no = "INV-" + Math.floor(1000 + Math.random() * 9000);
-    client.from("invoices").insert({ no: no, account: d.customer, issued: this.formatToday(), status: "Sent", amount: d.amount }).then((res) => {
+    const baseNum = parseAmount(d.base);
+    const finalNum = parseAmount(d.amount);
+    const discountNum = Math.max(0, baseNum - finalNum);
+    client.from("invoices").insert({
+      no: no, account: d.customer, issued: this.formatToday(),
+      subtotal: formatRupiah(baseNum), discount: formatRupiah(discountNum),
+      down_payment: "Rp 0", receive_payment: "Rp 0"
+    }).then((res) => {
       if (res.error) return;
       this.setState({ detail: null, screen: "revenue" });
       this.loadAll();
@@ -1734,7 +1750,7 @@ class Component extends DCLogic {
     const corpAccountsCount = s.customers.filter((c) => c.type === "Corporate").length;
     const returningCustomersCount = s.customers.filter((c) => parseInt(c.trips, 10) > 1).length;
     const returningRatePct = s.customers.length ? Math.round((returningCustomersCount / s.customers.length) * 100) : 0;
-    const outstandingNum = s.invoices.filter((i) => i.status !== "Paid").reduce((sum, i) => sum + parseAmount(i.amount), 0);
+    const outstandingNum = s.invoices.reduce((sum, i) => sum + invoiceBalanceDue(i), 0);
     const outstandingLabel = formatRupiahShort(outstandingNum);
 
     const customersTr = s.customers.map((c) => Object.assign({}, c, {
@@ -1742,12 +1758,25 @@ class Component extends DCLogic {
       edit: (e) => { e.stopPropagation(); this.openFormFor("customer", "edit", c); },
       remove: (e) => { e.stopPropagation(); this.askDelete("customer", c.id); }
     }));
-    const invoicesTr = s.invoices.map((i) => Object.assign({}, i, {
-      status: trWords(i.status, lang), issued: trWords(i.issued, lang),
-      statusStyle: invoiceStatusStyle(i.status),
-      edit: (e) => { e.stopPropagation(); this.openFormFor("invoice", "edit", i); },
-      remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); }
-    }));
+    const invoicesTr = s.invoices.map((i) => {
+      const subtotalNum = parseAmount(i.subtotal || i.amount);
+      const discountNum = parseAmount(i.discount);
+      const dpNum = parseAmount(i.down_payment);
+      const receivedNum = parseAmount(i.receive_payment);
+      const paidNum = dpNum + receivedNum;
+      const balanceDueNum = Math.max(0, subtotalNum - discountNum - paidNum);
+      const statusKey = balanceDueNum <= 0 && subtotalNum > 0 ? "paid" : (paidNum > 0 ? "partial" : "unpaid");
+      const statusLabel = statusKey === "paid" ? (lang === "id" ? "Lunas" : "Paid")
+        : statusKey === "partial" ? (lang === "id" ? "Sebagian dibayar" : "Partially paid")
+        : (lang === "id" ? "Belum dibayar" : "Unpaid");
+      return Object.assign({}, i, {
+        issued: trWords(i.issued, lang),
+        statusLabel: statusLabel, statusStyle: invoicePaymentStatusStyle(statusKey),
+        balanceDueLabel: formatRupiah(balanceDueNum),
+        edit: (e) => { e.stopPropagation(); this.openFormFor("invoice", "edit", i); },
+        remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); }
+      });
+    });
     const servicesTr = s.maintenance.map((sv) => Object.assign({}, sv, {
       status: trWords(sv.status, lang), work: trWords(sv.work, lang),
       statusStyle: maintenanceStatusStyle(sv.status),
@@ -1876,7 +1905,7 @@ class Component extends DCLogic {
 
     const unassignedBooking = s.bookings.find((b) => b.driver === "Unassigned");
     const inServiceVehicle = s.fleet.find((v) => v.status === "In service");
-    const unpaidInvoice = s.invoices.find((i) => i.status && i.status !== "Paid");
+    const unpaidInvoice = s.invoices.find((i) => invoiceBalanceDue(i) > 0);
     const attentionRaw = [];
     if (unassignedBooking) {
       attentionRaw.push({
@@ -1898,7 +1927,7 @@ class Component extends DCLogic {
       attentionRaw.push({
         dot: "rgba(89,50,3,.35)",
         title: (lang === "id" ? "Faktur " : "Invoice ") + unpaidInvoice.account + (lang === "id" ? " belum dibayar" : " unpaid"),
-        sub: unpaidInvoice.amount || "",
+        sub: formatRupiah(invoiceBalanceDue(unpaidInvoice)),
         actionLabel: L.remindAction, action: this.go("revenue")
       });
     }
