@@ -345,12 +345,10 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-for>
 <div style="display:flex;align-items:center;padding:14px 4px 10px;font-size:11px;color:rgba(24,24,24,.45)">
 <div>{{ showingOfText }}</div>
-<div style="margin-left:auto;display:flex;gap:6px">
-<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">‹</span>
-<span style="padding:6px 11px;border-radius:7px;background:#593203;color:#fff">1</span>
-<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">2</span>
-<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">3</span>
-<span style="padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12)">›</span>
+<div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+<span onClick="{{ prevBookingsPage }}" style="{{ prevPageStyle }}">‹</span>
+<span style="padding:6px 11px;font-size:11px;color:rgba(24,24,24,.55)">{{ bookingsPageLabel }}</span>
+<span onClick="{{ nextBookingsPage }}" style="{{ nextPageStyle }}">›</span>
 </div>
 </div>
 </div>
@@ -405,18 +403,24 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ isDrivers }}" hint-placeholder-val="{{ false }}">
 <div class="screen-pad two-col" style="padding:24px 28px 34px;display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
-<div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.driverRoster }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ L.rosterSummary }}</div>
+<div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.driverRoster }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ driverRosterSummary }}</div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addDriver }}" style="margin-left:12px;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:6px 12px;cursor:pointer">{{ L.addBtn }}</div>
 </sc-if>
 </div>
+<div style="display:flex;align-items:center;gap:13px;padding:0 2px 10px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div style="width:40px;flex:none"></div>
+<sc-for list="{{ driverCols }}" as="col" hint-placeholder-count="2">
+<div onClick="{{ col.go }}" style="{{ col.widthStyle }}cursor:pointer;user-select:none">{{ col.label }}</div>
+</sc-for>
+<div style="width:80px;flex:none"></div>
+</div>
 <sc-for list="{{ drivers }}" as="d" hint-placeholder-count="6">
 <div style="display:flex;align-items:center;gap:13px;padding:13px 2px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div>
-<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ d.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ d.meta }}</div></div>
-<div style="font-size:11.5px;color:rgba(24,24,24,.6);width:130px">{{ d.assigned }}</div>
-<div style="font-size:11px;font-weight:600;color:#593203;background:rgba(89,50,3,.08);border-radius:20px;padding:5px 10px">{{ d.status }}</div>
-<div style="font-size:11.5px;font-weight:500;width:52px;text-align:right">{{ d.rating }} ★</div>
+<div style="flex:1;min-width:0;font-size:13px;font-weight:500">{{ d.name }}</div>
+<div style="font-size:11.5px;color:rgba(24,24,24,.6);width:150px">{{ d.shiftLabel }}</div>
+<div style="font-size:11px;font-weight:600;border-radius:20px;padding:5px 10px;{{ d.statusStyle }}">{{ d.statusLabel }}</div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;gap:9px;margin-left:9px">
 <div onClick="{{ d.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
@@ -429,27 +433,34 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex;flex-direction:column;gap:16px">
 <div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:20px;color:#fff">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.unassignedTrip }}</div>
-<div style="font-size:15px;font-weight:600;margin-top:9px">ARZ-2478 · Kemang → Puncak</div>
-<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:4px">{{ L.unassignedLine2 }}</div>
+<sc-if value="{{ hasUnassignedTrip }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:15px;font-weight:600;margin-top:9px">{{ unassignedTripLabel }}</div>
+<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:4px">{{ unassignedTripSub }}</div>
+<sc-if value="{{ hasFreeDrivers }}" hint-placeholder-val="{{ false }}">
 <div style="margin-top:16px;display:flex;flex-direction:column;gap:9px">
+<sc-for list="{{ freeDriverSuggestions }}" as="fd" hint-placeholder-count="2">
 <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">
 <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703)"></div>
-<div style="flex:1"><div style="font-size:12px">Dedi Kurniawan</div><div style="font-size:10px;color:rgba(255,255,255,.5)">{{ L.freeFrom1 }}</div></div>
-<div style="font-size:10.5px;font-weight:600;color:#181818;background:#DBAF5D;border-radius:7px;padding:6px 10px;cursor:pointer">{{ L.assignAction }}</div>
+<div style="flex:1"><div style="font-size:12px">{{ fd.name }}</div><div style="font-size:10px;color:rgba(255,255,255,.5)">{{ fd.meta }}</div></div>
+<div onClick="{{ fd.assign }}" style="font-size:10.5px;font-weight:600;color:#181818;background:#DBAF5D;border-radius:7px;padding:6px 10px;cursor:pointer">{{ L.assignAction }}</div>
 </div>
-<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">
-<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703)"></div>
-<div style="flex:1"><div style="font-size:12px">Yoga Pratama</div><div style="font-size:10px;color:rgba(255,255,255,.5)">{{ L.freeFrom2 }}</div></div>
-<div style="font-size:10.5px;font-weight:600;color:#DBAF5D;border:1px solid rgba(219,175,93,.5);border-radius:7px;padding:6px 10px;cursor:pointer">{{ L.assignAction }}</div>
+</sc-for>
 </div>
-</div>
+</sc-if>
+<sc-if value="{{ noFreeDrivers }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:14px;font-size:11.5px;color:rgba(255,255,255,.6)">{{ L.noFreeDrivers }}</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ noUnassignedTrip }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:9px;font-size:12.5px;color:rgba(255,255,255,.8)">{{ L.allTripsAssigned }}</div>
+</sc-if>
 </div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="font-size:14px;font-weight:600;margin-bottom:14px">{{ L.shiftCoverage }}</div>
 <div style="display:flex;flex-direction:column;gap:12px">
-<div><div style="display:flex;font-size:11px;color:rgba(24,24,24,.5);margin-bottom:5px"><span>{{ L.shiftMorning }}</span><span style="margin-left:auto">8 / 8</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:100%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
-<div><div style="display:flex;font-size:11px;color:rgba(24,24,24,.5);margin-bottom:5px"><span>{{ L.shiftAfternoon }}</span><span style="margin-left:auto">6 / 8</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:75%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
-<div><div style="display:flex;font-size:11px;color:rgba(24,24,24,.5);margin-bottom:5px"><span>{{ L.shiftNight }}</span><span style="margin-left:auto">2 / 4</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:50%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+<sc-for list="{{ shiftCoverageRows }}" as="row" hint-placeholder-count="3">
+<div><div style="display:flex;font-size:11px;color:rgba(24,24,24,.5);margin-bottom:5px"><span>{{ row.label }}</span><span style="margin-left:auto">{{ row.countLabel }}</span></div><div style="height:6px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:{{ row.pct }}%;height:100%;background:linear-gradient(90deg,#824703,#DBAF5D)"></div></div></div>
+</sc-for>
 </div>
 </div>
 </div>
@@ -459,9 +470,9 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
 <div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
 <div class="stat-grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.corpAccounts }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">28</div></div>
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.returningRate }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">64%</div></div>
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.outstanding }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">Rp 38,4 jt</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.corpAccounts }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ corpAccountsCount }}</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.returningRate }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ returningRatePct }}%</div></div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.outstanding }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">{{ outstandingLabel }}</div></div>
 </div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addCustomer }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
@@ -525,7 +536,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
-<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ i.status }}</span></div>
+<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.status }}</span></div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ i.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
@@ -581,6 +592,9 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex;align-items:flex-start"><div>
 <div style="font-size:10px;font-weight:600;letter-spacing:.12em;color:#DBAF5D">{{ L.bookingLabel }} {{ detail.ref }}</div>
 <div style="font-size:19px;font-weight:600;margin-top:8px">{{ detail.customer }}</div>
+<sc-if value="{{ detail.hasPhone }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:rgba(255,255,255,.75);margin-top:3px">{{ detail.phone }}</div>
+</sc-if>
 <div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:3px">{{ detail.type }} · {{ L.createdText }}</div>
 </div>
 <div onClick="{{ closeDetail }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
@@ -649,6 +663,9 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="padding:22px 26px;display:flex;flex-direction:column;gap:16px">
 <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }}</div><input value="{{ newBooking.customer }}" onChange="{{ setNewCustomer }}" placeholder="PT Sinar Mandiri" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.phoneLabel }}</div><input value="{{ newBooking.phone }}" onChange="{{ setNewPhone }}" placeholder="0812 3456 7890" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+</div>
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.serviceTypeLabel }}</div><input value="{{ newBooking.serviceType }}" onChange="{{ setNewServiceType }}" placeholder="Corporate charter" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -707,6 +724,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="padding:22px 26px;display:flex;flex-direction:column;gap:18px">
 <div style="background:#F4F1EC;border-radius:13px;padding:18px;display:flex;flex-direction:column;gap:10px;font-size:12.5px">
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.customerLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingCustomerText }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.phoneLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingPhoneText }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.tripLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingTripText }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.whenLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingWhenText }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehicleLabel }}</span></div>
@@ -873,9 +891,9 @@ const STR = {
   fldRate: { en: "Rate", id: "Tarif" },
   fldPhotoUrl: { en: "Vehicle photo", id: "Foto kendaraan" },
   photoSizeHint: { en: "Recommended: landscape photo, at least 800×600px (4:3), JPG or PNG, under 5MB.", id: "Disarankan: foto landscape, minimal 800×600px (4:3), JPG atau PNG, di bawah 5MB." },
-  fldMeta: { en: "Driver info", id: "Info pengemudi" },
-  fldAssigned: { en: "Assigned vehicle", id: "Kendaraan ditugaskan" },
-  fldRating: { en: "Rating", id: "Penilaian" },
+  fldShiftStart: { en: "Shift start", id: "Jam mulai shift" },
+  fldShiftEnd: { en: "Shift end", id: "Jam selesai shift" },
+  fldPhone: { en: "Phone number", id: "Nomor HP" },
   fldContact: { en: "Contact", id: "Kontak" },
   fldTrips: { en: "Trips", id: "Perjalanan" },
   fldLast: { en: "Last trip", id: "Perjalanan terakhir" },
@@ -924,12 +942,14 @@ const STR = {
   details: { en: "Details", id: "Detail" },
 
   driverRoster: { en: "Driver roster", id: "Daftar pengemudi" },
-  rosterSummary: { en: "16 active · 4 off duty", id: "16 aktif · 4 tidak bertugas" },
+  colDriverName: { en: "NAME", id: "NAMA" },
+  colShift: { en: "SHIFT", id: "SHIFT" },
+  onShift: { en: "On shift", id: "Sedang shift" },
+  offShift: { en: "Off shift", id: "Tidak shift" },
   unassignedTrip: { en: "UNASSIGNED TRIP", id: "PERJALANAN BELUM DITUGASKAN" },
-  unassignedLine2: { en: "Today 19:15 · Innova Zenix · 4 pax", id: "Hari ini 19:15 · Innova Zenix · 4 pax" },
-  freeFrom1: { en: "Free from 17:00 · 4,88 ★", id: "Bebas mulai 17:00 · 4,88 ★" },
-  freeFrom2: { en: "Free from 18:30 · 4,79 ★", id: "Bebas mulai 18:30 · 4,79 ★" },
-  shiftCoverage: { en: "Shift coverage · today", id: "Cakupan shift · hari ini" },
+  allTripsAssigned: { en: "All trips have a driver assigned.", id: "Semua perjalanan sudah ada pengemudinya." },
+  noFreeDrivers: { en: "No drivers on shift right now.", id: "Tidak ada pengemudi yang sedang shift." },
+  shiftCoverage: { en: "Shift coverage · now", id: "Cakupan shift · sekarang" },
   shiftMorning: { en: "Morning 06–14", id: "Pagi 06–14" },
   shiftAfternoon: { en: "Afternoon 14–22", id: "Siang 14–22" },
   shiftNight: { en: "Night 22–06", id: "Malam 22–06" },
@@ -983,6 +1003,7 @@ const STR = {
 
   newBookingTitle: { en: "New booking", id: "Pemesanan baru" },
   customerLabel: { en: "Customer", id: "Pelanggan" },
+  phoneLabel: { en: "Phone number", id: "Nomor HP" },
   serviceTypeLabel: { en: "Service type", id: "Jenis layanan" },
   serviceTypeValue: { en: "Corporate charter ▾", id: "Sewa korporat ▾" },
   pickupLabel: { en: "Pickup", id: "Penjemputan" },
@@ -1045,11 +1066,23 @@ function getSupabase() {
 
 const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices" };
 const FLEET_STATUS_OPTIONS = ["Available", "On trip", "In service"];
+const INVOICE_STATUS_OPTIONS = ["Sent", "Paid", "Overdue", "Deposit paid"];
+const TIME_OPTIONS = (() => {
+  const out = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      out.push((h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m));
+    }
+  }
+  return out;
+})();
+const PASSENGER_OPTIONS = Array.from({ length: 45 }, (_, i) => String(i + 1));
 const TYPE_SUFFIX = { booking: "Booking", fleet: "Fleet", driver: "Driver", customer: "Customer", invoice: "Invoice" };
 const FIELD_DEFS = {
   booking: [
     { key: "ref", labelKey: "fldRef" }, { key: "customer", labelKey: "fldCustomer" },
-    { key: "type", labelKey: "fldType" }, { key: "vehicle", labelKey: "fldVehicle" },
+    { key: "phone", labelKey: "fldPhone" }, { key: "type", labelKey: "fldType" },
+    { key: "vehicle", labelKey: "fldVehicle" },
     { key: "route", labelKey: "fldRoute" }, { key: "time", labelKey: "fldTime" },
     { key: "status", labelKey: "fldStatus" }, { key: "amount", labelKey: "fldAmount" },
     { key: "from_location", labelKey: "fldFrom" }, { key: "to_location", labelKey: "fldTo" },
@@ -1065,9 +1098,9 @@ const FIELD_DEFS = {
     { key: "photo_url", labelKey: "fldPhotoUrl", type: "file" }
   ],
   driver: [
-    { key: "name", labelKey: "fldName" }, { key: "meta", labelKey: "fldMeta" },
-    { key: "assigned", labelKey: "fldAssigned" }, { key: "status", labelKey: "fldStatus" },
-    { key: "rating", labelKey: "fldRating" }
+    { key: "name", labelKey: "fldName" },
+    { key: "shift_start", labelKey: "fldShiftStart", type: "select", options: TIME_OPTIONS },
+    { key: "shift_end", labelKey: "fldShiftEnd", type: "select", options: TIME_OPTIONS }
   ],
   customer: [
     { key: "name", labelKey: "fldName" }, { key: "contact", labelKey: "fldContact" },
@@ -1076,7 +1109,8 @@ const FIELD_DEFS = {
   ],
   invoice: [
     { key: "no", labelKey: "fldNo" }, { key: "account", labelKey: "fldAccount" },
-    { key: "issued", labelKey: "fldIssued" }, { key: "status", labelKey: "fldStatus" },
+    { key: "issued", labelKey: "fldIssued" },
+    { key: "status", labelKey: "fldStatus", type: "select", options: INVOICE_STATUS_OPTIONS },
     { key: "amount", labelKey: "fldAmount" }
   ]
 };
@@ -1166,22 +1200,40 @@ function isoToDisplayDate(iso) {
   if (isNaN(m) || isNaN(d) || !months[m]) return "";
   return d + " " + months[m] + " " + y;
 }
-const TIME_OPTIONS = (() => {
-  const out = [];
-  for (let h = 0; h < 24; h++) {
-    for (let m = 0; m < 60; m += 30) {
-      out.push((h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m));
-    }
-  }
-  return out;
-})();
-const PASSENGER_OPTIONS = Array.from({ length: 45 }, (_, i) => String(i + 1));
 function cleanVehicleRate(rate) {
   return (rate || "").split(" / ")[0].trim() || "Rp 0";
 }
 function pickBookingFleet(fleet) {
   const available = fleet.filter((v) => v.status === "Available");
   return available.length ? available : fleet;
+}
+function timeToMinutes(t) {
+  if (!t) return null;
+  const parts = String(t).split(":");
+  if (parts.length < 2) return null;
+  const h = parseInt(parts[0], 10), m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
+}
+function isShiftActiveNow(start, end) {
+  const s = timeToMinutes(start), e = timeToMinutes(end);
+  if (s == null || e == null || s === e) return false;
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  return s < e ? (nowMin >= s && nowMin < e) : (nowMin >= s || nowMin < e);
+}
+function shiftOverlapsWindow(start, end, winStart, winEnd) {
+  const s = timeToMinutes(start), e = timeToMinutes(end);
+  if (s == null || e == null) return false;
+  const segs = s < e ? [[s, e]] : [[s, 1440], [0, e]];
+  const wins = winStart < winEnd ? [[winStart, winEnd]] : [[winStart, 1440], [0, winEnd]];
+  return segs.some((a) => wins.some((b) => a[0] < b[1] && b[0] < a[1]));
+}
+function invoiceStatusStyle(status) {
+  if (status === "Paid") return "background:rgba(93,138,58,.12);color:#4d6a30";
+  if (status === "Overdue") return "background:rgba(168,71,31,.12);color:#a8471f";
+  if (status === "Deposit paid") return "background:rgba(219,175,93,.22);color:#8a6614";
+  return "background:rgba(89,50,3,.08);color:#593203";
 }
 function formatKm(km) {
   const n = parseFloat(km);
@@ -1283,8 +1335,9 @@ class Component extends DCLogic {
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
-    newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
-    mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd"
+    newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
+    mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd",
+    driverSortKey: null, driverSortDir: 1, bookingsPage: 1
   };
 
   componentDidMount() {
@@ -1321,6 +1374,19 @@ class Component extends DCLogic {
   closeMobileNav = () => this.setState({ mobileNavOpen: false });
   sortToday = (key) => () => {
     this.setState((p) => ({ todaySortKey: key, todaySortDir: p.todaySortKey === key ? -p.todaySortDir : 1 }));
+  };
+  sortDrivers = (key) => () => {
+    this.setState((p) => ({ driverSortKey: key, driverSortDir: p.driverSortKey === key ? -p.driverSortDir : 1 }));
+  };
+  prevBookingsPage = () => this.setState((p) => ({ bookingsPage: Math.max(1, p.bookingsPage - 1) }));
+  nextBookingsPage = () => this.setState((p) => ({ bookingsPage: p.bookingsPage + 1 }));
+  assignDriverToTrip = (bookingId, driverName) => {
+    const client = getSupabase();
+    if (!client || !this.state.session) return;
+    client.from("bookings").update({ driver: driverName }).eq("id", bookingId).then((res) => {
+      if (res.error) return;
+      this.loadAll();
+    });
   };
   formatToday = () => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -1432,7 +1498,7 @@ class Component extends DCLogic {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showNew: true, step: 1,
-      newBooking: { customer: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 }
+      newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 }
     });
   };
   closeNewBooking = () => this.setState({ showNew: false });
@@ -1463,7 +1529,7 @@ class Component extends DCLogic {
     const price = cleanVehicleRate(vehicle.rate);
     const ref = "ARZ-" + Math.floor(1000 + Math.random() * 9000);
     const payload = {
-      ref: ref, customer: nb.customer || "-", type: nb.serviceType || "-",
+      ref: ref, customer: nb.customer || "-", phone: nb.phone || "", type: nb.serviceType || "-",
       vehicle: vehicle.name, route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
       time: (nb.date || "-") + " " + (nb.pickupTime || ""), status: "Confirmed",
       amount: price, from_location: nb.pickup || "", to_location: nb.destination || "",
@@ -1497,13 +1563,24 @@ class Component extends DCLogic {
       remove: (e) => { e.stopPropagation(); this.askDelete("booking", b.id); },
       status: trWords(b.status, lang), time: trWords(b.time, lang), type: trWords(b.type, lang)
     });
+    const todayDateStr = this.formatToday();
     const filtered = s.bookings.filter((b) => {
-      if (s.filter === "Today") return (b.time || "").indexOf("Today") === 0;
+      if (s.filter === "Today") return (b.time || "").indexOf(todayDateStr) === 0;
       if (s.filter === "Awaiting driver") return b.driver === "Unassigned";
       if (s.filter === "Unpaid") return b.status === "Deposit due";
       if (s.filter === "Quotes") return b.status === "Quote sent";
       return true;
     }).map(withOpen);
+    const BOOKINGS_PAGE_SIZE = 10;
+    const totalBookingsPages = Math.max(1, Math.ceil(filtered.length / BOOKINGS_PAGE_SIZE));
+    const bookingsPageClamped = Math.min(Math.max(1, s.bookingsPage), totalBookingsPages);
+    const pagedBookingRows = filtered.slice((bookingsPageClamped - 1) * BOOKINGS_PAGE_SIZE, bookingsPageClamped * BOOKINGS_PAGE_SIZE);
+    const bookingsPageLabel = lang === "id" ? ("Halaman " + bookingsPageClamped + " dari " + totalBookingsPages) : ("Page " + bookingsPageClamped + " of " + totalBookingsPages);
+    const pagerBase = "padding:6px 11px;border-radius:7px;border:1px solid rgba(89,50,3,.12);";
+    const prevPageStyle = pagerBase + (bookingsPageClamped <= 1 ? "opacity:.35;cursor:default" : "cursor:pointer");
+    const nextPageStyle = pagerBase + (bookingsPageClamped >= totalBookingsPages ? "opacity:.35;cursor:default" : "cursor:pointer");
+    const monthsAbbr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const curMonthYear = trWords(monthsAbbr[new Date().getMonth()], lang) + " " + new Date().getFullYear();
     const t = TITLES[s.screen][lang];
     const stepLabels = {
       1: { en: "Trip details", id: "Detail perjalanan" },
@@ -1521,11 +1598,68 @@ class Component extends DCLogic {
       edit: (e) => { e.stopPropagation(); this.openFormFor("fleet", "edit", v); },
       remove: (e) => { e.stopPropagation(); this.askDelete("fleet", v.id); }
     }));
-    const driversTr = s.drivers.map((d) => Object.assign({}, d, {
-      status: trWords(d.status, lang), meta: trWords(d.meta, lang),
-      edit: (e) => { e.stopPropagation(); this.openFormFor("driver", "edit", d); },
-      remove: (e) => { e.stopPropagation(); this.askDelete("driver", d.id); }
+    const driversWithShift = s.drivers.map((d) => {
+      const active = isShiftActiveNow(d.shift_start, d.shift_end);
+      return Object.assign({}, d, {
+        shiftLabel: (d.shift_start && d.shift_end) ? (d.shift_start + " – " + d.shift_end) : "–",
+        statusLabel: active ? L.onShift : L.offShift,
+        statusStyle: active ? "background:rgba(93,138,58,.12);color:#4d6a30" : "background:rgba(89,50,3,.08);color:#593203",
+        onShiftNow: active,
+        edit: (e) => { e.stopPropagation(); this.openFormFor("driver", "edit", d); },
+        remove: (e) => { e.stopPropagation(); this.askDelete("driver", d.id); }
+      });
+    });
+    let driversSorted = driversWithShift;
+    if (s.driverSortKey) {
+      const dsKey = s.driverSortKey, dsDir = s.driverSortDir;
+      driversSorted = driversWithShift.slice().sort((a, b) => {
+        const av = (a[dsKey] || "").toString().toLowerCase();
+        const bv = (b[dsKey] || "").toString().toLowerCase();
+        if (av < bv) return -1 * dsDir;
+        if (av > bv) return 1 * dsDir;
+        return 0;
+      });
+    }
+    const driverCols = [
+      { key: "name", label: L.colDriverName, widthStyle: "flex:1;min-width:0;" },
+      { key: "shift_start", label: L.colShift, widthStyle: "width:150px;flex:none;" }
+    ].map((c) => ({
+      label: c.label + (s.driverSortKey === c.key ? (s.driverSortDir === 1 ? " ▲" : " ▼") : ""),
+      widthStyle: c.widthStyle,
+      go: this.sortDrivers(c.key)
     }));
+    const onShiftCount = driversWithShift.filter((d) => d.onShiftNow).length;
+    const driverRosterSummary = s.drivers.length
+      ? (lang === "id" ? (onShiftCount + " sedang shift · " + (s.drivers.length - onShiftCount) + " tidak shift") : (onShiftCount + " on shift now · " + (s.drivers.length - onShiftCount) + " off shift"))
+      : (lang === "id" ? "Belum ada pengemudi" : "No drivers yet");
+    const unassignedTripBooking = s.bookings.find((b) => b.driver === "Unassigned");
+    const hasUnassignedTrip = !!unassignedTripBooking;
+    const noUnassignedTrip = !hasUnassignedTrip;
+    const unassignedTripLabel = unassignedTripBooking ? (unassignedTripBooking.ref + " · " + unassignedTripBooking.route) : "";
+    const unassignedTripSub = unassignedTripBooking ? (trWords(unassignedTripBooking.time, lang) + " · " + unassignedTripBooking.vehicle) : "";
+    const freeDriverSuggestions = driversWithShift.filter((d) => d.onShiftNow).slice(0, 2).map((d) => ({
+      name: d.name, meta: "Shift " + d.shiftLabel,
+      assign: hasUnassignedTrip ? (() => this.assignDriverToTrip(unassignedTripBooking.id, d.name)) : (() => {})
+    }));
+    const hasFreeDrivers = freeDriverSuggestions.length > 0;
+    const noFreeDrivers = !hasFreeDrivers;
+    const SHIFT_WINDOWS = [
+      { labelKey: "shiftMorning", start: 6 * 60, end: 14 * 60 },
+      { labelKey: "shiftAfternoon", start: 14 * 60, end: 22 * 60 },
+      { labelKey: "shiftNight", start: 22 * 60, end: 6 * 60 }
+    ];
+    const shiftCoverageRows = SHIFT_WINDOWS.map((w) => {
+      const count = s.drivers.filter((d) => shiftOverlapsWindow(d.shift_start, d.shift_end, w.start, w.end)).length;
+      const pct = s.drivers.length ? Math.round((count / s.drivers.length) * 100) : 0;
+      return { label: L[w.labelKey], countLabel: count + (lang === "id" ? " pengemudi" : " drivers"), pct: pct };
+    });
+
+    const corpAccountsCount = s.customers.filter((c) => c.type === "Corporate").length;
+    const returningCustomersCount = s.customers.filter((c) => parseInt(c.trips, 10) > 1).length;
+    const returningRatePct = s.customers.length ? Math.round((returningCustomersCount / s.customers.length) * 100) : 0;
+    const outstandingNum = s.invoices.filter((i) => i.status !== "Paid").reduce((sum, i) => sum + parseAmount(i.amount), 0);
+    const outstandingLabel = formatRupiahShort(outstandingNum);
+
     const customersTr = s.customers.map((c) => Object.assign({}, c, {
       type: trWords(c.type, lang), last: trWords(c.last, lang), trips: trWords(c.trips, lang),
       edit: (e) => { e.stopPropagation(); this.openFormFor("customer", "edit", c); },
@@ -1533,11 +1667,12 @@ class Component extends DCLogic {
     }));
     const invoicesTr = s.invoices.map((i) => Object.assign({}, i, {
       status: trWords(i.status, lang), issued: trWords(i.issued, lang),
+      statusStyle: invoiceStatusStyle(i.status),
       edit: (e) => { e.stopPropagation(); this.openFormFor("invoice", "edit", i); },
       remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); }
     }));
     const servicesTr = SERVICES.map((sv) => Object.assign({}, sv, { status: trWords(sv.status, lang), work: trWords(sv.work, lang), mon: trWords(sv.mon, lang) }));
-    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang) }) : null;
+    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone }) : null;
 
     const fleetAvailableCount = s.fleet.filter((v) => v.status === "Available").length;
     const fleetOnTripCountVal = s.fleet.filter((v) => v.status === "On trip").length;
@@ -1549,13 +1684,12 @@ class Component extends DCLogic {
         : (s.fleet.length + " units · " + fleetAvailableCount + " available now");
     }
 
-    const todayDateStr = this.formatToday();
     const todaysBookingsAll = s.bookings.filter((b) => (b.time || "").indexOf(todayDateStr) === 0);
     const revenueTodayNum = todaysBookingsAll.reduce((sum, b) => sum + parseAmount(b.amount), 0);
     const revenueTodayLabel = formatRupiahShort(revenueTodayNum);
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    const revenueMonthNum = s.bookings.filter((b) => b.created_at && new Date(b.created_at) >= monthStart)
-      .reduce((sum, b) => sum + parseAmount(b.amount), 0);
+    const bookingsThisMonth = s.bookings.filter((b) => b.created_at && new Date(b.created_at) >= monthStart);
+    const revenueMonthNum = bookingsThisMonth.reduce((sum, b) => sum + parseAmount(b.amount), 0);
     const revenueMonthLabel = formatRupiahShort(revenueMonthNum);
     const tripsTodayLabel = lang === "id"
       ? (todaysBookingsAll.length + " perjalanan hari ini · bulan ini " + revenueMonthLabel)
@@ -1564,6 +1698,23 @@ class Component extends DCLogic {
       pageSub = formatTodayLong(lang) + " · " + (lang === "id"
         ? (todaysBookingsAll.length + " perjalanan hari ini")
         : (todaysBookingsAll.length + " trips today"));
+    }
+    if (s.screen === "bookings") {
+      pageSub = lang === "id"
+        ? (todaysBookingsAll.length + " aktif hari ini · " + bookingsThisMonth.length + " bulan ini")
+        : (todaysBookingsAll.length + " active today · " + bookingsThisMonth.length + " this month");
+    }
+    if (s.screen === "drivers") {
+      const unassignedCount = s.bookings.filter((b) => b.driver === "Unassigned").length;
+      pageSub = lang === "id"
+        ? (s.drivers.length + " pengemudi · " + unassignedCount + " perjalanan belum ditugaskan")
+        : (s.drivers.length + " drivers · " + unassignedCount + " trip" + (unassignedCount === 1 ? "" : "s") + " unassigned");
+    }
+    if (s.screen === "customers") {
+      const corpCount = s.customers.filter((c) => c.type === "Corporate").length;
+      pageSub = lang === "id"
+        ? (corpCount + " akun korporat · " + (s.customers.length - corpCount) + " individu")
+        : (corpCount + " corporate accounts · " + (s.customers.length - corpCount) + " individuals");
     }
 
     const fleetOnRoadPct = s.fleet.length ? Math.round((fleetOnTripCountVal / s.fleet.length) * 100) : 0;
@@ -1662,6 +1813,7 @@ class Component extends DCLogic {
     const availableUnitsText = lang === "id" ? (fleetForBooking.length + " unit tersedia") : (fleetForBooking.length + " units available");
     const selectedVehicle = fleetForBooking[s.newBooking.vehicleIndex] || null;
     const newBookingCustomerText = s.newBooking.customer || dash;
+    const newBookingPhoneText = s.newBooking.phone || dash;
     const newBookingTripText = (s.newBooking.pickup || dash) + " → " + (s.newBooking.destination || dash);
     const newBookingWhenText = (s.newBooking.date || dash) + " · " + (s.newBooking.pickupTime || dash);
     const selectedVehicleLabel = selectedVehicle ? (selectedVehicle.name + " · " + selectedVehicle.plate) : dash;
@@ -1704,14 +1856,22 @@ class Component extends DCLogic {
           return 0;
         });
       })(),
-      bookingRows: filtered, bookingCount: filtered.length,
-      bookingsCountText: lang === "id" ? (filtered.length + " pemesanan · Agu 2026") : (filtered.length + " bookings · Aug 2026"),
-      showingOfText: lang === "id" ? ("Menampilkan " + filtered.length + " dari " + s.bookings.length) : ("Showing " + filtered.length + " of " + s.bookings.length),
+      bookingRows: pagedBookingRows, bookingCount: filtered.length,
+      bookingsCountText: lang === "id" ? (filtered.length + " pemesanan · " + curMonthYear) : (filtered.length + " bookings · " + curMonthYear),
+      showingOfText: lang === "id" ? ("Menampilkan " + pagedBookingRows.length + " dari " + filtered.length) : ("Showing " + pagedBookingRows.length + " of " + filtered.length),
+      bookingsPageLabel: bookingsPageLabel, prevBookingsPage: this.prevBookingsPage, nextBookingsPage: this.nextBookingsPage,
+      prevPageStyle: prevPageStyle, nextPageStyle: nextPageStyle,
       bookingFilters: FILTERS.map((f) => ({
         label: lang === "id" ? f.idt : f.en, active: s.filter === f.key, inactive: s.filter !== f.key,
-        go: () => this.setState({ filter: f.key })
+        go: () => this.setState({ filter: f.key, bookingsPage: 1 })
       })),
-      fleet: fleetTr, drivers: driversTr, customers: customersTr, invoices: invoicesTr, services: servicesTr,
+      fleet: fleetTr, drivers: driversSorted, customers: customersTr, invoices: invoicesTr, services: servicesTr,
+      driverCols: driverCols, driverRosterSummary: driverRosterSummary,
+      hasUnassignedTrip: hasUnassignedTrip, noUnassignedTrip: noUnassignedTrip,
+      unassignedTripLabel: unassignedTripLabel, unassignedTripSub: unassignedTripSub,
+      freeDriverSuggestions: freeDriverSuggestions, hasFreeDrivers: hasFreeDrivers, noFreeDrivers: noFreeDrivers,
+      shiftCoverageRows: shiftCoverageRows,
+      corpAccountsCount: corpAccountsCount, returningRatePct: returningRatePct, outstandingLabel: outstandingLabel,
       fleetTotalCount: s.fleet.length,
       fleetAvailableCount: fleetAvailableCount,
       fleetOnTripCount: fleetOnTripCountVal,
@@ -1738,6 +1898,7 @@ class Component extends DCLogic {
       nextStep: this.nextStep, prevStep: this.prevStep,
       newBooking: s.newBooking,
       setNewCustomer: this.setNewBookingField("customer"),
+      setNewPhone: this.setNewBookingField("phone"),
       setNewServiceType: this.setNewBookingField("serviceType"),
       setNewPickup: this.setNewBookingField("pickup"),
       setNewDestination: this.setNewBookingField("destination"),
@@ -1748,7 +1909,7 @@ class Component extends DCLogic {
       setNewDurationHours: this.setNewBookingField("durationHours"),
       vehicleOptions: vehicleOptions, hasVehicleOptions: hasVehicleOptions, noVehicleOptions: !hasVehicleOptions,
       availableUnitsText: availableUnitsText,
-      newBookingCustomerText: newBookingCustomerText,
+      newBookingCustomerText: newBookingCustomerText, newBookingPhoneText: newBookingPhoneText,
       newBookingTripText: newBookingTripText,
       newBookingWhenText: newBookingWhenText,
       selectedVehicleLabel: selectedVehicleLabel,
