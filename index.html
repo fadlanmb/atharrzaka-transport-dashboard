@@ -647,7 +647,14 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 <div style="display:flex;gap:10px;font-size:12px">
 <div onClick="{{ confirmDispatchBtn }}" style="flex:1;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.confirmDispatch }}</div>
+<sc-if value="{{ detailNotInvoiced }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ createInvoiceBtn }}" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.invoiceBtn }}</div>
+</sc-if>
+<sc-if value="{{ detailAlreadyInvoiced }}" hint-placeholder-val="{{ false }}">
+<div style="padding:12px 16px;border-radius:10px;border:1px solid rgba(93,138,58,.35);background:rgba(93,138,58,.08);color:#4d6a30;font-weight:600;display:flex;align-items:center;gap:6px">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>{{ L.invoiceCreated }}
+</div>
+</sc-if>
 </div>
 </div>
 </div>
@@ -1028,6 +1035,7 @@ const STR = {
   total: { en: "Total", id: "Total" },
   confirmDispatch: { en: "Confirm & dispatch", id: "Konfirmasi & berangkatkan" },
   invoiceBtn: { en: "Invoice", id: "Faktur" },
+  invoiceCreated: { en: "Invoiced", id: "Sudah difaktur" },
 
   newBookingTitle: { en: "New booking", id: "Pemesanan baru" },
   customerLabel: { en: "Customer", id: "Pelanggan" },
@@ -1464,22 +1472,31 @@ class Component extends DCLogic {
       this.loadAll();
     });
   };
+  nextInvoiceNo = () => {
+    const nums = this.state.invoices.map((i) => {
+      const m = String(i.no || "").match(/(\d+)$/);
+      return m ? parseInt(m[1], 10) : 0;
+    });
+    const max = nums.length ? Math.max.apply(null, nums) : 1000;
+    return "INV-" + (max + 1);
+  };
   createInvoiceBtn = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     const client = getSupabase();
     const d = this.state.detail;
     if (!client || !d) return;
-    const no = "INV-" + Math.floor(1000 + Math.random() * 9000);
+    if (this.state.invoices.some((i) => i.booking_ref === d.ref)) return;
+    const no = this.nextInvoiceNo();
     const baseNum = parseAmount(d.base);
     const finalNum = parseAmount(d.amount);
     const discountNum = Math.max(0, baseNum - finalNum);
     client.from("invoices").insert({
-      no: no, account: d.customer, issued: this.formatToday(),
+      no: no, account: d.customer, issued: this.formatToday(), booking_ref: d.ref,
       subtotal: formatRupiah(baseNum), discount: formatRupiah(discountNum),
       down_payment: "Rp 0", receive_payment: "Rp 0"
     }).then((res) => {
       if (res.error) return;
-      this.setState({ detail: null, screen: "revenue" });
+      this.setState({ detail: null });
       this.loadAll();
     });
   };
@@ -1507,6 +1524,7 @@ class Component extends DCLogic {
     const defs = FIELD_DEFS[type];
     const values = {};
     defs.forEach((f) => { values[f.key] = row && row[f.key] != null ? String(row[f.key]) : ""; });
+    if (type === "invoice" && mode === "add") values.no = this.nextInvoiceNo();
     this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "" });
   };
   closeForm = () => this.setState({ showForm: false });
@@ -1785,6 +1803,7 @@ class Component extends DCLogic {
     }));
     const hasServices = servicesTr.length > 0;
     const noServicesYet = !hasServices;
+    const detailAlreadyInvoiced = !!(s.detail && s.invoices.some((i) => i.booking_ref === s.detail.ref));
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone }) : null;
 
     const fleetAvailableCount = s.fleet.filter((v) => v.status === "Available").length;
@@ -2095,7 +2114,7 @@ class Component extends DCLogic {
       nextPickupItems: nextPickupItems, hasNextPickups: hasNextPickups, noNextPickups: !hasNextPickups,
       chartBars: chartBars, chartTabs: chartTabs, chartSubLabel: chartSubLabel,
       liveFleetMovingLabel: liveFleetMovingLabel,
-      detail: detailTr,
+      detail: detailTr, detailAlreadyInvoiced: detailAlreadyInvoiced, detailNotInvoiced: !detailAlreadyInvoiced,
       closeDetail: () => this.setState({ detail: null }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
       stop: (e) => e.stopPropagation(),
