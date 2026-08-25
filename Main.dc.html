@@ -662,19 +662,26 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
 <div style="padding:22px 26px;display:flex;flex-direction:column;gap:16px">
 <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }}</div><input value="{{ newBooking.customer }}" onChange="{{ setNewCustomer }}" placeholder="PT Sinar Mandiri" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.phoneLabel }}</div><input value="{{ newBooking.phone }}" onChange="{{ setNewPhone }}" placeholder="0812 3456 7890" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.customer }}" onChange="{{ setNewCustomer }}" placeholder="PT Sinar Mandiri" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.phoneLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.phone }}" onChange="{{ setNewPhone }}" placeholder="0812 3456 7890" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.serviceTypeLabel }}</div><input value="{{ newBooking.serviceType }}" onChange="{{ setNewServiceType }}" placeholder="Corporate charter" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.serviceTypeLabel }} <span style="color:#a8471f">*</span></div>
+<select value="{{ newBooking.serviceType }}" onChange="{{ setNewServiceType }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ serviceTypeOptions }}" as="opt" hint-placeholder-count="5">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
+</div>
 </div>
 <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupLabel }}</div><input value="{{ newBooking.pickup }}" onChange="{{ setNewPickup }}" placeholder="Hotel Mulia, Senayan" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }}</div><input value="{{ newBooking.destination }}" onChange="{{ setNewDestination }}" placeholder="Terminal 3 CGK" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.pickup }}" onChange="{{ setNewPickup }}" placeholder="Hotel Mulia, Senayan" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.destination }}" onChange="{{ setNewDestination }}" placeholder="Terminal 3 CGK" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 <div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }}</div><input type="date" value="{{ newBooking.dateISO }}" onChange="{{ setNewDate }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }}</div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }} <span style="color:#a8471f">*</span></div><input type="date" value="{{ newBooking.dateISO }}" onChange="{{ setNewDate }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }} <span style="color:#a8471f">*</span></div>
 <select value="{{ newBooking.pickupTime }}" onChange="{{ setNewPickupTime }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
 <option value="">{{ L.selectPh }}</option>
 <sc-for list="{{ pickupTimeOptions }}" as="opt" hint-placeholder-count="6">
@@ -682,7 +689,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-for>
 </select>
 </div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }}</div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }} <span style="color:#a8471f">*</span></div>
 <select value="{{ newBooking.passengers }}" onChange="{{ setNewPassengers }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
 <option value="">{{ L.selectPh }}</option>
 <sc-for list="{{ passengerOptions }}" as="opt" hint-placeholder-count="6">
@@ -691,7 +698,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </select>
 </div>
 </div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.durationHoursLabel }}</div><input value="{{ newBooking.durationHours }}" onChange="{{ setNewDurationHours }}" placeholder="4" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.durationHoursLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.durationHours }}" onChange="{{ setNewDurationHours }}" placeholder="4" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 </sc-if>
 
@@ -729,14 +736,20 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.whenLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingWhenText }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehicleLabel }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.driverLabel }}</span><span style="margin-left:auto;font-weight:500">{{ L.autoAssignDriver }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.subtotalLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehiclePrice }}</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="color:rgba(24,24,24,.55);flex:none">{{ L.discountLabel }}</span><input value="{{ newBooking.discount }}" onChange="{{ setNewDiscount }}" placeholder="0" style="margin-left:auto;width:130px;text-align:right;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:7px 10px;font-size:12px;font-family:inherit"></div>
 <div style="height:1px;background:rgba(89,50,3,.12)"></div>
-<div style="display:flex;font-size:15px;font-weight:600"><span>{{ L.total }}</span><span style="margin-left:auto">{{ selectedVehiclePrice }}</span></div>
+<div style="display:flex;font-size:15px;font-weight:600"><span>{{ L.total }}</span><span style="margin-left:auto">{{ newBookingTotalLabel }}</span></div>
 </div>
 <div style="display:flex;gap:10px">
 <div style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:rgba(24,24,24,.6)">{{ L.invoiceToAccount }}</div>
-<div style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:rgba(24,24,24,.6)">{{ L.sendWhatsapp }}</div>
+<a href="{{ newBookingWaLink }}" target="_blank" rel="noopener noreferrer" style="flex:1;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12px;color:#824703;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">{{ L.sendWhatsapp }}</a>
 </div>
 </div>
+</sc-if>
+
+<sc-if value="{{ newBookingError }}" hint-placeholder-val="{{ false }}">
+<div style="padding:0 26px 12px;font-size:11px;color:#a8471f">{{ newBookingError }}</div>
 </sc-if>
 
 <div style="padding:16px 26px 22px;border-top:1px solid rgba(89,50,3,.09);display:flex;align-items:center;gap:10px">
@@ -1022,7 +1035,11 @@ const STR = {
   vehicleLabel: { en: "Vehicle", id: "Kendaraan" },
   driverLabel: { en: "Driver", id: "Pengemudi" },
   invoiceToAccount: { en: "Invoice to account ✓", id: "Faktur ke akun ✓" },
-  sendWhatsapp: { en: "Send WhatsApp confirmation ✓", id: "Kirim konfirmasi WhatsApp ✓" },
+  sendWhatsapp: { en: "Send WhatsApp confirmation", id: "Kirim konfirmasi WhatsApp" },
+  subtotalLabel: { en: "Subtotal", id: "Subtotal" },
+  discountLabel: { en: "Discount", id: "Diskon" },
+  newBookingRequiredError: { en: "Please fill in all fields before continuing.", id: "Mohon lengkapi semua kolom sebelum lanjut." },
+  newBookingNoVehicleError: { en: "No vehicle available to select.", id: "Tidak ada kendaraan yang bisa dipilih." },
   back: { en: "Back", id: "Kembali" }
 };
 
@@ -1067,6 +1084,7 @@ function getSupabase() {
 const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices" };
 const FLEET_STATUS_OPTIONS = ["Available", "On trip", "In service"];
 const INVOICE_STATUS_OPTIONS = ["Sent", "Paid", "Overdue", "Deposit paid"];
+const SERVICE_TYPE_OPTIONS = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package", "Individual"];
 const TIME_OPTIONS = (() => {
   const out = [];
   for (let h = 0; h < 24; h++) {
@@ -1141,6 +1159,10 @@ const WORD_MAP_ID = {
   "Event · 4 units": "Acara · 4 unit",
   "Government": "Pemerintah",
   "Individual": "Individu",
+  "Airport transfer": "Transfer bandara",
+  "Corporate charter": "Sewa korporat",
+  "Wedding & event": "Pernikahan & acara",
+  "Tour package": "Paket wisata",
   "Corporate": "Korporat",
   "Partner": "Mitra",
   "Available": "Tersedia",
@@ -1228,6 +1250,14 @@ function shiftOverlapsWindow(start, end, winStart, winEnd) {
   const segs = s < e ? [[s, e]] : [[s, 1440], [0, e]];
   const wins = winStart < winEnd ? [[winStart, winEnd]] : [[winStart, 1440], [0, winEnd]];
   return segs.some((a) => wins.some((b) => a[0] < b[1] && b[0] < a[1]));
+}
+function phoneToWaLink(phone) {
+  if (!phone) return "";
+  let digits = String(phone).replace(/[^0-9]/g, "");
+  if (!digits) return "";
+  if (digits.charAt(0) === "0") digits = "62" + digits.slice(1);
+  else if (digits.slice(0, 2) !== "62") digits = "62" + digits;
+  return "https://wa.me/" + digits;
 }
 function invoiceStatusStyle(status) {
   if (status === "Paid") return "background:rgba(93,138,58,.12);color:#4d6a30";
@@ -1335,9 +1365,9 @@ class Component extends DCLogic {
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
-    newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 },
+    newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "" },
     mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd",
-    driverSortKey: null, driverSortDir: 1, bookingsPage: 1
+    driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: ""
   };
 
   componentDidMount() {
@@ -1497,11 +1527,11 @@ class Component extends DCLogic {
   openNewBooking = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
-      showNew: true, step: 1,
-      newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0 }
+      showNew: true, step: 1, newBookingError: "",
+      newBooking: { customer: "", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "" }
     });
   };
-  closeNewBooking = () => this.setState({ showNew: false });
+  closeNewBooking = () => this.setState({ showNew: false, newBookingError: "" });
   setNewBookingField = (key) => (e) => {
     const v = e.target.value;
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { [key]: v }) }));
@@ -1514,11 +1544,26 @@ class Component extends DCLogic {
   selectVehicle = (i) => () => {
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { vehicleIndex: i }) }));
   };
+  isStep1Valid = () => {
+    const nb = this.state.newBooking;
+    return [nb.customer, nb.phone, nb.serviceType, nb.pickup, nb.destination, nb.date, nb.pickupTime, nb.passengers, nb.durationHours]
+      .every((v) => v != null && String(v).trim() !== "");
+  };
   nextStep = () => {
+    const lang = this.state.lang;
+    if (this.state.step === 1 && !this.isStep1Valid()) {
+      this.setState({ newBookingError: STR.newBookingRequiredError[lang] });
+      return;
+    }
+    if (this.state.step === 2 && pickBookingFleet(this.state.fleet).length === 0) {
+      this.setState({ newBookingError: STR.newBookingNoVehicleError[lang] });
+      return;
+    }
+    this.setState({ newBookingError: "" });
     if (this.state.step === 3) { this.submitNewBooking(); return; }
     this.setState((p) => ({ step: p.step + 1 }));
   };
-  prevStep = () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1 });
+  prevStep = () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1, newBookingError: "" });
   submitNewBooking = () => {
     const client = getSupabase();
     const nb = this.state.newBooking;
@@ -1526,13 +1571,17 @@ class Component extends DCLogic {
     const fleetForBooking = pickBookingFleet(this.state.fleet);
     const vehicle = fleetForBooking[nb.vehicleIndex];
     if (!vehicle) return;
-    const price = cleanVehicleRate(vehicle.rate);
+    const baseNum = parseAmount(cleanVehicleRate(vehicle.rate));
+    const discountNum = parseAmount(nb.discount);
+    const finalNum = Math.max(0, baseNum - discountNum);
+    const price = formatRupiah(baseNum);
+    const finalPrice = formatRupiah(finalNum);
     const ref = "ARZ-" + Math.floor(1000 + Math.random() * 9000);
     const payload = {
       ref: ref, customer: nb.customer || "-", phone: nb.phone || "", type: nb.serviceType || "-",
       vehicle: vehicle.name, route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
       time: (nb.date || "-") + " " + (nb.pickupTime || ""), status: "Confirmed",
-      amount: price, from_location: nb.pickup || "", to_location: nb.destination || "",
+      amount: finalPrice, from_location: nb.pickup || "", to_location: nb.destination || "",
       eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(nb.durationHours), driver: "Unassigned",
       driver_meta: "", base: price
     };
@@ -1818,6 +1867,11 @@ class Component extends DCLogic {
     const newBookingWhenText = (s.newBooking.date || dash) + " · " + (s.newBooking.pickupTime || dash);
     const selectedVehicleLabel = selectedVehicle ? (selectedVehicle.name + " · " + selectedVehicle.plate) : dash;
     const selectedVehiclePrice = selectedVehicle ? cleanVehicleRate(selectedVehicle.rate) : "Rp 0";
+    const newBookingSubtotalNum = parseAmount(selectedVehiclePrice);
+    const newBookingDiscountNum = parseAmount(s.newBooking.discount);
+    const newBookingTotalLabel = formatRupiah(Math.max(0, newBookingSubtotalNum - newBookingDiscountNum));
+    const newBookingWaLink = phoneToWaLink(s.newBooking.phone);
+    const serviceTypeOptions = SERVICE_TYPE_OPTIONS.map((v) => ({ value: v, label: trWords(v, lang) }));
 
     return {
       L,
@@ -1898,6 +1952,7 @@ class Component extends DCLogic {
       nextStep: this.nextStep, prevStep: this.prevStep,
       newBooking: s.newBooking,
       setNewCustomer: this.setNewBookingField("customer"),
+      setNewDiscount: this.setNewBookingField("discount"),
       setNewPhone: this.setNewBookingField("phone"),
       setNewServiceType: this.setNewBookingField("serviceType"),
       setNewPickup: this.setNewBookingField("pickup"),
@@ -1910,6 +1965,8 @@ class Component extends DCLogic {
       vehicleOptions: vehicleOptions, hasVehicleOptions: hasVehicleOptions, noVehicleOptions: !hasVehicleOptions,
       availableUnitsText: availableUnitsText,
       newBookingCustomerText: newBookingCustomerText, newBookingPhoneText: newBookingPhoneText,
+      newBookingTotalLabel: newBookingTotalLabel, newBookingWaLink: newBookingWaLink,
+      serviceTypeOptions: serviceTypeOptions, newBookingError: s.newBookingError,
       newBookingTripText: newBookingTripText,
       newBookingWhenText: newBookingWhenText,
       selectedVehicleLabel: selectedVehicleLabel,
