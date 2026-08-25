@@ -156,14 +156,19 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
 <div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
 </div>
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.newBooking }}</div>
+</sc-if>
+<sc-if value="{{ isDriverRole }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ openTripRequest }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.requestTrip }}</div>
+</sc-if>
 <div class="profile-block" style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
 <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);border:2px solid #F6E6BE"></div>
-<div style="line-height:1.15"><div style="font-size:12px;font-weight:500">Fadlan</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ L.opsManager }}</div></div>
+<div style="line-height:1.15"><div style="font-size:12px;font-weight:500">{{ roleNameLabel }}</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ roleTitleLabel }}</div></div>
 </div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;align-items:center;gap:8px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
-<div style="font-size:10px;font-weight:600;color:#4d6a30;background:rgba(93,138,58,.12);border-radius:20px;padding:5px 9px">{{ L.adminBadge }}</div>
+<div style="font-size:10px;font-weight:600;color:#4d6a30;background:rgba(93,138,58,.12);border-radius:20px;padding:5px 9px">{{ roleBadgeLabel }}</div>
 <div onClick="{{ logout }}" style="font-size:11px;font-weight:600;color:#824703;cursor:pointer">{{ L.logout }}</div>
 </div>
 </sc-if>
@@ -305,6 +310,23 @@ a{color:#824703}a:hover{color:#DBAF5D}
 
 <sc-if value="{{ isBookings }}" hint-placeholder-val="{{ false }}">
 <div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ hasTripRequests }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid rgba(219,175,93,.4);border-radius:14px;padding:16px 20px">
+<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#8a6614">{{ L.pendingRequestsTitle }}</div>
+<sc-for list="{{ pendingTripRequests }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid rgba(89,50,3,.06)">
+<div style="flex:1;min-width:0">
+<div style="font-size:12.5px;font-weight:500">{{ r.customer }} · {{ r.phone }}</div>
+<div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ r.pickup }} → {{ r.destination }}</div>
+</div>
+<div onClick="{{ r.approve }}" style="font-size:11px;font-weight:600;color:#4d6a30;border:1px solid rgba(93,138,58,.35);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.approveBtn }}</div>
+<div onClick="{{ r.reject }}" style="font-size:11px;font-weight:600;color:#a8471f;border:1px solid rgba(168,71,31,.3);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.rejectBtn }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-if>
 <div style="display:flex;align-items:center;gap:10px">
 <sc-for list="{{ bookingFilters }}" as="f" hint-placeholder-count="4">
 <sc-if value="{{ f.active }}" hint-placeholder-val="{{ false }}">
@@ -315,14 +337,14 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 </sc-for>
 <div style="margin-left:auto;font-size:11.5px;color:rgba(24,24,24,.5)">{{ bookingsCountText }}</div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addBooking }}" style="font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer">{{ L.addBtn }}</div>
 </sc-if>
 </div>
 
 <div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 8px">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
-<div>{{ L.colRef }}</div><div>{{ L.colCustomer }}</div><div>{{ L.colVehicle }}</div><div>{{ L.colRouteTime }}</div><div>{{ L.colStatus }}</div><div style="text-align:right">{{ L.colTotal }}</div>
+<div>{{ L.colRef }}</div><div>{{ L.colCustomer }}</div><div>{{ L.colVehicle }}</div><div>{{ L.colRouteTime }}</div><div>{{ L.colStatus }}</div><div style="text-align:right"><sc-if value="{{ showFinancials }}" hint-placeholder-val="{{ true }}">{{ L.colTotal }}</sc-if></div>
 </div>
 <sc-for list="{{ bookingRows }}" as="b" hint-placeholder-count="8">
 <div class="tbl-min" onClick="{{ b.open }}" style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
@@ -332,11 +354,13 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="color:rgba(24,24,24,.62)"><div>{{ b.route }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.42)">{{ b.time }}</div></div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ b.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ b.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
+<sc-if value="{{ showFinancials }}" hint-placeholder-val="{{ true }}">
 <span>{{ b.amount }}</span>
+</sc-if>
 </div>
 </div>
 </sc-for>
@@ -360,7 +384,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.onTrip }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#824703">{{ fleetOnTripCount }}</div></div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.inService }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ fleetInServiceCount }}</div></div>
 </div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addFleet }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
 </sc-if>
 <div class="fleet-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
@@ -382,7 +406,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex;align-items:baseline;margin-top:14px"><div style="font-size:13px;font-weight:600;color:#824703">{{ v.rate }}</div></div>
 <div style="display:flex;gap:8px;margin-top:15px;font-size:11px">
 <div onClick="{{ openNewBooking }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.assignTrip }}</div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ v.edit }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.edit }}</div>
 <div onClick="{{ v.remove }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(168,71,31,.3);color:#a8471f;cursor:pointer">{{ L.deleteBtn }}</div>
 </sc-if>
@@ -401,7 +425,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div class="screen-pad two-col" style="padding:24px 28px 34px;display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.driverRoster }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ driverRosterSummary }}</div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addDriver }}" style="margin-left:12px;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:6px 12px;cursor:pointer">{{ L.addBtn }}</div>
 </sc-if>
 </div>
@@ -418,7 +442,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="flex:1;min-width:0;font-size:13px;font-weight:500">{{ d.name }}</div>
 <div style="font-size:11.5px;color:rgba(24,24,24,.6);width:150px">{{ d.shiftLabel }}</div>
 <div style="font-size:11px;font-weight:600;border-radius:20px;padding:5px 10px;{{ d.statusStyle }}">{{ d.statusLabel }}</div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;gap:9px;margin-left:9px">
 <div onClick="{{ d.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ d.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
@@ -471,7 +495,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.returningRate }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ returningRatePct }}%</div></div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.outstanding }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">{{ outstandingLabel }}</div></div>
 </div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addCustomer }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
 </sc-if>
 <div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
@@ -483,7 +507,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex;align-items:center;gap:11px"><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div><div><div style="font-weight:500">{{ c.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ c.contact }}</div></div></div>
 <div style="color:rgba(24,24,24,.62)">{{ c.type }}</div><div>{{ c.trips }}</div><div style="color:rgba(24,24,24,.62)">{{ c.last }}</div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ c.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ c.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
@@ -521,7 +545,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 </div>
 </div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addInvoice }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
 </sc-if>
 <div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
@@ -533,7 +557,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.statusLabel }}</span></div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ i.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ i.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
@@ -549,7 +573,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div class="screen-pad two-col" style="padding:24px 28px 34px;display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
 <div style="display:flex;align-items:baseline;margin-bottom:16px"><div style="font-size:14px;font-weight:600">{{ L.serviceSchedule }}</div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addMaintenance }}" style="margin-left:auto;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:8px 14px;cursor:pointer">{{ L.addBtn }}</div>
 </sc-if>
 </div>
@@ -562,7 +586,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ sv.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ sv.work }}</div></div>
 <div style="font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;{{ sv.statusStyle }}">{{ sv.status }}</div>
 <div style="font-size:11.5px;font-weight:500;width:96px;text-align:right">{{ sv.cost }}</div>
-<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;gap:8px;flex:none">
 <div onClick="{{ sv.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ sv.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
@@ -816,6 +840,44 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 </sc-if>
 
+<sc-if value="{{ showTripRequest }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeTripRequest }}">
+<div class="modal-panel" style="width:420px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
+<div style="font-size:17px;font-weight:600;margin-bottom:6px">{{ L.tripRequestTitle }}</div>
+<div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.tripRequestSubtitle }}</div>
+<sc-if value="{{ tripRequestSent }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12.5px;color:#4d6a30;background:rgba(93,138,58,.1);border-radius:10px;padding:14px;text-align:center">{{ L.tripRequestSentMsg }}</div>
+</sc-if>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.fldCustomer }} <span style="color:#a8471f">*</span></div>
+<input value="{{ tripRequestForm.customer }}" onChange="{{ setTripCustomer }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.fldPhone }} <span style="color:#a8471f">*</span></div>
+<input value="{{ tripRequestForm.phone }}" onChange="{{ setTripPhone }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.pickupLabel }} <span style="color:#a8471f">*</span></div>
+<input value="{{ tripRequestForm.pickup }}" onChange="{{ setTripPickup }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.destinationLabel }} <span style="color:#a8471f">*</span></div>
+<input value="{{ tripRequestForm.destination }}" onChange="{{ setTripDestination }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.fldNotes }}</div>
+<input value="{{ tripRequestForm.notes }}" onChange="{{ setTripNotes }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<sc-if value="{{ tripRequestError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;color:#a8471f">{{ tripRequestError }}</div>
+</sc-if>
+<div onClick="{{ submitTripRequest }}" style="margin-top:6px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.requestTrip }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
 <sc-if value="{{ showForm }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeForm }}">
 <div class="modal-panel" style="width:520px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
@@ -887,10 +949,22 @@ const STR = {
   promoBtn: { en: "Schedule now", id: "Jadwalkan sekarang" },
   newBooking: { en: "+ New booking", id: "+ Pemesanan baru" },
   opsManager: { en: "Ops manager", id: "Manajer operasional" },
+  driverRoleTitle: { en: "Driver", id: "Pengemudi" },
+  directorRoleTitle: { en: "Director", id: "Direktur" },
 
   login: { en: "Admin login", id: "Login admin" },
   logout: { en: "Log out", id: "Keluar" },
   adminBadge: { en: "ADMIN", id: "ADMIN" },
+  driverBadge: { en: "DRIVER", id: "DRIVER" },
+  directorBadge: { en: "DIRECTOR", id: "DIREKTUR" },
+  requestTrip: { en: "+ Request trip", id: "+ Ajukan trip" },
+  tripRequestTitle: { en: "Request a trip", id: "Ajukan trip" },
+  tripRequestSubtitle: { en: "Sends a request to the ops manager — they'll create the booking after reviewing it.", id: "Mengirim permintaan ke manajer operasional — mereka akan membuat pemesanan setelah meninjau." },
+  tripRequestSentMsg: { en: "Request sent. The ops manager will follow up.", id: "Permintaan terkirim. Manajer operasional akan menindaklanjuti." },
+  tripRequestRequiredError: { en: "Please fill in customer, phone, pickup and destination.", id: "Mohon isi pelanggan, telepon, penjemputan, dan tujuan." },
+  pendingRequestsTitle: { en: "Pending trip requests", id: "Permintaan trip menunggu" },
+  approveBtn: { en: "Approve", id: "Setujui" },
+  rejectBtn: { en: "Reject", id: "Tolak" },
   loginTitle: { en: "Admin login", id: "Login admin" },
   emailLabel: { en: "Email", id: "Email" },
   passwordLabel: { en: "Password", id: "Kata sandi" },
@@ -917,6 +991,7 @@ const STR = {
   formTitleEditMaintenance: { en: "Edit service", id: "Ubah servis" },
   fldRef: { en: "Reference", id: "Referensi" },
   fldCustomer: { en: "Customer", id: "Pelanggan" },
+  fldNotes: { en: "Notes", id: "Catatan" },
   fldType: { en: "Type", id: "Tipe" },
   fldVehicle: { en: "Vehicle", id: "Kendaraan" },
   fldRoute: { en: "Route", id: "Rute" },
@@ -1431,12 +1506,14 @@ class Component extends DCLogic {
   state = {
     screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en",
     session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
-    bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], loaded: false,
+    bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "", waConfirmed: false },
     mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd",
-    driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: ""
+    driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
+    userRole: "manager",
+    showTripRequest: false, tripRequestForm: { customer: "", phone: "", pickup: "", destination: "", notes: "" }, tripRequestError: "", tripRequestSent: false
   };
 
   componentDidMount() {
@@ -1478,17 +1555,26 @@ class Component extends DCLogic {
 
   loadAll = () => {
     const client = getSupabase();
-    if (!client) return Promise.resolve();
+    if (!client || !this.state.session) return Promise.resolve();
+    const uid = this.state.session.user.id;
     return Promise.all([
       client.from("bookings").select("*").order("created_at", { ascending: false }),
       client.from("fleet").select("*").order("created_at", { ascending: false }),
       client.from("drivers").select("*").order("created_at", { ascending: false }),
       client.from("customers").select("*").order("created_at", { ascending: false }),
       client.from("invoices").select("*").order("created_at", { ascending: false }),
-      client.from("maintenance").select("*").order("created_at", { ascending: false })
+      client.from("maintenance").select("*").order("created_at", { ascending: false }),
+      client.from("trip_requests").select("*").order("created_at", { ascending: false }),
+      client.from("profiles").select("role").eq("id", uid).single()
     ]).then((res) => {
       const b = (res[0].data || []).map((r) => Object.assign({}, r, { from: r.from_location, to: r.to_location }));
-      this.setState({ bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [], invoices: res[4].data || [], maintenance: res[5].data || [], loaded: true });
+      const role = (res[7].data && res[7].data.role) || "manager";
+      this.setState((p) => ({
+        bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [],
+        invoices: res[4].data || [], maintenance: res[5].data || [], tripRequests: res[6].data || [],
+        userRole: role, loaded: true,
+        screen: role === "driver" && p.screen !== "bookings" ? "bookings" : p.screen
+      }));
     });
   };
 
@@ -1637,6 +1723,54 @@ class Component extends DCLogic {
     });
   };
 
+  openTripRequest = () => {
+    if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
+    this.setState({
+      showTripRequest: true, tripRequestError: "", tripRequestSent: false,
+      tripRequestForm: { customer: "", phone: "", pickup: "", destination: "", notes: "" }
+    });
+  };
+  closeTripRequest = () => this.setState({ showTripRequest: false });
+  setTripRequestField = (key) => (e) => {
+    const v = e.target.value;
+    this.setState((p) => ({ tripRequestForm: Object.assign({}, p.tripRequestForm, { [key]: v }) }));
+  };
+  submitTripRequest = () => {
+    const client = getSupabase();
+    const s = this.state;
+    if (!client || !s.session) return;
+    const f = s.tripRequestForm;
+    if (!f.customer || !f.phone || !f.pickup || !f.destination) {
+      this.setState({ tripRequestError: STR.tripRequestRequiredError[s.lang] });
+      return;
+    }
+    this.setState({ tripRequestError: "" });
+    client.from("trip_requests").insert({
+      requested_by: s.session.user.email || "driver",
+      customer: f.customer, phone: f.phone, pickup: f.pickup, destination: f.destination, notes: f.notes,
+      status: "Pending"
+    }).then((res) => {
+      if (res.error) return;
+      this.setState({ tripRequestSent: true, tripRequestError: "" });
+      this.loadAll();
+    });
+  };
+  approveTripRequest = (id) => () => {
+    const client = getSupabase();
+    if (!client || !this.state.session) return;
+    client.from("trip_requests").update({ status: "Approved" }).eq("id", id).then((res) => {
+      if (res.error) return;
+      this.loadAll();
+    });
+  };
+  rejectTripRequest = (id) => () => {
+    const client = getSupabase();
+    if (!client || !this.state.session) return;
+    client.from("trip_requests").update({ status: "Rejected" }).eq("id", id).then((res) => {
+      if (res.error) return;
+      this.loadAll();
+    });
+  };
   openNewBooking = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
@@ -1724,6 +1858,13 @@ class Component extends DCLogic {
     const isAdmin = !s.checkingSession && !!s.session;
     const isGuest = !s.checkingSession && !s.session;
     const contentLoading = isAdmin && !s.loaded;
+    const canManage = isAdmin && s.userRole === "manager";
+    const isDriverRole = isAdmin && s.userRole === "driver";
+    const isDirectorRole = isAdmin && s.userRole === "director";
+    const roleBadgeLabel = isDriverRole ? L.driverBadge : isDirectorRole ? L.directorBadge : L.adminBadge;
+    const roleNameLabel = isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : "Fadlan";
+    const roleTitleLabel = isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager;
+    const showFinancials = !isDriverRole;
 
     const navBadgeCounts = { fleet: s.fleet.length, bookings: s.bookings.length };
     const nav = (list) => list.map((n) => ({
@@ -1865,6 +2006,10 @@ class Component extends DCLogic {
     }));
     const hasServices = servicesTr.length > 0;
     const noServicesYet = !hasServices;
+    const pendingTripRequests = s.tripRequests.filter((r) => r.status === "Pending").map((r) => Object.assign({}, r, {
+      approve: this.approveTripRequest(r.id), reject: this.rejectTripRequest(r.id)
+    }));
+    const hasTripRequests = pendingTripRequests.length > 0;
     const detailAlreadyInvoiced = !!(s.detail && s.invoices.some((i) => i.booking_ref === s.detail.ref));
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone }) : null;
 
@@ -2113,13 +2258,16 @@ class Component extends DCLogic {
       langIdStyle: lang === "id" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
       setLangEn: () => this.setState({ lang: "en" }),
       setLangId: () => this.setState({ lang: "id" }),
-      navOps: nav(NAV_OPS), navInsight: nav(NAV_INSIGHT),
+      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings") : NAV_OPS),
+      navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
       pageTitle: t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
-      isDashboard: s.screen === "dashboard" && s.loaded, isBookings: s.screen === "bookings" && s.loaded,
-      isFleet: s.screen === "fleet" && s.loaded, isDrivers: s.screen === "drivers" && s.loaded,
-      isCustomers: s.screen === "customers" && s.loaded, isRevenue: s.screen === "revenue" && s.loaded,
-      isMaintenance: s.screen === "maintenance" && s.loaded,
+      canManage: canManage, isDriverRole: isDriverRole, isDirectorRole: isDirectorRole, showFinancials: showFinancials,
+      roleBadgeLabel: roleBadgeLabel, roleNameLabel: roleNameLabel, roleTitleLabel: roleTitleLabel,
+      isDashboard: s.screen === "dashboard" && s.loaded && !isDriverRole, isBookings: s.screen === "bookings" && s.loaded,
+      isFleet: s.screen === "fleet" && s.loaded && !isDriverRole, isDrivers: s.screen === "drivers" && s.loaded && !isDriverRole,
+      isCustomers: s.screen === "customers" && s.loaded && !isDriverRole, isRevenue: s.screen === "revenue" && s.loaded && !isDriverRole,
+      isMaintenance: s.screen === "maintenance" && s.loaded && !isDriverRole,
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"), goMaintenance: this.go("maintenance"),
       todayCols: [
         { key: "customer", label: L.colCustomer, align: "left" },
@@ -2154,6 +2302,13 @@ class Component extends DCLogic {
         go: () => this.setState({ filter: f.key, bookingsPage: 1 })
       })),
       fleet: fleetTr, drivers: driversSorted, customers: customersTr, invoices: invoicesTr, services: servicesTr,
+      pendingTripRequests: pendingTripRequests, hasTripRequests: hasTripRequests,
+      showTripRequest: s.showTripRequest, openTripRequest: this.openTripRequest, closeTripRequest: this.closeTripRequest,
+      tripRequestForm: s.tripRequestForm, tripRequestError: s.tripRequestError, tripRequestSent: s.tripRequestSent,
+      submitTripRequest: this.submitTripRequest,
+      setTripCustomer: this.setTripRequestField("customer"), setTripPhone: this.setTripRequestField("phone"),
+      setTripPickup: this.setTripRequestField("pickup"), setTripDestination: this.setTripRequestField("destination"),
+      setTripNotes: this.setTripRequestField("notes"),
       hasServices: hasServices, noServicesYet: noServicesYet,
       revenuePeriodLabel: revenuePeriodLabel, revenueChangeLabel: revenueChangeLabel,
       revenueMonthLabel: revenueMonthLabel, revenueWeekBars: revenueWeekBars, revenueByServiceRows: revenueByServiceRows,
