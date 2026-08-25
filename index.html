@@ -1101,8 +1101,10 @@ const TITLES = {
 const SUPABASE_URL = "https://apjlwgidhtyqhpuyeomq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwamx3Z2lkaHR5cWhwdXllb21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NjgxNjMsImV4cCI6MjEwMzE0NDE2M30.1euYKx9zMEKZnsQV7EPk56qUi3T3L-M9_yWS5kNJrwU";
 let sbClient = null;
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+const IDLE_STORAGE_KEY = "arz_last_activity";
 function getSupabase() {
-  if (!sbClient && window.supabase) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+  if (!sbClient && window.supabase) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true } });
   return sbClient;
 }
 
@@ -1410,16 +1412,39 @@ class Component extends DCLogic {
   componentDidMount() {
     const client = getSupabase();
     if (!client) { this.setState({ checkingSession: false }); return; }
+    const lastActivity = parseInt(localStorage.getItem(IDLE_STORAGE_KEY), 10) || 0;
+    const idleExpired = lastActivity > 0 && (Date.now() - lastActivity) > IDLE_TIMEOUT_MS;
     client.auth.getSession().then((res) => {
       const session = res.data ? res.data.session : null;
+      if (session && idleExpired) {
+        client.auth.signOut();
+        this.setState({ session: null, checkingSession: false });
+        return;
+      }
       this.setState({ session: session, checkingSession: false });
-      if (session) this.loadAll();
+      if (session) { this.loadAll(); this.markActivity(); }
     });
     client.auth.onAuthStateChange((_evt, session) => {
       this.setState({ session: session });
-      if (session) this.loadAll(); else this.setState({ loaded: false });
+      if (session) { this.loadAll(); this.markActivity(); } else { this.setState({ loaded: false }); }
     });
+    this.markActivity();
+    const activityHandler = () => this.markActivity();
+    ["mousemove", "mousedown", "keydown", "scroll", "touchstart", "click"].forEach((evt) => {
+      window.addEventListener(evt, activityHandler, { passive: true });
+    });
+    this.idleCheckInterval = setInterval(() => {
+      if (!this.state.session) return;
+      const last = parseInt(localStorage.getItem(IDLE_STORAGE_KEY), 10) || Date.now();
+      if (Date.now() - last > IDLE_TIMEOUT_MS) this.logout();
+    }, 30000);
   }
+  markActivity = () => {
+    const now = Date.now();
+    if (this._lastActivityMark && now - this._lastActivityMark < 5000) return;
+    this._lastActivityMark = now;
+    try { localStorage.setItem(IDLE_STORAGE_KEY, String(now)); } catch (e) {}
+  };
 
   loadAll = () => {
     const client = getSupabase();
@@ -1517,6 +1542,7 @@ class Component extends DCLogic {
   logout = () => {
     const client = getSupabase();
     if (client) client.auth.signOut();
+    try { localStorage.removeItem(IDLE_STORAGE_KEY); } catch (e) {}
     this.setState({ session: null, loaded: false });
   };
 
