@@ -25,6 +25,11 @@ a{color:#824703}a:hover{color:#DBAF5D}
 @keyframes dcFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dcBarGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes dcPulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes dcCheckPop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes dcCheckDraw{to{stroke-dashoffset:0}}
+.dc-success-circle{width:64px;height:64px;border-radius:50%;background:rgba(93,138,58,.12);display:flex;align-items:center;justify-content:center;animation:dcCheckPop .45s cubic-bezier(.22,1,.36,1) both}
+.dc-success-check{stroke-dasharray:28;stroke-dashoffset:28;animation:dcCheckDraw .35s ease .25s forwards}
+.dc-success-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 10px;animation:dcFadeIn .25s ease both}
 .dc-loading-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#F4F1EC;animation:dcFadeIn .3s ease both}
 .dc-loading-wrap-inline{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;animation:dcFadeIn .3s ease both}
 .dc-spinner{width:34px;height:34px;border-radius:50%;border:3px solid rgba(89,50,3,.14);border-top-color:#824703;animation:dcSpin .75s linear infinite}
@@ -148,6 +153,11 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-for>
 </div>
 
+<div onClick="{{ openSettings }}" style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:12px;border-radius:10px;color:rgba(24,24,24,.7);font-size:13px;cursor:pointer;border-top:1px solid rgba(89,50,3,.08);padding-top:16px" style-hover="background:rgba(89,50,3,.06)">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+{{ L.settingsTitle }}
+</div>
+
 </div>
 
 <div style="flex:1;min-width:0;display:flex;flex-direction:column">
@@ -168,7 +178,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ isDriverRole }}" hint-placeholder-val="{{ false }}">
 <div class="header-cta" onClick="{{ openTripRequest }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.requestTrip }}</div>
 </sc-if>
-<div class="profile-block" onClick="{{ openSettings }}" style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1);cursor:pointer">
+<div class="profile-block" style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
 <div style="width:34px;height:34px;border-radius:50%;flex:none;overflow:hidden;background:linear-gradient(140deg,#DBAF5D,#824703);border:2px solid #F6E6BE">
 <sc-if value="{{ hasProfileAvatar }}" hint-placeholder-val="{{ false }}">
 <img src="{{ profileAvatar }}" style="width:100%;height:100%;object-fit:cover;display:block">
@@ -541,7 +551,10 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="margin-left:auto;font-size:11.5px;color:#5b7a3a">{{ revenueChangeLabel }}</div></div>
 <div style="display:flex;align-items:flex-end;gap:9px;height:180px;margin-top:26px">
 <sc-for list="{{ revenueWeekBars }}" as="bar" hint-placeholder-count="5">
-<div style="{{ bar.style }}"></div>
+<div class="dc-bar-wrap">
+<div class="dc-bar-tip">{{ bar.tooltip }}</div>
+<div class="dc-bar dc-bar-hover" style="{{ bar.style }}"></div>
+</div>
 </sc-for>
 </div>
 <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:rgba(24,24,24,.38)">
@@ -551,11 +564,20 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 </div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:22px">
-<div style="font-size:14px;font-weight:600;margin-bottom:18px">{{ L.revenueByService }}</div>
-<div style="display:flex;flex-direction:column;gap:15px">
-<sc-for list="{{ revenueByServiceRows }}" as="row" hint-placeholder-count="4">
-<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ row.label }}</span><span style="margin-left:auto;font-weight:500">{{ row.amountLabel }}</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden"><div style="width:{{ row.pct }}%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+<div style="font-size:14px;font-weight:600">{{ L.revenueByService }}</div>
+<select value="{{ revenueServiceMonth }}" onChange="{{ setRevenueServiceMonth }}" style="margin-left:auto;font-size:11px;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:6px 8px;font-family:inherit;background:#fff;cursor:pointer">
+<sc-for list="{{ revenueMonthOptions }}" as="mo" hint-placeholder-count="3">
+<option value="{{ mo.value }}">{{ mo.label }}</option>
 </sc-for>
+</select>
+</div>
+<div style="display:flex;flex-direction:column;gap:15px">
+<sc-for list="{{ revenueByServiceRows }}" as="row" hint-placeholder-count="5">
+<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ row.label }}</span><span style="margin-left:auto;font-weight:500">{{ row.amountLabel }}</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden;transition:width .4s cubic-bezier(.22,1,.36,1)"><div class="dc-bar-hover" style="width:{{ row.pct }}%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+</sc-for>
+<div style="height:1px;background:rgba(89,50,3,.12);margin:2px 0"></div>
+<div style="display:flex;font-size:12.5px;font-weight:700"><span>{{ L.revenueServiceTotal }}</span><span style="margin-left:auto">{{ revenueServiceTotalLabel }}</span></div>
 </div>
 </div>
 </div>
@@ -991,6 +1013,13 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ showSettings }}" hint-placeholder-val="{{ false }}">
 <div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeSettings }}">
 <div class="modal-panel" style="width:400px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
+<sc-if value="{{ settingsSaved }}" hint-placeholder-val="{{ false }}">
+<div class="dc-success-wrap">
+<div class="dc-success-circle"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4d6a30" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline class="dc-success-check" points="20 6 9 17 4 12"/></svg></div>
+<div style="font-size:15px;font-weight:600">{{ L.settingsSavedMsg }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ settingsFormVisible }}" hint-placeholder-val="{{ true }}">
 <div style="font-size:17px;font-weight:600;margin-bottom:18px">{{ L.settingsTitle }}</div>
 <div style="display:flex;flex-direction:column;gap:14px">
 <div style="display:flex;align-items:center;gap:14px">
@@ -1019,12 +1048,10 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ settingsError }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11px;color:#a8471f">{{ settingsError }}</div>
 </sc-if>
-<sc-if value="{{ settingsSaved }}" hint-placeholder-val="{{ false }}">
-<div style="font-size:11px;color:#4d6a30">{{ L.settingsSavedMsg }}</div>
-</sc-if>
 <div onClick="{{ saveSettings }}" style="margin-top:6px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.saveBtn }}</div>
 <div onClick="{{ logout }}" style="text-align:center;font-size:11.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.logout }}</div>
 </div>
+</sc-if>
 </div>
 </div>
 </sc-if>
@@ -1100,7 +1127,12 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 <div style="flex:1">{{ L.descriptionCol }}</div><div style="width:130px;text-align:right">{{ L.colAmount }}</div>
 </div>
 <div style="display:flex;font-size:12.5px;padding:8px 0 26px">
-<div style="flex:1">{{ L.rentalDescription }} — {{ printInvoice.booking_ref }}</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px">
+<div style="font-weight:600">{{ L.rentalDescription }} — {{ printInvoice.booking_ref }}</div>
+<div style="color:rgba(24,24,24,.65)">{{ L.invoiceVehicleLabel }}: {{ printInvoice.vehicleName }}</div>
+<div style="color:rgba(24,24,24,.65)">{{ L.invoiceDurationLabel }}: {{ printInvoice.rentalDaysLabel }}</div>
+<div style="color:rgba(24,24,24,.65)">{{ L.invoicePricePerDayLabel }}: {{ printInvoice.pricePerDayLabel }}</div>
+</div>
 <div style="width:130px;text-align:right;font-weight:600">{{ printInvoice.subtotalLabel }}</div>
 </div>
 <div style="display:flex;justify-content:space-between">
@@ -1142,9 +1174,9 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 <div class="form-grid-2 wizard-pad" style="padding:22px 26px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
 <sc-for list="{{ formFields }}" as="fld" hint-placeholder-count="6">
 <div style="{{ fld.wrapStyle }}">
-<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ fld.label }}</div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ fld.label }}<sc-if value="{{ fld.required }}" hint-placeholder-val="{{ false }}"> <span style="color:#a8471f">*</span></sc-if></div>
 <sc-if value="{{ fld.isText }}" hint-placeholder-val="{{ true }}">
-<input value="{{ fld.value }}" onChange="{{ fld.onChange }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+<input value="{{ fld.value }}" onChange="{{ fld.onChange }}" placeholder="{{ fld.placeholder }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
 </sc-if>
 <sc-if value="{{ fld.isDate }}" hint-placeholder-val="{{ false }}">
 <input type="date" value="{{ fld.value }}" onChange="{{ fld.onChange }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
@@ -1242,6 +1274,9 @@ const STR = {
   fldConfirmPassword: { en: "Confirm new password", id: "Konfirmasi kata sandi baru" },
   settingsPasswordMismatch: { en: "New password and confirmation don't match.", id: "Kata sandi baru dan konfirmasi tidak cocok." },
   settingsPasswordTooShort: { en: "Password must be at least 6 characters.", id: "Kata sandi minimal 6 karakter." },
+  invoiceDpExceedsError: { en: "Down payment cannot exceed the subtotal.", id: "Uang muka tidak boleh melebihi subtotal." },
+  invoiceReceivedExceedsError: { en: "Received payment cannot exceed the subtotal.", id: "Pembayaran diterima tidak boleh melebihi subtotal." },
+  formRequiredFieldsError: { en: "Please fill in all required fields.", id: "Mohon lengkapi semua kolom yang wajib diisi." },
   settingsSavedMsg: { en: "Saved.", id: "Tersimpan." },
   formTitleAddBooking: { en: "Add booking", id: "Tambah pemesanan" },
   formTitleEditBooking: { en: "Edit booking", id: "Ubah pemesanan" },
@@ -1272,13 +1307,17 @@ const STR = {
   toLabel: { en: "To", id: "Kepada" },
   descriptionCol: { en: "Description", id: "Deskripsi" },
   rentalDescription: { en: "Vehicle rental", id: "Sewa kendaraan" },
+  invoiceVehicleLabel: { en: "Vehicle", id: "Kendaraan" },
+  invoiceDurationLabel: { en: "Rental duration", id: "Lama sewa" },
+  invoicePricePerDayLabel: { en: "Price per day", id: "Harga per hari" },
+  invoiceDaysUnit: { en: "day(s)", id: "hari" },
   billToLabel: { en: "Bill To", id: "Pembayaran ke" },
   bankAccountLabel: { en: "Account", id: "Rekening" },
   bankNameLabel: { en: "Bank Name", id: "Nama Bank" },
   bankHolderLabel: { en: "Bank Detail", id: "Atas Nama" },
   balanceDueTitle: { en: "Balance Due", id: "Sisa Tagihan" },
   regardsLabel: { en: "Regards,", id: "Hormat kami," },
-  printDownloadBtn: { en: "Print / Save as PDF", id: "Cetak / Simpan sebagai PDF" },
+  printDownloadBtn: { en: "Save PDF", id: "Simpan PDF" },
   fldFrom: { en: "From", id: "Dari" },
   fldTo: { en: "To", id: "Ke" },
   fldEta: { en: "ETA", id: "Estimasi tiba" },
@@ -1379,6 +1418,8 @@ const STR = {
   colLifetime: { en: "LIFETIME", id: "SEUMUR HIDUP" },
 
   revenueByService: { en: "Revenue by service", id: "Pendapatan per layanan" },
+  revenueAllMonths: { en: "All months", id: "Semua bulan" },
+  revenueServiceTotal: { en: "Total", id: "Total" },
   colInvoice: { en: "INVOICE", id: "FAKTUR" },
   colIssued: { en: "ISSUED", id: "DITERBITKAN" },
   colBalance: { en: "BALANCE DUE", id: "SISA TAGIHAN" },
@@ -1522,10 +1563,10 @@ const FIELD_DEFS = {
     { key: "driver_meta", labelKey: "fldDriverMeta" }, { key: "base", labelKey: "fldBase" }
   ],
   fleet: [
-    { key: "name", labelKey: "fldName" }, { key: "plate", labelKey: "fldPlate" },
-    { key: "seats", labelKey: "fldSeats" }, { key: "km", labelKey: "fldKm", type: "number" },
-    { key: "status", labelKey: "fldStatus", type: "select", options: FLEET_STATUS_OPTIONS },
-    { key: "rate", labelKey: "fldRate" },
+    { key: "name", labelKey: "fldName", required: true }, { key: "plate", labelKey: "fldPlate", required: true },
+    { key: "seats", labelKey: "fldSeats", required: true }, { key: "km", labelKey: "fldKm", type: "number", required: true },
+    { key: "status", labelKey: "fldStatus", type: "select", options: FLEET_STATUS_OPTIONS, required: true },
+    { key: "rate", labelKey: "fldRate", required: true, placeholder: "Rp 500.000 / hari" },
     { key: "photo_url", labelKey: "fldPhotoUrl", type: "file" }
   ],
   driver: [
@@ -1546,9 +1587,9 @@ const FIELD_DEFS = {
     { key: "down_payment", labelKey: "fldDownPayment" }, { key: "receive_payment", labelKey: "fldReceivePayment" }
   ],
   maintenance: [
-    { key: "vehicle", labelKey: "fldVehicle" }, { key: "date", labelKey: "fldDate", type: "date" },
+    { key: "vehicle", labelKey: "fldVehicle", type: "select", required: true }, { key: "date", labelKey: "fldDate", type: "date", required: true },
     { key: "assigned_driver", labelKey: "fldAssignedDriver", type: "select" },
-    { key: "status", labelKey: "fldStatus", type: "select", options: MAINTENANCE_STATUS_OPTIONS }
+    { key: "status", labelKey: "fldStatus", type: "select", options: MAINTENANCE_STATUS_OPTIONS, required: true }
   ]
 };
 const FILTERS = [
@@ -1717,6 +1758,11 @@ function formatRupiah(n) {
   if (!n) return "Rp 0";
   return "Rp " + Math.round(n).toLocaleString("id-ID");
 }
+function formatRupiahTyping(raw) {
+  const digits = String(raw || "").replace(/[^0-9]/g, "");
+  if (!digits) return "";
+  return "Rp " + parseInt(digits, 10).toLocaleString("id-ID");
+}
 function formatRupiahShort(n) {
   if (!n) return "Rp 0";
   if (n >= 1000000) {
@@ -1820,7 +1866,7 @@ class Component extends DCLogic {
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "", waConfirmed: false },
-    showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd",
+    showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", revenueServiceMonth: "all",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
     showTripRequest: false, tripRequestForm: { customer: "", phone: "", pickup: "", destination: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
@@ -1901,6 +1947,7 @@ class Component extends DCLogic {
   };
 
   go = (id) => () => this.setState({ screen: id, detail: null, showMoreSheet: false });
+  setRevenueServiceMonth = (e) => this.setState({ revenueServiceMonth: e.target.value });
   openMoreSheet = () => this.setState({ showMoreSheet: true });
   openSettingsMobile = () => { this.setState({ showMoreSheet: false }); this.openSettings(); };
   closeMoreSheet = () => this.setState({ showMoreSheet: false });
@@ -1915,7 +1962,7 @@ class Component extends DCLogic {
   assignDriverToTrip = (bookingId, driverName) => {
     const client = getSupabase();
     if (!client || !this.state.session) return;
-    client.from("bookings").update({ driver: driverName }).eq("id", bookingId).then((res) => {
+    client.from("bookings").update({ driver: driverName, status: "Confirmed" }).eq("id", bookingId).then((res) => {
       if (res.error) return;
       this.loadAll();
     });
@@ -2000,7 +2047,9 @@ class Component extends DCLogic {
   };
   closeForm = () => this.setState({ showForm: false });
   setFormField = (key) => (e) => {
-    const v = e.target.value;
+    const s = this.state;
+    const isMoneyField = s.formType === "invoice" && ["subtotal", "discount", "down_payment", "receive_payment"].indexOf(key) >= 0;
+    const v = isMoneyField ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ formValues: Object.assign({}, p.formValues, { [key]: v }) }));
   };
   setFormPhotoField = (key) => (e) => {
@@ -2032,6 +2081,16 @@ class Component extends DCLogic {
     const payload = Object.assign({}, s.formValues);
     if (s.formType === "fleet") payload.seats = Number(payload.seats) || 0;
     const lang = s.lang;
+    const defs = FIELD_DEFS[s.formType] || [];
+    const missingRequired = defs.some((f) => f.required && f.type !== "file" && !String(payload[f.key] || "").trim());
+    if (missingRequired) { this.setState({ formError: STR.formRequiredFieldsError[lang] }); return; }
+    if (s.formType === "invoice") {
+      const subtotalNum = parseAmount(payload.subtotal);
+      const dpNum = parseAmount(payload.down_payment);
+      const receivedNum = parseAmount(payload.receive_payment);
+      if (dpNum > subtotalNum) { this.setState({ formError: STR.invoiceDpExceedsError[lang] }); return; }
+      if (receivedNum > subtotalNum) { this.setState({ formError: STR.invoiceReceivedExceedsError[lang] }); return; }
+    }
     const req = s.formMode === "add" ? client.from(table).insert(payload) : client.from(table).update(payload).eq("id", s.formEditId);
     req.then((res) => {
       if (res.error) { this.setState({ formError: STR.saveErrorGeneric[lang] }); return; }
@@ -2062,7 +2121,7 @@ class Component extends DCLogic {
     this.setState((p) => ({ completeServiceItems: p.completeServiceItems.length > 1 ? p.completeServiceItems.filter((_, i) => i !== idx) : p.completeServiceItems }));
   };
   setCompleteItemField = (idx, key) => (e) => {
-    const v = e.target.value;
+    const v = key === "amount" ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({
       completeServiceItems: p.completeServiceItems.map((it, i) => i === idx ? Object.assign({}, it, { [key]: v }) : it)
     }));
@@ -2085,18 +2144,34 @@ class Component extends DCLogic {
     });
   };
   openInvoicePrint = (invoice, computed) => {
+    const lang = this.state.lang;
+    const booking = this.state.bookings.find((b) => b.ref === invoice.booking_ref);
+    const vehicleName = booking ? booking.vehicle : "-";
+    const hours = booking ? (parseFloat(durationLabelToHours(booking.duration)) || 24) : 24;
+    const days = Math.max(1, Math.ceil(hours / 24));
+    const pricePerDayNum = days > 0 ? Math.round(computed.subtotalNum / days) : computed.subtotalNum;
     this.setState({
       showInvoicePrint: true,
       printInvoice: Object.assign({}, invoice, {
         statusLabel: computed.statusLabel,
         subtotalLabel: formatRupiah(computed.subtotalNum), discountLabel: formatRupiah(computed.discountNum),
         downPaymentLabel: formatRupiah(computed.dpNum), receivePaymentLabel: formatRupiah(computed.receivedNum),
-        balanceDueLabel: formatRupiah(computed.balanceDueNum)
+        balanceDueLabel: formatRupiah(computed.balanceDueNum),
+        vehicleName: vehicleName, rentalDaysLabel: days + " " + STR.invoiceDaysUnit[lang],
+        pricePerDayLabel: formatRupiah(pricePerDayNum)
       })
     });
   };
   closeInvoicePrint = () => this.setState({ showInvoicePrint: false });
-  triggerPrint = () => window.print();
+  triggerPrint = () => {
+    const inv = this.state.printInvoice || {};
+    const numPart = String(inv.no || "").replace(/^[A-Za-z]+-?/, "");
+    const fileName = "ARZ-" + (numPart || "0000");
+    const prevTitle = document.title;
+    document.title = fileName;
+    window.print();
+    setTimeout(() => { document.title = prevTitle; }, 500);
+  };
   openSettings = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState((p) => ({
@@ -2149,6 +2224,9 @@ class Component extends DCLogic {
       if (res.error) { this.setState({ settingsError: STR.saveErrorGeneric[lang] }); return; }
       const finish = () => {
         this.setState({ settingsSaved: true, profileName: s.settingsName, profileAvatar: s.settingsAvatar, settingsNewPassword: "", settingsConfirmPassword: "" });
+        setTimeout(() => {
+          this.setState({ showSettings: false, settingsSaved: false, screen: "dashboard", detail: null, showMoreSheet: false });
+        }, 1400);
       };
       if (s.settingsNewPassword) {
         client.auth.updateUser({ password: s.settingsNewPassword }).then((pres) => {
@@ -2249,7 +2327,7 @@ class Component extends DCLogic {
   };
   closeNewBooking = () => this.setState({ showNew: false, newBookingError: "", editingBookingId: null });
   setNewBookingField = (key) => (e) => {
-    const v = e.target.value;
+    const v = key === "discount" ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { [key]: v }) }));
   };
   setNewPhoneNumber = (e) => {
@@ -2332,11 +2410,12 @@ class Component extends DCLogic {
     const isDriverRole = isAdmin && s.userRole === "driver";
     const isDirectorRole = isAdmin && s.userRole === "director";
     const roleBadgeLabel = isDriverRole ? L.driverBadge : isDirectorRole ? L.directorBadge : L.adminBadge;
-    const roleNameLabel = isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : "Fadlan";
+    const roleNameLabel = s.profileName || (isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager);
     const roleTitleLabel = isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager;
     const showFinancials = !isDriverRole;
     const hasProfileAvatar = !!s.profileAvatar;
     const hasSettingsAvatar = !!s.settingsAvatar;
+    const settingsFormVisible = !s.settingsSaved;
     const completeServiceItemsTr = s.completeServiceItems.map((it, idx) => Object.assign({}, it, {
       setDescription: this.setCompleteItemField(idx, "description"),
       setQty: this.setCompleteItemField(idx, "qty"),
@@ -2595,17 +2674,38 @@ class Component extends DCLogic {
     const maxWeek = Math.max(1, weekBuckets[0], weekBuckets[1], weekBuckets[2], weekBuckets[3], weekBuckets[4]);
     const revenueWeekBars = weekBuckets.map((v, i) => ({
       style: "flex:1;height:" + Math.max(4, Math.round((v / maxWeek) * 100)) + "%;border-radius:6px 6px 2px 2px;background:" + (v > 0 && v === maxWeek ? "linear-gradient(180deg,#F6E6BE,#C08A2E)" : "rgba(89,50,3,.13)"),
-      label: "W" + (i + 1)
+      label: "W" + (i + 1), tooltip: "W" + (i + 1) + " · " + formatRupiah(v)
     }));
 
+    const monthKeyOf = (dateStr) => {
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? null : (d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
+    };
+    const monthLabelOf = (key) => {
+      const parts = key.split("-");
+      const monthsFull = lang === "id"
+        ? ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      return monthsFull[parseInt(parts[1], 10) - 1] + " " + parts[0];
+    };
+    const monthKeysPresent = Array.from(new Set(s.bookings.map((b) => monthKeyOf(b.created_at)).filter(Boolean))).sort().reverse();
+    const revenueMonthOptions = [{ value: "all", label: STR.revenueAllMonths[lang] }].concat(
+      monthKeysPresent.map((k) => ({ value: k, label: monthLabelOf(k) }))
+    );
+    const bookingsForServiceRevenue = s.revenueServiceMonth === "all"
+      ? s.bookings
+      : s.bookings.filter((b) => monthKeyOf(b.created_at) === s.revenueServiceMonth);
     const serviceRevenueMap = {};
     SERVICE_TYPE_OPTIONS.forEach((t2) => { serviceRevenueMap[t2] = 0; });
-    s.bookings.forEach((b) => { if (serviceRevenueMap.hasOwnProperty(b.type)) serviceRevenueMap[b.type] += parseAmount(b.amount); });
-    const maxServiceRevenue = Math.max(1, serviceRevenueMap["Airport transfer"], serviceRevenueMap["Corporate charter"], serviceRevenueMap["Wedding & event"], serviceRevenueMap["Tour package"]);
-    const revenueByServiceRows = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package"].map((t2) => ({
+    bookingsForServiceRevenue.forEach((b) => { if (serviceRevenueMap.hasOwnProperty(b.type)) serviceRevenueMap[b.type] += parseAmount(b.amount); });
+    const serviceRevenueValues = SERVICE_TYPE_OPTIONS.map((t2) => serviceRevenueMap[t2]);
+    const maxServiceRevenue = Math.max(1, ...serviceRevenueValues);
+    const revenueByServiceRows = SERVICE_TYPE_OPTIONS.map((t2) => ({
       label: trWords(t2, lang), amountLabel: formatRupiahShort(serviceRevenueMap[t2]),
       pct: Math.round((serviceRevenueMap[t2] / maxServiceRevenue) * 100)
     }));
+    const revenueServiceTotalNum = serviceRevenueValues.reduce((sum, v) => sum + v, 0);
+    const revenueServiceTotalLabel = formatRupiahShort(revenueServiceTotalNum);
 
     const odometerRows = s.fleet.map((v) => {
       const km = parseFloat(v.km) || 0;
@@ -2613,7 +2713,7 @@ class Component extends DCLogic {
       const pct = Math.min(100, Math.round((km / interval) * 100));
       const remain = interval - (km % interval);
       return {
-        plate: v.plate || v.name, pct: pct,
+        plate: v.name + (v.plate ? " · " + v.plate : ""), pct: pct,
         overLimit: pct >= 90,
         barStyle: "width:" + pct + "%;height:100%;background:linear-gradient(90deg,#824703," + (pct >= 90 ? "#a8471f" : "#DBAF5D") + ")",
         remainLabel: pct >= 90
@@ -2696,14 +2796,19 @@ class Component extends DCLogic {
       const type = f.type || "text";
       const value = s.formValues[f.key] || "";
       const fld = {
-        label: STR[f.labelKey][lang], value: value,
+        label: STR[f.labelKey][lang], value: value, required: !!f.required, placeholder: f.placeholder || "",
         onChange: type === "file" ? this.setFormPhotoField(f.key) : this.setFormField(f.key),
         isText: type === "text", isNumber: type === "number", isSelect: type === "select", isFile: type === "file", isDate: type === "date",
         wrapStyle: type === "file" ? "grid-column:1 / -1" : ""
       };
       if (type === "select") {
-        const opts = f.key === "assigned_driver" ? s.drivers.map((d) => d.name) : (f.options || []);
-        fld.options = opts.map((opt) => ({ value: opt, label: trWords(opt, lang) }));
+        if (f.key === "assigned_driver") {
+          fld.options = s.drivers.map((d) => ({ value: d.name, label: d.name }));
+        } else if (f.key === "vehicle" && s.formType === "maintenance") {
+          fld.options = s.fleet.map((v) => ({ value: v.name, label: v.name }));
+        } else {
+          fld.options = (f.options || []).map((opt) => ({ value: opt, label: trWords(opt, lang) }));
+        }
       }
       if (type === "file") {
         fld.hasPhoto = !!value;
@@ -2823,7 +2928,7 @@ class Component extends DCLogic {
       showSettings: s.showSettings, closeSettings: this.closeSettings, settingsName: s.settingsName,
       settingsAvatar: s.settingsAvatar, hasSettingsAvatar: hasSettingsAvatar,
       settingsNewPassword: s.settingsNewPassword, settingsConfirmPassword: s.settingsConfirmPassword,
-      settingsError: s.settingsError, settingsSaved: s.settingsSaved, saveSettings: this.saveSettings,
+      settingsError: s.settingsError, settingsSaved: s.settingsSaved, settingsFormVisible: settingsFormVisible, saveSettings: this.saveSettings,
       setSettingsName: this.setSettingsName, setSettingsAvatarFile: this.setSettingsAvatarFile,
       setSettingsNewPassword: this.setSettingsNewPassword, setSettingsConfirmPassword: this.setSettingsConfirmPassword,
       showTripRequest: s.showTripRequest, openTripRequest: this.openTripRequest, closeTripRequest: this.closeTripRequest,
@@ -2835,6 +2940,8 @@ class Component extends DCLogic {
       hasServices: hasServices, noServicesYet: noServicesYet,
       revenuePeriodLabel: revenuePeriodLabel, revenueChangeLabel: revenueChangeLabel,
       revenueMonthLabel: revenueMonthLabel, revenueWeekBars: revenueWeekBars, revenueByServiceRows: revenueByServiceRows,
+      revenueMonthOptions: revenueMonthOptions, revenueServiceMonth: s.revenueServiceMonth, setRevenueServiceMonth: this.setRevenueServiceMonth,
+      revenueServiceTotalLabel: revenueServiceTotalLabel,
       odometerRows: odometerRows, hasOdometerRows: hasOdometerRows, noOdometerRows: noOdometerRows,
       maintenanceSpendLabel: maintenanceSpendLabel, maintenanceSpendSubLabel: maintenanceSpendSubLabel,
       maintenanceDowntimeLabel: maintenanceDowntimeLabel,
