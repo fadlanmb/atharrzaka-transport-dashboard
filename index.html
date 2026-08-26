@@ -276,7 +276,7 @@ html,body{overflow-x:hidden}
 <sc-for list="{{ todayBookings }}" as="b" hint-placeholder-count="5">
 <div class="tbl-min" onClick="{{ b.open }}" style="display:grid;grid-template-columns:1.4fr 1.2fr 1.5fr .9fr .9fr;gap:10px;padding:13px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
 <div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.ref }}</div></div>
-<div>{{ b.vehicle }}</div><div style="color:rgba(24,24,24,.62)">{{ b.route }}</div>
+<div><div>{{ b.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.vehiclePlate }}</div></div><div style="color:rgba(24,24,24,.62)">{{ b.route }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
 <div style="text-align:right;font-weight:500">{{ b.amount }}</div>
 </div>
@@ -663,6 +663,40 @@ html,body{overflow-x:hidden}
 </div>
 </sc-if>
 
+<sc-if value="{{ isExpenses }}" hint-placeholder-val="{{ false }}">
+<div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div class="stat-grid-3" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.expensesThisMonth }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">{{ expensesMonthLabel }}</div></div>
+<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:16px;color:#fff"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.companyBalance }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ companyBalanceLabel }}</div></div>
+</div>
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ addExpense }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
+</sc-if>
+<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
+<div class="tbl-min" style="display:grid;grid-template-columns:1.8fr 1fr 1fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
+<div>{{ L.colDescription }}</div><div>{{ L.colCategory }}</div><div>{{ L.colDate }}</div><div style="text-align:right">{{ L.colAmount }}</div>
+</div>
+<sc-if value="{{ noExpensesYet }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12px;color:rgba(24,24,24,.5);padding:14px 4px">{{ L.noExpensesYet }}</div>
+</sc-if>
+<sc-for list="{{ expensesTr }}" as="ex" hint-placeholder-count="6">
+<div class="tbl-min" style="display:grid;grid-template-columns:1.8fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
+<div style="font-weight:500">{{ ex.description }}</div>
+<div style="color:rgba(24,24,24,.62)">{{ ex.categoryLabel }}</div>
+<div style="color:rgba(24,24,24,.62)">{{ ex.expense_date }}</div>
+<div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ ex.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+<div onClick="{{ ex.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</sc-if>
+<span>{{ ex.amountLabel }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
 </div>
 
 <sc-if value="{{ showFab }}" hint-placeholder-val="{{ false }}">
@@ -715,13 +749,19 @@ html,body{overflow-x:hidden}
 <div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
 {{ customersNavLabel }}
 </div>
+</sc-if>
 <div onClick="{{ goMaintenanceMobile }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">
 <div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
 {{ maintenanceNavLabel }}
 </div>
+<sc-if value="{{ showFullBottomNav }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ goRevenueMobile }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">
 <div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
 {{ revenueNavLabel }}
+</div>
+<div onClick="{{ goExpensesMobile }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">
+<div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+{{ expensesNavLabel }}
 </div>
 <div style="height:1px;background:rgba(89,50,3,.08);margin:6px 18px"></div>
 </sc-if>
@@ -1358,6 +1398,8 @@ const STR = {
   formTitleEditInvoice: { en: "Edit invoice", id: "Ubah faktur" },
   formTitleAddMaintenance: { en: "Add service", id: "Tambah servis" },
   formTitleEditMaintenance: { en: "Edit service", id: "Ubah servis" },
+  formTitleAddExpense: { en: "Add expense", id: "Tambah pengeluaran" },
+  formTitleEditExpense: { en: "Edit expense", id: "Ubah pengeluaran" },
   fldRef: { en: "Reference", id: "Referensi" },
   fldCustomer: { en: "Customer", id: "Pelanggan" },
   fldNotes: { en: "Notes", id: "Catatan" },
@@ -1418,6 +1460,16 @@ const STR = {
   addItemBtn: { en: "+ Add item", id: "+ Tambah item" },
   completeServiceRequiredError: { en: "Fill in description and nominal for every item.", id: "Isi deskripsi dan nominal untuk setiap item." },
   fldDate: { en: "Date", id: "Tanggal" },
+  fldCategory: { en: "Category", id: "Kategori" },
+  fldExpenseDate: { en: "Expense date", id: "Tanggal pengeluaran" },
+  expensesThisMonth: { en: "Expenses this month", id: "Pengeluaran bulan ini" },
+  companyBalance: { en: "Company balance", id: "Saldo perusahaan" },
+  colDescription: { en: "DESCRIPTION", id: "DESKRIPSI" },
+  colCategory: { en: "CATEGORY", id: "KATEGORI" },
+  colDate: { en: "DATE", id: "TANGGAL" },
+  colAmount: { en: "AMOUNT", id: "JUMLAH" },
+  noExpensesYet: { en: "No expenses recorded yet — add one to get started.", id: "Belum ada pengeluaran — tambahkan untuk memulai." },
+  maintenanceExpenseDescPrefix: { en: "Maintenance - ", id: "Perawatan - " },
   noServicesYet: { en: "No maintenance records yet — add one to schedule a service.", id: "Belum ada catatan servis — tambahkan untuk menjadwalkan servis." },
   noOdometerYet: { en: "No vehicles in fleet yet.", id: "Belum ada armada." },
   fldNo: { en: "Invoice no.", id: "No. faktur" },
@@ -1555,7 +1607,8 @@ const NAV_LABELS = {
   drivers: { en: "Drivers", id: "Pengemudi" },
   customers: { en: "Customers", id: "Pelanggan" },
   revenue: { en: "Revenue", id: "Pendapatan" },
-  maintenance: { en: "Maintenance", id: "Perawatan" }
+  maintenance: { en: "Maintenance", id: "Perawatan" },
+  expenses: { en: "Expenses", id: "Pengeluaran" }
 };
 
 const NAV_OPS = [
@@ -1567,7 +1620,8 @@ const NAV_OPS = [
   { id: "customers", badge: "" }
 ];
 const NAV_INSIGHT = [
-  { id: "revenue", badge: "" }
+  { id: "revenue", badge: "" },
+  { id: "expenses", badge: "" }
 ];
 const TITLES = {
   dashboard: { en: ["Good morning, Fadlan", "Saturday, 22 August · 14 trips scheduled today"], id: ["Selamat pagi, Fadlan", "Sabtu, 22 Agustus · 14 perjalanan dijadwalkan hari ini"] },
@@ -1576,7 +1630,8 @@ const TITLES = {
   drivers: { en: ["Drivers", "16 active · 1 trip unassigned"], id: ["Pengemudi", "16 aktif · 1 perjalanan belum ditugaskan"] },
   customers: { en: ["Customers", "28 corporate accounts · 486 individuals"], id: ["Pelanggan", "28 akun korporat · 486 individu"] },
   revenue: { en: ["Revenue", "August 2026 · Rp 612,4 jt booked"], id: ["Pendapatan", "Agustus 2026 · Rp 612,4 jt terpesan"] },
-  maintenance: { en: ["Maintenance", "3 units in service · 1 overdue"], id: ["Perawatan", "3 unit dalam servis · 1 terlambat"] }
+  maintenance: { en: ["Maintenance", "3 units in service · 1 overdue"], id: ["Perawatan", "3 unit dalam servis · 1 terlambat"] },
+  expenses: { en: ["Expenses", "Track spending and company balance"], id: ["Pengeluaran", "Pantau pengeluaran dan saldo perusahaan"] }
 };
 const SUPABASE_URL = "https://apjlwgidhtyqhpuyeomq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwamx3Z2lkaHR5cWhwdXllb21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NjgxNjMsImV4cCI6MjEwMzE0NDE2M30.1euYKx9zMEKZnsQV7EPk56qUi3T3L-M9_yWS5kNJrwU";
@@ -1588,7 +1643,7 @@ function getSupabase() {
   return sbClient;
 }
 
-const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices", maintenance: "maintenance" };
+const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices", maintenance: "maintenance", expense: "expenses" };
 const FLEET_STATUS_OPTIONS = ["Available", "On trip", "In service"];
 const SERVICE_TYPE_OPTIONS = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package", "Individual"];
 const COUNTRY_CODE_OPTIONS = [
@@ -1609,6 +1664,7 @@ const COUNTRY_CODE_OPTIONS = [
   { code: "82", label: "🇰🇷 +82" }
 ];
 const MAINTENANCE_STATUS_OPTIONS = ["Scheduled", "Workshop", "Overdue", "Done"];
+const EXPENSE_CATEGORY_OPTIONS = ["Maintenance", "Fuel", "Salary", "Insurance", "Office", "Other"];
 const TIME_OPTIONS = (() => {
   const out = [];
   for (let h = 0; h < 24; h++) {
@@ -1619,7 +1675,7 @@ const TIME_OPTIONS = (() => {
   return out;
 })();
 const PASSENGER_OPTIONS = Array.from({ length: 45 }, (_, i) => String(i + 1));
-const TYPE_SUFFIX = { booking: "Booking", fleet: "Fleet", driver: "Driver", customer: "Customer", invoice: "Invoice", maintenance: "Maintenance" };
+const TYPE_SUFFIX = { booking: "Booking", fleet: "Fleet", driver: "Driver", customer: "Customer", invoice: "Invoice", maintenance: "Maintenance", expense: "Expense" };
 const FIELD_DEFS = {
   booking: [
     { key: "ref", labelKey: "fldRef" }, { key: "customer", labelKey: "fldCustomer" },
@@ -1660,18 +1716,24 @@ const FIELD_DEFS = {
     { key: "vehicle", labelKey: "fldVehicle", type: "select", required: true }, { key: "date", labelKey: "fldDate", type: "date", required: true },
     { key: "assigned_driver", labelKey: "fldAssignedDriver", type: "select" },
     { key: "status", labelKey: "fldStatus", type: "select", options: MAINTENANCE_STATUS_OPTIONS, required: true }
+  ],
+  expense: [
+    { key: "description", labelKey: "fldDescription", required: true },
+    { key: "category", labelKey: "fldCategory", type: "select", options: EXPENSE_CATEGORY_OPTIONS, required: true },
+    { key: "amount", labelKey: "fldAmount", required: true },
+    { key: "expense_date", labelKey: "fldExpenseDate", type: "date", required: true }
   ]
 };
 const FILTERS = [
   { key: "All", en: "All", idt: "Semua" },
   { key: "Today", en: "Today", idt: "Hari ini" },
-  { key: "Awaiting driver", en: "Awaiting driver", idt: "Menunggu pengemudi" },
+  { key: "Awaiting driver", en: "Awaiting driver", idt: "Belum ada pengemudi" },
   { key: "Unpaid", en: "Unpaid", idt: "Belum dibayar" },
   { key: "Quotes", en: "Quotes", idt: "Penawaran" }
 ];
 
 const WORD_MAP_ID = {
-  "Awaiting driver": "Menunggu pengemudi",
+  "Awaiting driver": "Belum ada pengemudi",
   "Deposit due": "DP jatuh tempo",
   "Quote sent": "Penawaran terkirim",
   "Deposit paid": "DP lunas",
@@ -1711,7 +1773,13 @@ const WORD_MAP_ID = {
   "trips": "perjalanan",
   "yrs": "thn",
   "Aug": "Agu",
-  "AUG": "AGU"
+  "AUG": "AGU",
+  "Maintenance": "Perawatan",
+  "Fuel": "Bahan Bakar",
+  "Salary": "Gaji",
+  "Insurance": "Asuransi",
+  "Office": "Kantor",
+  "Other": "Lainnya"
 };
 const WORD_KEYS_SORTED = Object.keys(WORD_MAP_ID).sort((a, b) => b.length - a.length);
 function trWords(str, lang) {
@@ -1932,7 +2000,7 @@ class Component extends DCLogic {
   state = {
     screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en",
     session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
-    bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], loaded: false,
+    bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
@@ -2002,16 +2070,17 @@ class Component extends DCLogic {
       client.from("invoices").select("*").order("created_at", { ascending: false }),
       client.from("maintenance").select("*").order("created_at", { ascending: false }),
       client.from("trip_requests").select("*").order("created_at", { ascending: false }),
+      client.from("expenses").select("*").order("created_at", { ascending: false }),
       client.from("profiles").select("role, name, avatar_url").eq("id", uid).single()
     ]).then((res) => {
       const b = (res[0].data || []).map((r) => Object.assign({}, r, { from: r.from_location, to: r.to_location }));
-      const profile = res[7].data || {};
+      const profile = res[8].data || {};
       const role = profile.role || "driver";
       this.setState((p) => ({
         bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [],
-        invoices: res[4].data || [], maintenance: res[5].data || [], tripRequests: res[6].data || [],
+        invoices: res[4].data || [], maintenance: res[5].data || [], tripRequests: res[6].data || [], expenses: res[7].data || [],
         userRole: role, profileName: profile.name || "", profileAvatar: profile.avatar_url || "", loaded: true,
-        screen: role === "driver" && p.screen !== "bookings" ? "bookings" : p.screen
+        screen: role === "driver" && p.screen !== "bookings" && p.screen !== "maintenance" ? "bookings" : p.screen
       }));
     });
   };
@@ -2100,7 +2169,7 @@ class Component extends DCLogic {
     this.setState({
       session: null, loaded: false, screen: "dashboard", detail: null, showMoreSheet: false,
       userRole: "driver", profileName: "", profileAvatar: "",
-      bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: []
+      bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: []
     });
   };
 
@@ -2118,7 +2187,8 @@ class Component extends DCLogic {
   closeForm = () => this.setState({ showForm: false });
   setFormField = (key) => (e) => {
     const s = this.state;
-    const isMoneyField = s.formType === "invoice" && ["subtotal", "discount", "down_payment", "receive_payment"].indexOf(key) >= 0;
+    const isMoneyField = (s.formType === "invoice" && ["subtotal", "discount", "down_payment", "receive_payment"].indexOf(key) >= 0)
+      || (s.formType === "expense" && key === "amount");
     const v = isMoneyField ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ formValues: Object.assign({}, p.formValues, { [key]: v }) }));
   };
@@ -2210,10 +2280,16 @@ class Component extends DCLogic {
       return;
     }
     const total = items.reduce((sum, it) => sum + parseAmount(it.amount), 0);
+    const serviceRow = s.maintenance.find((m) => m.id === s.completeServiceId);
+    const vehicleName = serviceRow ? serviceRow.vehicle : "";
     client.from("maintenance").update({ items: items, cost: formatRupiah(total), status: "Done" }).eq("id", s.completeServiceId).then((res) => {
       if (res.error) return;
       this.setState({ showCompleteService: false });
-      this.loadAll();
+      client.from("expenses").insert({
+        description: STR.maintenanceExpenseDescPrefix[s.lang] + vehicleName,
+        category: "Maintenance", amount: formatRupiah(total),
+        expense_date: new Date().toISOString().slice(0, 10)
+      }).then(() => this.loadAll());
     });
   };
   openInvoicePrint = (invoice, computed) => {
@@ -2514,12 +2590,25 @@ class Component extends DCLogic {
     });
     const reqs = editingId
       ? [client.from("bookings").update(payloads[0]).eq("id", editingId)]
-      : payloads.map((p) => client.from("bookings").insert(p));
+      : payloads.map((p) => client.from("bookings").insert(p).select());
     Promise.all(reqs).then((results) => {
       this._submittingBooking = false;
       if (results.some((r) => r.error)) return;
       this.setState({ showNew: false, editingBookingId: null });
-      this.loadAll();
+      if (editingId) { this.loadAll(); return; }
+      const invoiceReqs = results.map((r) => {
+        const row = r.data && r.data[0];
+        if (!row) return Promise.resolve();
+        const rowBaseNum = parseAmount(row.base);
+        const rowFinalNum = parseAmount(row.amount);
+        const rowDiscountNum = Math.max(0, rowBaseNum - rowFinalNum);
+        return this.nextInvoiceNo().then((no) => client.from("invoices").insert({
+          no: no, account: row.customer, issued: this.formatToday(), booking_ref: row.ref,
+          subtotal: formatRupiah(rowBaseNum), discount: formatRupiah(rowDiscountNum),
+          down_payment: "Rp 0", receive_payment: "Rp 0"
+        }));
+      });
+      Promise.all(invoiceReqs).then(() => this.loadAll());
     });
   };
 
@@ -2576,10 +2665,11 @@ class Component extends DCLogic {
     const fabAction = canManage ? this.openNewBooking : this.openTripRequest;
     const withOpen = (b) => {
       const matchedVehicle = s.fleet.find((v) => v.name === b.vehicle);
+      const displayStatus = b.driver === "Unassigned" ? "Awaiting driver" : b.status;
       const enhanced = Object.assign({}, b, {
         edit: (e) => { e.stopPropagation(); this.openEditBooking(b); },
         remove: (e) => { e.stopPropagation(); this.askDelete("booking", b.id); },
-        status: trWords(b.status, lang), time: trWords(b.time, lang), type: trWords(b.type, lang),
+        status: trWords(displayStatus, lang), time: trWords(b.time, lang), type: trWords(b.type, lang),
         vehiclePlate: matchedVehicle ? matchedVehicle.plate : ""
       });
       enhanced.open = () => this.setState({ detail: enhanced });
@@ -2747,8 +2837,29 @@ class Component extends DCLogic {
     const todaysBookingsAll = s.bookings.filter((b) => (b.time || "").indexOf(todayDateStr) === 0);
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const bookingsThisMonth = s.bookings.filter((b) => b.created_at && new Date(b.created_at) >= monthStart);
-    const revenueMonthNum = bookingsThisMonth.reduce((sum, b) => sum + parseAmount(b.amount), 0);
+    const paidAmountForBooking = (b) => {
+      const inv = s.invoices.find((i) => i.booking_ref === b.ref);
+      if (!inv) return 0;
+      return parseAmount(inv.down_payment) + parseAmount(inv.receive_payment);
+    };
+    const revenueMonthNum = bookingsThisMonth.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
     const revenueMonthLabel = formatRupiahShort(revenueMonthNum);
+    const expensesTr = s.expenses.map((ex) => Object.assign({}, ex, {
+      categoryLabel: trWords(ex.category, lang),
+      amountLabel: formatRupiah(parseAmount(ex.amount)),
+      edit: (e) => { e.stopPropagation(); this.openFormFor("expense", "edit", ex); },
+      remove: (e) => { e.stopPropagation(); this.askDelete("expense", ex.id); }
+    }));
+    const hasExpenses = expensesTr.length > 0;
+    const noExpensesYet = !hasExpenses;
+    const expensesThisMonth = s.expenses.filter((ex) => ex.expense_date && new Date(ex.expense_date) >= monthStart);
+    const expensesMonthNum = expensesThisMonth.reduce((sum, ex) => sum + parseAmount(ex.amount), 0);
+    const expensesMonthLabel = formatRupiahShort(expensesMonthNum);
+    const totalExpensesAllNum = s.expenses.reduce((sum, ex) => sum + parseAmount(ex.amount), 0);
+    const totalPaidAllTimeNum = s.bookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
+    const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
+    const companyBalanceLabel = formatRupiahShort(companyBalanceNum);
+    const expensesNavLabel = NAV_LABELS.expenses[lang];
     const tripsTodayLabel = lang === "id"
       ? (bookingsThisMonth.length + " pemesanan bulan ini")
       : (bookingsThisMonth.length + " bookings this month");
@@ -2785,10 +2896,15 @@ class Component extends DCLogic {
         ? (fleetInServiceCountVal + " unit dalam servis · " + overdueCount + " terlambat")
         : (fleetInServiceCountVal + " units in service · " + overdueCount + " overdue");
     }
+    if (s.screen === "expenses") {
+      pageSub = lang === "id"
+        ? (expensesThisMonth.length + " pengeluaran bulan ini · " + expensesMonthLabel)
+        : (expensesThisMonth.length + " expenses this month · " + expensesMonthLabel);
+    }
 
     const prevMonthStart = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
     const bookingsPrevMonth = s.bookings.filter((b) => b.created_at && new Date(b.created_at) >= prevMonthStart && new Date(b.created_at) < monthStart);
-    const revenuePrevMonthNum = bookingsPrevMonth.reduce((sum, b) => sum + parseAmount(b.amount), 0);
+    const revenuePrevMonthNum = bookingsPrevMonth.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
     const revenueChangePct = revenuePrevMonthNum > 0
       ? Math.round(((revenueMonthNum - revenuePrevMonthNum) / revenuePrevMonthNum) * 100)
       : (revenueMonthNum > 0 ? 100 : 0);
@@ -2800,7 +2916,7 @@ class Component extends DCLogic {
     bookingsThisMonth.forEach((b) => {
       const d = new Date(b.created_at);
       const idx = Math.min(4, Math.floor((d.getDate() - 1) / 7));
-      weekBuckets[idx] += parseAmount(b.amount);
+      weekBuckets[idx] += paidAmountForBooking(b);
     });
     const maxWeek = Math.max(1, weekBuckets[0], weekBuckets[1], weekBuckets[2], weekBuckets[3], weekBuckets[4]);
     const revenueWeekBars = weekBuckets.map((v, i) => ({
@@ -2828,7 +2944,7 @@ class Component extends DCLogic {
       : s.bookings.filter((b) => monthKeyOf(b.created_at) === s.revenueServiceMonth);
     const serviceRevenueMap = {};
     SERVICE_TYPE_OPTIONS.forEach((t2) => { serviceRevenueMap[t2] = 0; });
-    bookingsForServiceRevenue.forEach((b) => { if (serviceRevenueMap.hasOwnProperty(b.type)) serviceRevenueMap[b.type] += parseAmount(b.amount); });
+    bookingsForServiceRevenue.forEach((b) => { if (serviceRevenueMap.hasOwnProperty(b.type)) serviceRevenueMap[b.type] += paidAmountForBooking(b); });
     const serviceRevenueValues = SERVICE_TYPE_OPTIONS.map((t2) => serviceRevenueMap[t2]);
     const maxServiceRevenue = Math.max(1, ...serviceRevenueValues);
     const revenueByServiceRows = SERVICE_TYPE_OPTIONS.map((t2) => ({
@@ -2904,12 +3020,16 @@ class Component extends DCLogic {
     const hasAttentionItems = needsAttentionItems.length > 0;
 
     const upcomingRaw = s.bookings.slice(0, 3);
-    const nextPickupItems = upcomingRaw.map((b, i) => ({
-      time: extractTimeHHMM(b.time),
-      line1: b.customer,
-      line2: b.vehicle + (b.driver && b.driver !== "Unassigned" ? " · " + b.driver : ""),
-      showDivider: i < upcomingRaw.length - 1
-    }));
+    const nextPickupItems = upcomingRaw.map((b, i) => {
+      const matchedVehicle = s.fleet.find((v) => v.name === b.vehicle);
+      const vehicleWithPlate = b.vehicle + (matchedVehicle && matchedVehicle.plate ? " · " + matchedVehicle.plate : "");
+      return {
+        time: extractTimeHHMM(b.time),
+        line1: b.customer,
+        line2: vehicleWithPlate + (b.driver && b.driver !== "Unassigned" ? " · " + b.driver : ""),
+        showDivider: i < upcomingRaw.length - 1
+      };
+    });
     const hasNextPickups = nextPickupItems.length > 0;
 
     const chartBars = buildChartBars(s.bookings, s.chartRange, lang);
@@ -3019,7 +3139,7 @@ class Component extends DCLogic {
       langIdStyle: lang === "id" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
       setLangEn: () => this.setState({ lang: "en" }),
       setLangId: () => this.setState({ lang: "id" }),
-      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings") : NAV_OPS),
+      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings" || n.id === "maintenance") : NAV_OPS),
       navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
       pageTitle: s.screen === "dashboard" ? dashboardGreeting : t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
@@ -3028,7 +3148,8 @@ class Component extends DCLogic {
       isDashboard: s.screen === "dashboard" && s.loaded && !isDriverRole, isBookings: s.screen === "bookings" && s.loaded,
       isFleet: s.screen === "fleet" && s.loaded && !isDriverRole, isDrivers: s.screen === "drivers" && s.loaded && !isDriverRole,
       isCustomers: s.screen === "customers" && s.loaded && !isDriverRole, isRevenue: s.screen === "revenue" && s.loaded && !isDriverRole,
-      isMaintenance: s.screen === "maintenance" && s.loaded && !isDriverRole,
+      isMaintenance: s.screen === "maintenance" && s.loaded,
+      isExpenses: s.screen === "expenses" && s.loaded && !isDriverRole,
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"),
       todayCols: [
         { key: "customer", label: L.colCustomer, align: "left" },
@@ -3063,6 +3184,8 @@ class Component extends DCLogic {
         go: () => this.setState({ filter: f.key, bookingsPage: 1 })
       })),
       fleet: fleetTr, drivers: driversSorted, customers: customersTr, invoices: invoicesTr, services: servicesTr,
+      expensesTr: expensesTr, hasExpenses: hasExpenses, noExpensesYet: noExpensesYet,
+      expensesMonthLabel: expensesMonthLabel, companyBalanceLabel: companyBalanceLabel,
       pendingTripRequests: pendingTripRequests, hasTripRequests: hasTripRequests,
       showInvoicePrint: s.showInvoicePrint, closeInvoicePrint: this.closeInvoicePrint,
       printInvoice: s.printInvoice || {}, triggerPrint: this.triggerPrint,
@@ -3161,7 +3284,9 @@ class Component extends DCLogic {
       openMoreSheet: this.openMoreSheet, closeMoreSheet: this.closeMoreSheet, showMoreSheet: s.showMoreSheet,
       showFab: showFab, fabAction: fabAction,
       customersNavLabel: customersNavLabel, maintenanceNavLabel: maintenanceNavLabel, revenueNavLabel: revenueNavLabel,
+      expensesNavLabel: expensesNavLabel,
       goCustomersMobile: this.go("customers"), goMaintenanceMobile: this.go("maintenance"), goRevenueMobile: this.go("revenue"),
+      goExpensesMobile: this.go("expenses"),
       openSettingsMobile: this.openSettingsMobile,
       showLogin: s.showLogin, openLogin: this.openLogin, closeLogin: this.closeLogin,
       loginEmail: s.loginEmail, loginPassword: s.loginPassword,
@@ -3174,6 +3299,7 @@ class Component extends DCLogic {
       addCustomer: () => this.openFormFor("customer", "add", null),
       addInvoice: () => this.openFormFor("invoice", "add", null),
       addMaintenance: () => this.openFormFor("maintenance", "add", null),
+      addExpense: () => this.openFormFor("expense", "add", null),
       showForm: s.showForm, closeForm: this.closeForm, saveForm: this.saveForm,
       formTitle: formTitle, formFields: formFields, formError: s.formError,
 
