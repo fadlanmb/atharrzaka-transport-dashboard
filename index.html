@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <script src="./support.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <x-dc>
@@ -346,6 +347,22 @@ html,body{overflow-x:hidden}
 </div>
 <div onClick="{{ r.approve }}" style="font-size:11px;font-weight:600;color:#4d6a30;border:1px solid rgba(93,138,58,.35);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.approveBtn }}</div>
 <div onClick="{{ r.reject }}" style="font-size:11px;font-weight:600;color:#a8471f;border:1px solid rgba(168,71,31,.3);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.rejectBtn }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ isDriverRole }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ hasMyPendingRequests }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid rgba(219,175,93,.4);border-radius:14px;padding:16px 20px">
+<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#8a6614">{{ L.myPendingRequestsTitle }}</div>
+<sc-for list="{{ myPendingRequests }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid rgba(89,50,3,.06)">
+<div style="flex:1;min-width:0">
+<div style="font-size:12.5px;font-weight:500">{{ r.pickup }} → {{ r.destination }}</div>
+<div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ r.trip_date }} · {{ r.pickup_time }} · {{ r.service_type }}</div>
+</div>
+<span style="font-size:10px;font-weight:600;padding:5px 10px;border-radius:20px;background:rgba(219,175,93,.18);color:#8a6614;white-space:nowrap">{{ L.awaitingApprovalBadge }}</span>
 </div>
 </sc-for>
 </div>
@@ -1231,16 +1248,16 @@ Jl. KH Tubagus Abdullah RT/RW. 002/001, Sukaasih, Purbaratu.<br>
 Tasikmalaya, Jawa Barat. 46115<br>
 atharrazkatransport@gmail.com / +62 813 956 3210
 </div>
-<div style="border-top:2px solid #181818;border-bottom:1px solid rgba(89,50,3,.2);padding:8px 0;display:flex;font-size:10.5px;font-weight:600;letter-spacing:.05em;color:rgba(24,24,24,.5);margin-bottom:10px">
-<div style="flex:1">{{ L.descriptionCol }}</div><div style="width:130px;text-align:right">{{ L.colAmount }}</div>
+<div style="border-bottom:1px solid rgba(89,50,3,.2);padding:0 0 8px;display:flex;font-size:10.5px;font-weight:600;letter-spacing:.05em;color:rgba(24,24,24,.5);margin-bottom:10px">
+<div style="flex:1.5">{{ L.invoiceVehicleLabel }}</div>
+<div style="flex:1;text-align:right">{{ L.invoiceDurationLabel }}</div>
+<div style="flex:1;text-align:right">{{ L.invoicePricePerDayLabel }}</div>
+<div style="width:130px;text-align:right">{{ L.invoiceTotalRentalLabel }}</div>
 </div>
-<div style="display:flex;font-size:12.5px;padding:8px 0 26px">
-<div style="flex:1;display:flex;flex-direction:column;gap:4px">
-<div style="font-weight:600">{{ L.rentalDescription }}</div>
-<div style="color:rgba(24,24,24,.65)">{{ L.invoiceVehicleLabel }}: {{ printInvoice.vehicleName }}</div>
-<div style="color:rgba(24,24,24,.65)">{{ L.invoiceDurationLabel }}: {{ printInvoice.rentalDaysLabel }}</div>
-<div style="color:rgba(24,24,24,.65)">{{ L.invoicePricePerDayLabel }}: {{ printInvoice.pricePerDayLabel }}</div>
-</div>
+<div style="display:flex;font-size:12.5px;padding:0 0 26px">
+<div style="flex:1.5;font-weight:600">{{ printInvoice.vehicleName }}</div>
+<div style="flex:1;text-align:right;color:rgba(24,24,24,.65)">{{ printInvoice.rentalDaysLabel }}</div>
+<div style="flex:1;text-align:right;color:rgba(24,24,24,.65)">{{ printInvoice.pricePerDayLabel }}</div>
 <div style="width:130px;text-align:right;font-weight:600">{{ printInvoice.subtotalLabel }}</div>
 </div>
 <div style="display:flex;justify-content:space-between">
@@ -1361,6 +1378,8 @@ const STR = {
   tripRequestSentMsg: { en: "Request sent. The ops manager will follow up.", id: "Permintaan terkirim. Manajer operasional akan menindaklanjuti." },
   tripRequestRequiredError: { en: "Please fill in customer, phone, pickup and destination.", id: "Mohon isi pelanggan, telepon, penjemputan, dan tujuan." },
   pendingRequestsTitle: { en: "Pending trip requests", id: "Permintaan trip menunggu" },
+  myPendingRequestsTitle: { en: "Awaiting manager approval", id: "Menunggu persetujuan manajer" },
+  awaitingApprovalBadge: { en: "Awaiting approval", id: "Menunggu persetujuan" },
   approveBtn: { en: "Approve", id: "Setujui" },
   rejectBtn: { en: "Reject", id: "Tolak" },
   loginTitle: { en: "Admin login", id: "Login admin" },
@@ -1417,9 +1436,10 @@ const STR = {
   toLabel: { en: "To", id: "Kepada" },
   descriptionCol: { en: "Description", id: "Deskripsi" },
   rentalDescription: { en: "Vehicle rental", id: "Sewa kendaraan" },
-  invoiceVehicleLabel: { en: "Vehicle", id: "Kendaraan" },
-  invoiceDurationLabel: { en: "Rental duration", id: "Lama sewa" },
-  invoicePricePerDayLabel: { en: "Price per day", id: "Harga per hari" },
+  invoiceVehicleLabel: { en: "Vehicle Type", id: "Jenis Kendaraan" },
+  invoiceDurationLabel: { en: "Rental Duration", id: "Lama Sewa" },
+  invoicePricePerDayLabel: { en: "Price per Day", id: "Harga per Hari" },
+  invoiceTotalRentalLabel: { en: "Total Rental", id: "Total Sewa" },
   invoiceDaysUnit: { en: "day(s)", id: "hari" },
   billToLabel: { en: "Bill To", id: "Pembayaran ke" },
   bankAccountLabel: { en: "Account", id: "Rekening" },
@@ -1708,7 +1728,7 @@ const FIELD_DEFS = {
   ],
   invoice: [
     { key: "no", labelKey: "fldNo" }, { key: "account", labelKey: "fldAccount" },
-    { key: "issued", labelKey: "fldIssued" },
+    { key: "issued", labelKey: "fldIssued", type: "date", required: true },
     { key: "subtotal", labelKey: "fldSubtotal" }, { key: "discount", labelKey: "fldDiscount" },
     { key: "down_payment", labelKey: "fldDownPayment" }, { key: "receive_payment", labelKey: "fldReceivePayment" }
   ],
@@ -1799,6 +1819,16 @@ function invoiceBalanceDue(i) {
   const dpNum = parseAmount(i.down_payment);
   const receivedNum = parseAmount(i.receive_payment);
   return Math.max(0, subtotalNum - discountNum - dpNum - receivedNum);
+}
+function latestInvoicesByBooking(invoices) {
+  const map = {};
+  const standalone = [];
+  invoices.forEach((i) => {
+    if (!i.booking_ref) { standalone.push(i); return; }
+    const cur = map[i.booking_ref];
+    if (!cur || new Date(i.created_at) > new Date(cur.created_at)) map[i.booking_ref] = i;
+  });
+  return Object.keys(map).map((k) => map[k]).concat(standalone);
 }
 function hoursToDurationLabel(hoursStr) {
   const n = parseFloat(hoursStr);
@@ -2177,6 +2207,9 @@ class Component extends DCLogic {
     const defs = FIELD_DEFS[type];
     const values = {};
     defs.forEach((f) => { values[f.key] = row && row[f.key] != null ? String(row[f.key]) : ""; });
+    if (type === "invoice") {
+      values.issued = row && row.issued ? displayDateToISO(row.issued) : new Date().toISOString().slice(0, 10);
+    }
     this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "" });
     if (type === "invoice" && mode === "add") {
       this.nextInvoiceNo().then((no) => {
@@ -2221,6 +2254,7 @@ class Component extends DCLogic {
     const table = TABLE_NAMES[s.formType];
     const payload = Object.assign({}, s.formValues);
     if (s.formType === "fleet") payload.seats = Number(payload.seats) || 0;
+    if (s.formType === "invoice" && payload.issued) payload.issued = isoToDisplayDate(payload.issued) || payload.issued;
     const lang = s.lang;
     const defs = FIELD_DEFS[s.formType] || [];
     const missingRequired = defs.some((f) => f.required && f.type !== "file" && !String(payload[f.key] || "").trim());
@@ -2233,6 +2267,16 @@ class Component extends DCLogic {
       if (receivedNum > subtotalNum) { this.setState({ formError: STR.invoiceReceivedExceedsError[lang] }); return; }
     }
     this._submittingForm = true;
+    if (s.formType === "invoice" && s.formMode === "edit") {
+      const original = s.invoices.find((i) => i.id === s.formEditId);
+      const bookingRef = original ? original.booking_ref : payload.booking_ref;
+      this.nextInvoiceNo().then((no) => client.from("invoices").insert(Object.assign({}, payload, { no: no, booking_ref: bookingRef })).then((res) => {
+        this._submittingForm = false;
+        if (res.error) { this.setState({ formError: STR.saveErrorGeneric[lang] }); return; }
+        this.loadAll().then(() => this.setState({ showForm: false }));
+      }));
+      return;
+    }
     const req = s.formMode === "add" ? client.from(table).insert(payload) : client.from(table).update(payload).eq("id", s.formEditId);
     req.then((res) => {
       this._submittingForm = false;
@@ -2316,6 +2360,17 @@ class Component extends DCLogic {
     const inv = this.state.printInvoice || {};
     const numPart = String(inv.no || "").replace(/^[A-Za-z]+-?/, "");
     const fileName = "ARZ-" + (numPart || "0000");
+    const el = document.querySelector(".print-invoice");
+    if (window.html2pdf && el) {
+      window.html2pdf().set({
+        margin: 0,
+        filename: fileName + ".pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+      }).from(el).save();
+      return;
+    }
     const prevTitle = document.title;
     document.title = fileName;
     window.print();
@@ -2770,7 +2825,7 @@ class Component extends DCLogic {
     const corpAccountsCount = s.customers.filter((c) => c.type === "Corporate").length;
     const returningCustomersCount = s.customers.filter((c) => parseInt(c.trips, 10) > 1).length;
     const returningRatePct = s.customers.length ? Math.round((returningCustomersCount / s.customers.length) * 100) : 0;
-    const outstandingNum = s.invoices.reduce((sum, i) => sum + invoiceBalanceDue(i), 0);
+    const outstandingNum = latestInvoicesByBooking(s.invoices).reduce((sum, i) => sum + invoiceBalanceDue(i), 0);
     const outstandingLabel = formatRupiahShort(outstandingNum);
 
     const customersTr = s.customers.map((c) => Object.assign({}, c, {
@@ -2821,6 +2876,11 @@ class Component extends DCLogic {
       approve: this.approveTripRequest(r), reject: this.rejectTripRequest(r.id)
     }));
     const hasTripRequests = pendingTripRequests.length > 0;
+    const myEmail = s.session ? s.session.user.email : "";
+    const myPendingRequests = s.tripRequests.filter((r) => r.status === "Pending" && r.requested_by === myEmail).map((r) => Object.assign({}, r, {
+      trip_date: trWords(r.trip_date, lang), service_type: trWords(r.service_type, lang)
+    }));
+    const hasMyPendingRequests = myPendingRequests.length > 0;
     const detailAlreadyInvoiced = !!(s.detail && s.invoices.some((i) => i.booking_ref === s.detail.ref));
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone }) : null;
 
@@ -2838,9 +2898,10 @@ class Component extends DCLogic {
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const bookingsThisMonth = s.bookings.filter((b) => b.created_at && new Date(b.created_at) >= monthStart);
     const paidAmountForBooking = (b) => {
-      const inv = s.invoices.find((i) => i.booking_ref === b.ref);
-      if (!inv) return 0;
-      return parseAmount(inv.down_payment) + parseAmount(inv.receive_payment);
+      const invs = s.invoices.filter((i) => i.booking_ref === b.ref);
+      if (!invs.length) return 0;
+      const latest = invs.reduce((a, c) => (new Date(c.created_at) > new Date(a.created_at) ? c : a));
+      return parseAmount(latest.down_payment) + parseAmount(latest.receive_payment);
     };
     const revenueMonthNum = bookingsThisMonth.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
     const revenueMonthLabel = formatRupiahShort(revenueMonthNum);
@@ -2987,7 +3048,7 @@ class Component extends DCLogic {
 
     const unassignedBooking = s.bookings.find((b) => b.driver === "Unassigned");
     const inServiceVehicle = s.fleet.find((v) => v.status === "In service");
-    const unpaidInvoice = s.invoices.find((i) => invoiceBalanceDue(i) > 0);
+    const unpaidInvoice = latestInvoicesByBooking(s.invoices).find((i) => invoiceBalanceDue(i) > 0);
     const attentionRaw = [];
     if (unassignedBooking) {
       attentionRaw.push({
@@ -3141,7 +3202,7 @@ class Component extends DCLogic {
       setLangId: () => this.setState({ lang: "id" }),
       navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings" || n.id === "maintenance") : NAV_OPS),
       navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
-      pageTitle: s.screen === "dashboard" ? dashboardGreeting : t[0], pageSub: pageSub,
+      pageTitle: (s.screen === "dashboard" || isDriverRole) ? dashboardGreeting : t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
       canManage: canManage, isDriverRole: isDriverRole, isDirectorRole: isDirectorRole, showFinancials: showFinancials,
       roleBadgeLabel: roleBadgeLabel, roleNameLabel: roleNameLabel, roleTitleLabel: roleTitleLabel,
@@ -3187,6 +3248,7 @@ class Component extends DCLogic {
       expensesTr: expensesTr, hasExpenses: hasExpenses, noExpensesYet: noExpensesYet,
       expensesMonthLabel: expensesMonthLabel, companyBalanceLabel: companyBalanceLabel,
       pendingTripRequests: pendingTripRequests, hasTripRequests: hasTripRequests,
+      myPendingRequests: myPendingRequests, hasMyPendingRequests: hasMyPendingRequests,
       showInvoicePrint: s.showInvoicePrint, closeInvoicePrint: this.closeInvoicePrint,
       printInvoice: s.printInvoice || {}, triggerPrint: this.triggerPrint,
       showCompleteService: s.showCompleteService, closeCompleteService: this.closeCompleteService,
