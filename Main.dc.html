@@ -339,6 +339,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="flex:1;min-width:0">
 <div style="font-size:12.5px;font-weight:500">{{ r.customer }} · {{ r.phone }}</div>
 <div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ r.pickup }} → {{ r.destination }}</div>
+<div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ r.trip_date }} · {{ r.pickup_time }} · {{ r.service_type }}</div>
 </div>
 <div onClick="{{ r.approve }}" style="font-size:11px;font-weight:600;color:#4d6a30;border:1px solid rgba(93,138,58,.35);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.approveBtn }}</div>
 <div onClick="{{ r.reject }}" style="font-size:11px;font-weight:600;color:#a8471f;border:1px solid rgba(168,71,31,.3);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.rejectBtn }}</div>
@@ -998,37 +999,74 @@ a{color:#824703}a:hover{color:#DBAF5D}
 
 <sc-if value="{{ showTripRequest }}" hint-placeholder-val="{{ false }}">
 <div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeTripRequest }}">
-<div class="modal-panel" style="width:420px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
-<div style="font-size:17px;font-weight:600;margin-bottom:6px">{{ L.tripRequestTitle }}</div>
-<div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.tripRequestSubtitle }}</div>
+<div class="modal-panel" style="width:660px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
+<div class="wizard-pad" style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09)">
+<div style="font-size:17px;font-weight:600">{{ L.tripRequestTitle }}</div>
+<div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-top:2px">{{ L.tripRequestSubtitle }}</div>
+</div>
 <sc-if value="{{ tripRequestSent }}" hint-placeholder-val="{{ false }}">
+<div class="wizard-pad" style="padding:22px 26px 0">
 <div style="font-size:12.5px;color:#4d6a30;background:rgba(93,138,58,.1);border-radius:10px;padding:14px;text-align:center">{{ L.tripRequestSentMsg }}</div>
+</div>
 </sc-if>
-<div style="display:flex;flex-direction:column;gap:12px">
-<div>
-<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.fldCustomer }} <span style="color:#a8471f">*</span></div>
-<input value="{{ tripRequestForm.customer }}" onChange="{{ setTripCustomer }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+<div class="wizard-pad" style="padding:22px 26px;display:flex;flex-direction:column;gap:16px">
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }} <span style="color:#a8471f">*</span></div><input value="{{ tripRequestForm.customer }}" onChange="{{ setTripCustomer }}" placeholder="PT Sinar Mandiri" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.phoneLabel }} <span style="color:#a8471f">*</span></div>
+<div style="display:flex;gap:6px">
+<select value="{{ tripRequestForm.phoneCountry }}" onChange="{{ setTripPhoneCountry }}" style="flex:none;width:76px;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 4px;font-size:12px;font-family:inherit;background:#fff">
+<sc-for list="{{ countryCodeOptions }}" as="cc" hint-placeholder-count="10">
+<option value="{{ cc.code }}">{{ cc.label }}</option>
+</sc-for>
+</select>
+<input value="{{ tripRequestForm.phone }}" onChange="{{ setTripPhone }}" placeholder="812 3456 7890" inputmode="numeric" style="flex:1;min-width:0;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit">
 </div>
-<div>
-<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.fldPhone }} <span style="color:#a8471f">*</span></div>
-<input value="{{ tripRequestForm.phone }}" onChange="{{ setTripPhone }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
 </div>
-<div>
-<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.pickupLabel }} <span style="color:#a8471f">*</span></div>
-<input value="{{ tripRequestForm.pickup }}" onChange="{{ setTripPickup }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
 </div>
-<div>
-<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.destinationLabel }} <span style="color:#a8471f">*</span></div>
-<input value="{{ tripRequestForm.destination }}" onChange="{{ setTripDestination }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.serviceTypeLabel }} <span style="color:#a8471f">*</span></div>
+<select value="{{ tripRequestForm.serviceType }}" onChange="{{ setTripServiceType }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ serviceTypeOptions }}" as="opt" hint-placeholder-count="5">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
 </div>
-<div>
-<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.fldNotes }}</div>
-<input value="{{ tripRequestForm.notes }}" onChange="{{ setTripNotes }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupLabel }} <span style="color:#a8471f">*</span></div><input value="{{ tripRequestForm.pickup }}" onChange="{{ setTripPickup }}" placeholder="Hotel Mulia, Senayan" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }} <span style="color:#a8471f">*</span></div><input value="{{ tripRequestForm.destination }}" onChange="{{ setTripDestination }}" placeholder="Terminal 3 CGK" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+</div>
+<div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }} <span style="color:#a8471f">*</span></div><input type="date" value="{{ tripRequestForm.dateISO }}" onChange="{{ setTripDate }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }} <span style="color:#a8471f">*</span></div>
+<select value="{{ tripRequestForm.pickupTime }}" onChange="{{ setTripPickupTime }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ pickupTimeOptions }}" as="opt" hint-placeholder-count="6">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
+</div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }} <span style="color:#a8471f">*</span></div>
+<select value="{{ tripRequestForm.passengers }}" onChange="{{ setTripPassengers }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ passengerOptions }}" as="opt" hint-placeholder-count="6">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
+</div>
+</div>
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.durationHoursLabel }} <span style="color:#a8471f">*</span></div><input value="{{ tripRequestForm.durationHours }}" onChange="{{ setTripDurationHours }}" placeholder="4" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.fldNotes }}</div><input value="{{ tripRequestForm.notes }}" onChange="{{ setTripNotes }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 <sc-if value="{{ tripRequestError }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11px;color:#a8471f">{{ tripRequestError }}</div>
 </sc-if>
-<div onClick="{{ submitTripRequest }}" style="margin-top:6px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.requestTrip }}</div>
+</div>
+<div class="wizard-pad" style="padding:16px 26px 22px;border-top:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
+<div onClick="{{ closeTripRequest }}" style="font-size:12px;color:rgba(24,24,24,.55);padding:11px 15px;border-radius:10px;border:1px solid rgba(89,50,3,.14);cursor:pointer">{{ L.cancelBtn }}</div>
+<div onClick="{{ submitTripRequest }}" style="margin-left:auto;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px 20px;cursor:pointer">{{ L.requestTrip }}</div>
 </div>
 </div>
 </div>
@@ -1894,7 +1932,7 @@ class Component extends DCLogic {
     showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", revenueServiceMonth: "all",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
-    showTripRequest: false, tripRequestForm: { customer: "", phone: "", pickup: "", destination: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
+    showTripRequest: false, tripRequestForm: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
     showSettings: false, settingsName: "", settingsAvatar: "", settingsNewPassword: "", settingsConfirmPassword: "", settingsError: "", settingsSaved: false,
     showCompleteService: false, completeServiceId: null, completeServiceItems: [], completeServiceError: "",
     editingBookingId: null,
@@ -1965,7 +2003,8 @@ class Component extends DCLogic {
       this.setState((p) => ({
         bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [],
         invoices: res[4].data || [], maintenance: res[5].data || [], tripRequests: res[6].data || [],
-        userRole: role, profileName: profile.name || "", profileAvatar: profile.avatar_url || "", loaded: true
+        userRole: role, profileName: profile.name || "", profileAvatar: profile.avatar_url || "", loaded: true,
+        screen: role === "driver" && p.screen !== "bookings" ? "bookings" : p.screen
       }));
     });
   };
@@ -2269,7 +2308,7 @@ class Component extends DCLogic {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showTripRequest: true, tripRequestError: "", tripRequestSent: false,
-      tripRequestForm: { customer: "", phone: "", pickup: "", destination: "", notes: "" }
+      tripRequestForm: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", notes: "" }
     });
   };
   closeTripRequest = () => this.setState({ showTripRequest: false });
@@ -2277,13 +2316,22 @@ class Component extends DCLogic {
     const v = e.target.value;
     this.setState((p) => ({ tripRequestForm: Object.assign({}, p.tripRequestForm, { [key]: v }) }));
   };
+  setTripPhoneNumber = (e) => {
+    const v = e.target.value.replace(/[^0-9]/g, "").slice(0, 13);
+    this.setState((p) => ({ tripRequestForm: Object.assign({}, p.tripRequestForm, { phone: v }) }));
+  };
+  setTripDateField = (e) => {
+    const iso = e.target.value;
+    const display = isoToDisplayDate(iso);
+    this.setState((p) => ({ tripRequestForm: Object.assign({}, p.tripRequestForm, { date: display, dateISO: iso }) }));
+  };
   submitTripRequest = () => {
     if (this._submittingTripRequest) return;
     const client = getSupabase();
     const s = this.state;
     if (!client || !s.session) return;
     const f = s.tripRequestForm;
-    if (!f.customer || !f.phone || !f.pickup || !f.destination) {
+    if (!f.customer || !f.phone || !f.serviceType || !f.pickup || !f.destination || !f.date || !f.pickupTime || !f.passengers || !f.durationHours) {
       this.setState({ tripRequestError: STR.tripRequestRequiredError[s.lang] });
       return;
     }
@@ -2291,7 +2339,8 @@ class Component extends DCLogic {
     this._submittingTripRequest = true;
     client.from("trip_requests").insert({
       requested_by: s.session.user.email || "driver",
-      customer: f.customer, phone: f.phone, pickup: f.pickup, destination: f.destination, notes: f.notes,
+      customer: f.customer, phone: composeFullPhone(f.phoneCountry, f.phone), pickup: f.pickup, destination: f.destination, notes: f.notes,
+      service_type: f.serviceType, trip_date: f.date, pickup_time: f.pickupTime, passengers: f.passengers, duration_hours: f.durationHours,
       status: "Pending"
     }).then((res) => {
       this._submittingTripRequest = false;
@@ -2307,13 +2356,16 @@ class Component extends DCLogic {
       if (res.error) return;
       this.loadAll();
     });
-    const phoneDigits = String(request.phone || "").replace(/[^0-9]/g, "");
+    const phoneMatch = String(request.phone || "").match(/^\+(\d+)\s+(\d+)$/);
+    const phoneCountry = phoneMatch ? phoneMatch[1] : "62";
+    const phoneDigits = phoneMatch ? phoneMatch[2] : String(request.phone || "").replace(/[^0-9]/g, "");
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: null,
       newBooking: {
-        customer: request.customer || "", phoneCountry: "62", phone: phoneDigits,
-        serviceType: "", pickup: request.pickup || "", destination: request.destination || "",
-        date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "",
+        customer: request.customer || "", phoneCountry: phoneCountry, phone: phoneDigits,
+        serviceType: request.service_type || "", pickup: request.pickup || "", destination: request.destination || "",
+        date: request.trip_date || "", dateISO: request.trip_date ? displayDateToISO(request.trip_date) : "",
+        pickupTime: request.pickup_time || "", passengers: request.passengers || "", durationHours: request.duration_hours || "",
         vehicleIndexes: [0], discount: "", waConfirmed: false
       }
     });
@@ -2463,7 +2515,7 @@ class Component extends DCLogic {
     const roleBadgeLabel = isDriverRole ? L.driverBadge : isDirectorRole ? L.directorBadge : L.adminBadge;
     const roleNameLabel = s.profileName || (isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager);
     const roleTitleLabel = isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager;
-    const showFinancials = true;
+    const showFinancials = !isDriverRole;
     const hasProfileAvatar = !!s.profileAvatar;
     const hasSettingsAvatar = !!s.settingsAvatar;
     const settingsFormVisible = !s.settingsSaved;
@@ -2482,7 +2534,7 @@ class Component extends DCLogic {
       active: s.screen === n.id, inactive: s.screen !== n.id, go: this.go(n.id)
     }));
     const showBottomNav = isAdmin;
-    const showFullBottomNav = isAdmin;
+    const showFullBottomNav = isAdmin && !isDriverRole;
     const NAV_ON = "#824703", NAV_OFF = "rgba(24,24,24,.45)";
     const dashTabColor = s.screen === "dashboard" ? NAV_ON : NAV_OFF;
     const bookingsTabColor = s.screen === "bookings" ? NAV_ON : NAV_OFF;
@@ -2944,16 +2996,16 @@ class Component extends DCLogic {
       langIdStyle: lang === "id" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
       setLangEn: () => this.setState({ lang: "en" }),
       setLangId: () => this.setState({ lang: "id" }),
-      navOps: nav(NAV_OPS),
-      navInsight: nav(NAV_INSIGHT),
+      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings") : NAV_OPS),
+      navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
       pageTitle: s.screen === "dashboard" ? dashboardGreeting : t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
       canManage: canManage, isDriverRole: isDriverRole, isDirectorRole: isDirectorRole, showFinancials: showFinancials,
       roleBadgeLabel: roleBadgeLabel, roleNameLabel: roleNameLabel, roleTitleLabel: roleTitleLabel,
-      isDashboard: s.screen === "dashboard" && s.loaded, isBookings: s.screen === "bookings" && s.loaded,
-      isFleet: s.screen === "fleet" && s.loaded, isDrivers: s.screen === "drivers" && s.loaded,
-      isCustomers: s.screen === "customers" && s.loaded, isRevenue: s.screen === "revenue" && s.loaded,
-      isMaintenance: s.screen === "maintenance" && s.loaded,
+      isDashboard: s.screen === "dashboard" && s.loaded && !isDriverRole, isBookings: s.screen === "bookings" && s.loaded,
+      isFleet: s.screen === "fleet" && s.loaded && !isDriverRole, isDrivers: s.screen === "drivers" && s.loaded && !isDriverRole,
+      isCustomers: s.screen === "customers" && s.loaded && !isDriverRole, isRevenue: s.screen === "revenue" && s.loaded && !isDriverRole,
+      isMaintenance: s.screen === "maintenance" && s.loaded && !isDriverRole,
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"),
       todayCols: [
         { key: "customer", label: L.colCustomer, align: "left" },
@@ -3005,8 +3057,11 @@ class Component extends DCLogic {
       showTripRequest: s.showTripRequest, openTripRequest: this.openTripRequest, closeTripRequest: this.closeTripRequest,
       tripRequestForm: s.tripRequestForm, tripRequestError: s.tripRequestError, tripRequestSent: s.tripRequestSent,
       submitTripRequest: this.submitTripRequest,
-      setTripCustomer: this.setTripRequestField("customer"), setTripPhone: this.setTripRequestField("phone"),
+      setTripCustomer: this.setTripRequestField("customer"), setTripPhone: this.setTripPhoneNumber,
+      setTripPhoneCountry: this.setTripRequestField("phoneCountry"), setTripServiceType: this.setTripRequestField("serviceType"),
       setTripPickup: this.setTripRequestField("pickup"), setTripDestination: this.setTripRequestField("destination"),
+      setTripDate: this.setTripDateField, setTripPickupTime: this.setTripRequestField("pickupTime"),
+      setTripPassengers: this.setTripRequestField("passengers"), setTripDurationHours: this.setTripRequestField("durationHours"),
       setTripNotes: this.setTripRequestField("notes"),
       hasServices: hasServices, noServicesYet: noServicesYet,
       revenuePeriodLabel: revenuePeriodLabel, revenueChangeLabel: revenueChangeLabel,
