@@ -44,7 +44,10 @@ a{color:#824703}a:hover{color:#DBAF5D}
   .header-cta{display:none!important}
   .profile-text{display:none!important}
   .profile-block{padding-left:0!important;border-left:none!important}
-  .page-title{font-size:15px!important}
+  .page-sub{display:none!important}
+  .header-badge{display:none!important}
+  .page-title{font-size:15px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44vw}
+  .page-title-wrap{min-width:0}
   .kpi-grid{grid-template-columns:repeat(2,1fr)!important}
   .stat-grid-3{grid-template-columns:repeat(2,1fr)!important}
   .two-col{grid-template-columns:1fr!important}
@@ -53,7 +56,8 @@ a{color:#824703}a:hover{color:#DBAF5D}
   .screen-pad{padding:14px 12px 90px!important}
   .data-grid-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
   .tbl-min{min-width:640px!important}
-  .modal-panel{width:94vw!important;max-width:none!important;max-height:88vh!important}
+  .modal-backdrop{padding:8px!important}
+  .modal-panel{width:100%!important;max-width:none!important;max-height:92vh!important;box-sizing:border-box!important}
   .detail-drawer{width:92vw!important}
   .bottom-nav{display:flex!important}
   .fab-btn{display:flex!important;bottom:78px!important}
@@ -146,7 +150,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div class="header-bar" style="display:flex;align-items:center;gap:18px;padding:18px 28px;background:#fff;border-bottom:1px solid rgba(89,50,3,.09);position:sticky;top:0;z-index:20">
 <div class="page-title-wrap">
 <div class="page-title" style="font-size:19px;font-weight:600;letter-spacing:-.3px">{{ pageTitle }}</div>
-<div style="font-size:11.5px;color:rgba(24,24,24,.5)">{{ pageSub }}</div>
+<div class="page-sub" style="font-size:11.5px;color:rgba(24,24,24,.5)">{{ pageSub }}</div>
 </div>
 <div class="header-actions" style="margin-left:auto;display:flex;align-items:center;gap:12px">
 <div style="display:flex;align-items:center;gap:2px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:8px;padding:3px">
@@ -168,7 +172,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div class="profile-text" style="line-height:1.15"><div style="font-size:12px;font-weight:500">{{ roleNameLabel }}</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ roleTitleLabel }}</div></div>
 </div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
-<div style="display:flex;align-items:center;gap:8px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
+<div class="header-badge" style="display:flex;align-items:center;gap:8px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
 <div style="font-size:10px;font-weight:600;color:#4d6a30;background:rgba(93,138,58,.12);border-radius:20px;padding:5px 9px">{{ roleBadgeLabel }}</div>
 <div onClick="{{ logout }}" style="font-size:11px;font-weight:600;color:#824703;cursor:pointer">{{ L.logout }}</div>
 </div>
@@ -636,32 +640,72 @@ a{color:#824703}a:hover{color:#DBAF5D}
 
 <sc-if value="{{ showBottomNav }}" hint-placeholder-val="{{ false }}">
 <div class="bottom-nav" style="position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid rgba(89,50,3,.1);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom)">
-<sc-for list="{{ bottomNavTabs }}" as="bt" hint-placeholder-count="4">
-<sc-if value="{{ bt.active }}" hint-placeholder-val="{{ false }}">
-<div onClick="{{ bt.go }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:#824703;font-weight:600">
-<div style="width:5px;height:5px;border-radius:50%;background:#824703;margin:0 auto 4px"></div>
-<div style="font-size:10px">{{ bt.label }}</div>
+
+<sc-if value="{{ dashTabActive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ goDashTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:#824703">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+<div style="font-size:9.5px;font-weight:600;margin-top:3px">{{ dashTabLabel }}</div>
 </div>
 </sc-if>
-<sc-if value="{{ bt.inactive }}" hint-placeholder-val="{{ true }}">
-<div onClick="{{ bt.go }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:rgba(24,24,24,.45)">
-<div style="width:5px;height:5px;border-radius:50%;background:transparent;margin:0 auto 4px"></div>
-<div style="font-size:10px">{{ bt.label }}</div>
+<sc-if value="{{ dashTabInactive }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ goDashTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:rgba(24,24,24,.45)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+<div style="font-size:9.5px;margin-top:3px">{{ dashTabLabel }}</div>
 </div>
 </sc-if>
-</sc-for>
+
+<sc-if value="{{ bookingsTabActive }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ goBookingsTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:#824703">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<div style="font-size:9.5px;font-weight:600;margin-top:3px">{{ bookingsTabLabel }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ bookingsTabInactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ goBookingsTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:rgba(24,24,24,.45)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<div style="font-size:9.5px;margin-top:3px">{{ bookingsTabLabel }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ fleetTabActive }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ goFleetTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:#824703">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+<div style="font-size:9.5px;font-weight:600;margin-top:3px">{{ fleetTabLabel }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ fleetTabInactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ goFleetTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:rgba(24,24,24,.45)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+<div style="font-size:9.5px;margin-top:3px">{{ fleetTabLabel }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ driversTabActive }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ goDriversTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:#824703">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+<div style="font-size:9.5px;font-weight:600;margin-top:3px">{{ driversTabLabel }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ driversTabInactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ goDriversTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:rgba(24,24,24,.45)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+<div style="font-size:9.5px;margin-top:3px">{{ driversTabLabel }}</div>
+</div>
+</sc-if>
+
 <sc-if value="{{ moreTabActive }}" hint-placeholder-val="{{ false }}">
-<div onClick="{{ openMoreSheet }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:#824703;font-weight:600">
-<div style="width:5px;height:5px;border-radius:50%;background:#824703;margin:0 auto 4px"></div>
-<div style="font-size:10px">{{ L.moreTab }}</div>
+<div onClick="{{ openMoreSheet }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:#824703">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin:0 auto"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+<div style="font-size:9.5px;font-weight:600;margin-top:3px">{{ L.moreTab }}</div>
 </div>
 </sc-if>
 <sc-if value="{{ moreTabInactive }}" hint-placeholder-val="{{ true }}">
-<div onClick="{{ openMoreSheet }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:rgba(24,24,24,.45)">
-<div style="width:5px;height:5px;border-radius:50%;background:transparent;margin:0 auto 4px"></div>
-<div style="font-size:10px">{{ L.moreTab }}</div>
+<div onClick="{{ openMoreSheet }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:rgba(24,24,24,.45)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin:0 auto"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+<div style="font-size:9.5px;margin-top:3px">{{ L.moreTab }}</div>
 </div>
 </sc-if>
+
 </div>
 </sc-if>
 
@@ -746,7 +790,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 <sc-if value="{{ showNew }}" hint-placeholder-val="{{ false }}">
-<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeNewBooking }}">
+<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeNewBooking }}">
 <div class="modal-panel" style="width:660px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
 <div style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
 <div><div style="font-size:17px;font-weight:600">{{ wizardTitle }}</div><div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-top:2px">{{ stepOfText }}</div></div>
@@ -879,7 +923,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
-<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeLogin }}">
+<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeLogin }}">
 <div class="modal-panel" style="width:360px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
 <div style="font-size:17px;font-weight:600;margin-bottom:18px">{{ L.loginTitle }}</div>
 <div style="display:flex;flex-direction:column;gap:12px">
@@ -901,7 +945,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 <sc-if value="{{ showTripRequest }}" hint-placeholder-val="{{ false }}">
-<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeTripRequest }}">
+<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeTripRequest }}">
 <div class="modal-panel" style="width:420px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
 <div style="font-size:17px;font-weight:600;margin-bottom:6px">{{ L.tripRequestTitle }}</div>
 <div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.tripRequestSubtitle }}</div>
@@ -939,7 +983,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 <sc-if value="{{ showSettings }}" hint-placeholder-val="{{ false }}">
-<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeSettings }}">
+<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeSettings }}">
 <div class="modal-panel" style="width:400px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
 <div style="font-size:17px;font-weight:600;margin-bottom:18px">{{ L.settingsTitle }}</div>
 <div style="display:flex;flex-direction:column;gap:14px">
@@ -980,7 +1024,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 <sc-if value="{{ showCompleteService }}" hint-placeholder-val="{{ false }}">
-<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeCompleteService }}">
+<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeCompleteService }}">
 <div class="modal-panel" style="width:500px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
 <div style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
 <div style="font-size:17px;font-weight:600">{{ L.completeServiceTitle }}</div>
@@ -1019,7 +1063,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 <sc-if value="{{ showInvoicePrint }}" hint-placeholder-val="{{ false }}">
-<div class="no-print" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeInvoicePrint }}">
+<div class="no-print modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeInvoicePrint }}">
 <div class="modal-panel" style="width:640px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
 <div style="padding:18px 22px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
 <div style="font-size:15px;font-weight:600">{{ L.downloadInvoiceTitle }}</div>
@@ -1083,7 +1127,7 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 </sc-if>
 
 <sc-if value="{{ showForm }}" hint-placeholder-val="{{ false }}">
-<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeForm }}">
+<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeForm }}">
 <div class="modal-panel" style="width:520px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
 <div style="padding:22px 26px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
 <div style="font-size:17px;font-weight:600">{{ formTitle }}</div>
@@ -2288,10 +2332,14 @@ class Component extends DCLogic {
       active: s.screen === n.id, inactive: s.screen !== n.id, go: this.go(n.id)
     }));
     const showBottomNav = isAdmin && !isDriverRole;
-    const BOTTOM_NAV_IDS = ["dashboard", "bookings", "fleet", "drivers"];
-    const bottomNavTabs = BOTTOM_NAV_IDS.map((id) => ({
-      label: NAV_LABELS[id][lang], active: s.screen === id, inactive: s.screen !== id, go: this.go(id)
-    }));
+    const dashTabActive = s.screen === "dashboard", dashTabInactive = !dashTabActive;
+    const bookingsTabActive = s.screen === "bookings", bookingsTabInactive = !bookingsTabActive;
+    const fleetTabActive = s.screen === "fleet", fleetTabInactive = !fleetTabActive;
+    const driversTabActive = s.screen === "drivers", driversTabInactive = !driversTabActive;
+    const dashTabLabel = NAV_LABELS.dashboard[lang], bookingsTabLabel = NAV_LABELS.bookings[lang];
+    const fleetTabLabel = NAV_LABELS.fleet[lang], driversTabLabel = NAV_LABELS.drivers[lang];
+    const goDashTab = this.go("dashboard"), goBookingsTab = this.go("bookings");
+    const goFleetTab = this.go("fleet"), goDriversTab = this.go("drivers");
     const moreTabActive = ["customers", "maintenance", "revenue"].indexOf(s.screen) >= 0;
     const moreTabInactive = !moreTabActive;
     const customersNavLabel = NAV_LABELS.customers[lang];
@@ -2824,7 +2872,11 @@ class Component extends DCLogic {
       selectedVehiclePrice: selectedVehiclePrice,
 
       isAdmin: isAdmin, isGuest: isGuest,
-      showBottomNav: showBottomNav, bottomNavTabs: bottomNavTabs, moreTabActive: moreTabActive, moreTabInactive: moreTabInactive,
+      showBottomNav: showBottomNav, moreTabActive: moreTabActive, moreTabInactive: moreTabInactive,
+      dashTabActive: dashTabActive, dashTabInactive: dashTabInactive, dashTabLabel: dashTabLabel, goDashTab: goDashTab,
+      bookingsTabActive: bookingsTabActive, bookingsTabInactive: bookingsTabInactive, bookingsTabLabel: bookingsTabLabel, goBookingsTab: goBookingsTab,
+      fleetTabActive: fleetTabActive, fleetTabInactive: fleetTabInactive, fleetTabLabel: fleetTabLabel, goFleetTab: goFleetTab,
+      driversTabActive: driversTabActive, driversTabInactive: driversTabInactive, driversTabLabel: driversTabLabel, goDriversTab: goDriversTab,
       openMoreSheet: this.openMoreSheet, closeMoreSheet: this.closeMoreSheet, showMoreSheet: s.showMoreSheet,
       showFab: showFab, fabAction: fabAction,
       customersNavLabel: customersNavLabel, maintenanceNavLabel: maintenanceNavLabel, revenueNavLabel: revenueNavLabel,
