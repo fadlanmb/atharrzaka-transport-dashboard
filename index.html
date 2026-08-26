@@ -12,9 +12,15 @@
 <helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"><style>
 body{margin:0;background:#F4F1EC;font-family:Poppins,system-ui,sans-serif;color:#181818}
 a{color:#824703}a:hover{color:#DBAF5D}
-.mobile-menu-btn{display:none}
-.mobile-overlay{display:none}
 .data-grid-wrap{overflow-x:visible}
+.bottom-nav{display:none}
+.fab-btn{display:none}
+@media print{
+  body *{visibility:hidden}
+  .print-invoice,.print-invoice *{visibility:visible}
+  .print-invoice{position:absolute;top:0;left:0;width:100%}
+  .no-print{display:none!important}
+}
 @keyframes dcSpin{to{transform:rotate(360deg)}}
 @keyframes dcFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dcBarGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
@@ -32,25 +38,25 @@ a{color:#824703}a:hover{color:#DBAF5D}
 .dc-live-dot{width:6px;height:6px;border-radius:50%;background:#5b7a3a;display:inline-block;animation:dcPulse 1.6s ease-in-out infinite}
 @media (max-width:860px){
   .app-shell{flex-direction:column}
-  .sidebar{position:fixed!important;top:0;left:0;height:100vh!important;width:80vw!important;max-width:300px;transform:translateX(-100%);transition:transform .22s ease;z-index:100;box-shadow:20px 0 40px rgba(24,24,24,.15)}
-  .sidebar.nav-open{transform:translateX(0)}
-  .mobile-menu-btn{display:flex!important;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1px solid rgba(89,50,3,.14);cursor:pointer;flex:none}
-  .mobile-overlay.nav-open{display:block;position:fixed;inset:0;background:rgba(24,24,24,.4);z-index:99}
-  .header-bar{padding:14px 16px!important;gap:10px!important;flex-wrap:wrap}
+  .sidebar{display:none!important}
+  .header-bar{padding:12px 14px!important;gap:8px!important}
   .header-actions{gap:8px!important}
-  .profile-block{display:none!important}
-  .page-title{font-size:16px!important}
+  .header-cta{display:none!important}
+  .profile-text{display:none!important}
+  .profile-block{padding-left:0!important;border-left:none!important}
+  .page-title{font-size:15px!important}
   .kpi-grid{grid-template-columns:repeat(2,1fr)!important}
   .stat-grid-3{grid-template-columns:repeat(2,1fr)!important}
   .two-col{grid-template-columns:1fr!important}
   .fleet-grid{grid-template-columns:1fr!important}
   .form-grid-2,.form-grid-3{grid-template-columns:1fr!important}
-  .screen-pad{padding:16px 14px 24px!important}
+  .screen-pad{padding:14px 12px 90px!important}
   .data-grid-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
   .tbl-min{min-width:640px!important}
-  .modal-panel{width:92vw!important;max-width:none!important}
+  .modal-panel{width:94vw!important;max-width:none!important;max-height:88vh!important}
   .detail-drawer{width:92vw!important}
-  .sidebar-name{display:none}
+  .bottom-nav{display:flex!important}
+  .fab-btn{display:flex!important;bottom:78px!important}
 }
 </style></helmet>
 
@@ -96,7 +102,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ true }}">
 <div class="app-shell" style="display:flex;min-height:100vh;background:#F4F1EC">
 
-<div class="sidebar {{ sidebarClass }}" style="width:238px;flex:none;background:#fff;border-right:1px solid rgba(89,50,3,.09);padding:22px 18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh;box-sizing:border-box">
+<div class="sidebar" style="width:238px;flex:none;background:#fff;border-right:1px solid rgba(89,50,3,.09);padding:22px 18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh;box-sizing:border-box">
 <div style="display:flex;align-items:center;gap:9px">
 <img src="logo.png" alt="Atharrazka Transport" style="height:32px;width:auto;display:block">
 <div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(89,50,3,.55);border:1px solid rgba(89,50,3,.2);border-radius:5px;padding:3px 6px;margin-top:2px">OPS</div>
@@ -134,14 +140,10 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 
 </div>
-<div class="mobile-overlay {{ sidebarClass }}" onClick="{{ closeMobileNav }}"></div>
 
 <div style="flex:1;min-width:0;display:flex;flex-direction:column">
 
 <div class="header-bar" style="display:flex;align-items:center;gap:18px;padding:18px 28px;background:#fff;border-bottom:1px solid rgba(89,50,3,.09);position:sticky;top:0;z-index:20">
-<div class="mobile-menu-btn" onClick="{{ openMobileNav }}">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-</div>
 <div class="page-title-wrap">
 <div class="page-title" style="font-size:19px;font-weight:600;letter-spacing:-.3px">{{ pageTitle }}</div>
 <div style="font-size:11.5px;color:rgba(24,24,24,.5)">{{ pageSub }}</div>
@@ -152,10 +154,10 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
 </div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
-<div onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.newBooking }}</div>
+<div class="header-cta" onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.newBooking }}</div>
 </sc-if>
 <sc-if value="{{ isDriverRole }}" hint-placeholder-val="{{ false }}">
-<div onClick="{{ openTripRequest }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.requestTrip }}</div>
+<div class="header-cta" onClick="{{ openTripRequest }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.requestTrip }}</div>
 </sc-if>
 <div class="profile-block" onClick="{{ openSettings }}" style="display:flex;align-items:center;gap:9px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1);cursor:pointer">
 <div style="width:34px;height:34px;border-radius:50%;flex:none;overflow:hidden;background:linear-gradient(140deg,#DBAF5D,#824703);border:2px solid #F6E6BE">
@@ -163,7 +165,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <img src="{{ profileAvatar }}" style="width:100%;height:100%;object-fit:cover;display:block">
 </sc-if>
 </div>
-<div style="line-height:1.15"><div style="font-size:12px;font-weight:500">{{ roleNameLabel }}</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ roleTitleLabel }}</div></div>
+<div class="profile-text" style="line-height:1.15"><div style="font-size:12px;font-weight:500">{{ roleNameLabel }}</div><div style="font-size:10px;color:rgba(24,24,24,.45)">{{ roleTitleLabel }}</div></div>
 </div>
 <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;align-items:center;gap:8px;padding-left:6px;border-left:1px solid rgba(89,50,3,.1)">
@@ -560,6 +562,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.statusLabel }}</span></div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
+<div onClick="{{ i.download }}" style="color:#824703;cursor:pointer;display:flex" title="Download"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ i.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ i.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
@@ -624,6 +627,57 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </sc-if>
 
 </div>
+
+<sc-if value="{{ showFab }}" hint-placeholder-val="{{ false }}">
+<div class="fab-btn" onClick="{{ fabAction }}" style="position:fixed;right:18px;bottom:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(89,50,3,.35);cursor:pointer;z-index:65">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</div>
+</sc-if>
+
+<sc-if value="{{ showBottomNav }}" hint-placeholder-val="{{ false }}">
+<div class="bottom-nav" style="position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid rgba(89,50,3,.1);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom)">
+<sc-for list="{{ bottomNavTabs }}" as="bt" hint-placeholder-count="4">
+<sc-if value="{{ bt.active }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ bt.go }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:#824703;font-weight:600">
+<div style="width:5px;height:5px;border-radius:50%;background:#824703;margin:0 auto 4px"></div>
+<div style="font-size:10px">{{ bt.label }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ bt.inactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ bt.go }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:rgba(24,24,24,.45)">
+<div style="width:5px;height:5px;border-radius:50%;background:transparent;margin:0 auto 4px"></div>
+<div style="font-size:10px">{{ bt.label }}</div>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{ moreTabActive }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ openMoreSheet }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:#824703;font-weight:600">
+<div style="width:5px;height:5px;border-radius:50%;background:#824703;margin:0 auto 4px"></div>
+<div style="font-size:10px">{{ L.moreTab }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ moreTabInactive }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ openMoreSheet }}" style="flex:1;text-align:center;padding:9px 2px 8px;cursor:pointer;color:rgba(24,24,24,.45)">
+<div style="width:5px;height:5px;border-radius:50%;background:transparent;margin:0 auto 4px"></div>
+<div style="font-size:10px">{{ L.moreTab }}</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ showMoreSheet }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:75;display:flex;align-items:flex-end" onClick="{{ closeMoreSheet }}">
+<div style="width:100%;background:#fff;border-radius:18px 18px 0 0;padding:10px 8px 22px;box-shadow:0 -20px 50px rgba(24,24,24,.2)" onClick="{{ stop }}">
+<div style="width:36px;height:4px;border-radius:3px;background:rgba(89,50,3,.2);margin:6px auto 14px"></div>
+<div onClick="{{ goCustomersMobile }}" style="padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">{{ customersNavLabel }}</div>
+<div onClick="{{ goMaintenanceMobile }}" style="padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">{{ maintenanceNavLabel }}</div>
+<div onClick="{{ goRevenueMobile }}" style="padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">{{ revenueNavLabel }}</div>
+<div style="height:1px;background:rgba(89,50,3,.08);margin:6px 18px"></div>
+<div onClick="{{ openSettingsMobile }}" style="padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">{{ L.settingsTitle }}</div>
+<div onClick="{{ logout }}" style="padding:14px 18px;font-size:14px;font-weight:500;color:#a8471f;cursor:pointer">{{ L.logout }}</div>
+</div>
+</div>
+</sc-if>
 
 <sc-if value="{{ detail }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.42);z-index:60;display:flex;justify-content:flex-end" onClick="{{ closeDetail }}">
@@ -964,6 +1018,70 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 </sc-if>
 
+<sc-if value="{{ showInvoicePrint }}" hint-placeholder-val="{{ false }}">
+<div class="no-print" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeInvoicePrint }}">
+<div class="modal-panel" style="width:640px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
+<div style="padding:18px 22px;border-bottom:1px solid rgba(89,50,3,.09);display:flex;align-items:center">
+<div style="font-size:15px;font-weight:600">{{ L.downloadInvoiceTitle }}</div>
+<div onClick="{{ closeInvoicePrint }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
+</div>
+<div class="print-invoice" style="padding:36px 40px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+<img src="logo.png" alt="Atharrazka Transport" style="height:44px;width:auto">
+<div style="font-size:28px;font-weight:700;color:#3d2200;letter-spacing:.04em">INVOICE</div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:18px">
+<div>
+<div style="color:rgba(24,24,24,.5)">{{ L.toLabel }}</div>
+<div style="font-weight:600;font-size:13px;margin-top:2px">{{ printInvoice.account }}</div>
+</div>
+<div style="text-align:right">
+<div style="font-weight:600">{{ printInvoice.no }}</div>
+<div style="color:rgba(24,24,24,.5);margin-top:2px">{{ printInvoice.issued }}</div>
+</div>
+</div>
+<div style="font-size:11px;color:rgba(24,24,24,.6);line-height:1.6;margin-bottom:26px">
+Atharrazka Transport<br>
+Jl. KH Tubagus Abdullah RT/RW. 002/001, Sukaasih, Purbaratu.<br>
+Tasikmalaya, Jawa Barat. 46115<br>
+atharrazkatransport@gmail.com / +62 813 956 3210
+</div>
+<div style="border-top:2px solid #181818;border-bottom:1px solid rgba(89,50,3,.2);padding:8px 0;display:flex;font-size:10.5px;font-weight:600;letter-spacing:.05em;color:rgba(24,24,24,.5);margin-bottom:10px">
+<div style="flex:1">{{ L.descriptionCol }}</div><div style="width:130px;text-align:right">{{ L.colAmount }}</div>
+</div>
+<div style="display:flex;font-size:12.5px;padding:8px 0 26px">
+<div style="flex:1">{{ L.rentalDescription }} — {{ printInvoice.booking_ref }}</div>
+<div style="width:130px;text-align:right;font-weight:600">{{ printInvoice.subtotalLabel }}</div>
+</div>
+<div style="display:flex;justify-content:space-between">
+<div style="font-size:11px;color:rgba(24,24,24,.6);line-height:1.7">
+<div style="font-weight:600;color:#181818">{{ L.billToLabel }}</div>
+<div>{{ L.bankAccountLabel }}: 1380620649</div>
+<div>{{ L.bankNameLabel }}: Bank Central Asia</div>
+<div>{{ L.bankHolderLabel }}: Fadlan Muhammad Bahtiar</div>
+</div>
+<div style="width:220px;display:flex;flex-direction:column;gap:7px;font-size:12px">
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.subtotalLabel }}</span><span style="margin-left:auto">{{ printInvoice.subtotalLabel }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.discountLabel }}</span><span style="margin-left:auto">{{ printInvoice.discountLabel }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.fldDownPayment }}</span><span style="margin-left:auto">{{ printInvoice.downPaymentLabel }}</span></div>
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.fldReceivePayment }}</span><span style="margin-left:auto">{{ printInvoice.receivePaymentLabel }}</span></div>
+<div style="height:1px;background:rgba(89,50,3,.15);margin:2px 0"></div>
+<div style="display:flex;font-weight:700;font-size:13.5px"><span>{{ L.balanceDueTitle }}</span><span style="margin-left:auto">{{ printInvoice.balanceDueLabel }}</span></div>
+</div>
+</div>
+<div style="margin-top:50px;text-align:right;font-size:11.5px;color:rgba(24,24,24,.7)">
+<div>{{ L.regardsLabel }}</div>
+<div style="height:44px"></div>
+<div style="font-weight:600;color:#181818">Atharrazka Transport</div>
+</div>
+</div>
+<div class="no-print" style="padding:16px 22px;border-top:1px solid rgba(89,50,3,.09);display:flex;justify-content:flex-end">
+<div onClick="{{ triggerPrint }}" style="font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:11px 20px;cursor:pointer">{{ L.printDownloadBtn }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
 <sc-if value="{{ showForm }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeForm }}">
 <div class="modal-panel" style="width:520px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3)" onClick="{{ stop }}">
@@ -1068,6 +1186,7 @@ const STR = {
   confirmDelete: { en: "Delete this record?", id: "Hapus data ini?" },
   saveErrorGeneric: { en: "Could not save. Please try again.", id: "Gagal menyimpan. Silakan coba lagi." },
   settingsTitle: { en: "Account settings", id: "Pengaturan akun" },
+  moreTab: { en: "More", id: "Lainnya" },
   fldDisplayName: { en: "Display name", id: "Nama tampilan" },
   fldNewPassword: { en: "New password (leave blank to keep current)", id: "Kata sandi baru (kosongkan jika tidak diubah)" },
   fldConfirmPassword: { en: "Confirm new password", id: "Konfirmasi kata sandi baru" },
@@ -1099,6 +1218,17 @@ const STR = {
   fldDiscount: { en: "Discount", id: "Diskon" },
   fldDownPayment: { en: "Down payment", id: "Uang muka" },
   fldReceivePayment: { en: "Receive payment", id: "Pembayaran diterima" },
+  downloadInvoiceTitle: { en: "Download invoice", id: "Unduh faktur" },
+  toLabel: { en: "To", id: "Kepada" },
+  descriptionCol: { en: "Description", id: "Deskripsi" },
+  rentalDescription: { en: "Vehicle rental", id: "Sewa kendaraan" },
+  billToLabel: { en: "Bill To", id: "Pembayaran ke" },
+  bankAccountLabel: { en: "Account", id: "Rekening" },
+  bankNameLabel: { en: "Bank Name", id: "Nama Bank" },
+  bankHolderLabel: { en: "Bank Detail", id: "Atas Nama" },
+  balanceDueTitle: { en: "Balance Due", id: "Sisa Tagihan" },
+  regardsLabel: { en: "Regards,", id: "Hormat kami," },
+  printDownloadBtn: { en: "Print / Save as PDF", id: "Cetak / Simpan sebagai PDF" },
   fldFrom: { en: "From", id: "Dari" },
   fldTo: { en: "To", id: "Ke" },
   fldEta: { en: "ETA", id: "Estimasi tiba" },
@@ -1640,13 +1770,14 @@ class Component extends DCLogic {
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "", waConfirmed: false },
-    mobileNavOpen: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd",
+    showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "manager", weatherTemp: null, profileName: "", profileAvatar: "",
     showTripRequest: false, tripRequestForm: { customer: "", phone: "", pickup: "", destination: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
     showSettings: false, settingsName: "", settingsAvatar: "", settingsNewPassword: "", settingsConfirmPassword: "", settingsError: "", settingsSaved: false,
     showCompleteService: false, completeServiceId: null, completeServiceItems: [], completeServiceError: "",
-    editingBookingId: null
+    editingBookingId: null,
+    showInvoicePrint: false, printInvoice: null
   };
 
   componentDidMount() {
@@ -1719,9 +1850,10 @@ class Component extends DCLogic {
     });
   };
 
-  go = (id) => () => this.setState({ screen: id, detail: null, mobileNavOpen: false });
-  openMobileNav = () => this.setState({ mobileNavOpen: true });
-  closeMobileNav = () => this.setState({ mobileNavOpen: false });
+  go = (id) => () => this.setState({ screen: id, detail: null, showMoreSheet: false });
+  openMoreSheet = () => this.setState({ showMoreSheet: true });
+  openSettingsMobile = () => { this.setState({ showMoreSheet: false }); this.openSettings(); };
+  closeMoreSheet = () => this.setState({ showMoreSheet: false });
   sortToday = (key) => () => {
     this.setState((p) => ({ todaySortKey: key, todaySortDir: p.todaySortKey === key ? -p.todaySortDir : 1 }));
   };
@@ -1898,6 +2030,19 @@ class Component extends DCLogic {
       this.loadAll();
     });
   };
+  openInvoicePrint = (invoice, computed) => {
+    this.setState({
+      showInvoicePrint: true,
+      printInvoice: Object.assign({}, invoice, {
+        statusLabel: computed.statusLabel,
+        subtotalLabel: formatRupiah(computed.subtotalNum), discountLabel: formatRupiah(computed.discountNum),
+        downPaymentLabel: formatRupiah(computed.dpNum), receivePaymentLabel: formatRupiah(computed.receivedNum),
+        balanceDueLabel: formatRupiah(computed.balanceDueNum)
+      })
+    });
+  };
+  closeInvoicePrint = () => this.setState({ showInvoicePrint: false });
+  triggerPrint = () => window.print();
   openSettings = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState((p) => ({
@@ -2142,6 +2287,18 @@ class Component extends DCLogic {
       label: NAV_LABELS[n.id][lang], badge: navBadgeCounts[n.id] != null ? String(navBadgeCounts[n.id]) : (n.badge || ""),
       active: s.screen === n.id, inactive: s.screen !== n.id, go: this.go(n.id)
     }));
+    const showBottomNav = isAdmin && !isDriverRole;
+    const BOTTOM_NAV_IDS = ["dashboard", "bookings", "fleet", "drivers"];
+    const bottomNavTabs = BOTTOM_NAV_IDS.map((id) => ({
+      label: NAV_LABELS[id][lang], active: s.screen === id, inactive: s.screen !== id, go: this.go(id)
+    }));
+    const moreTabActive = ["customers", "maintenance", "revenue"].indexOf(s.screen) >= 0;
+    const moreTabInactive = !moreTabActive;
+    const customersNavLabel = NAV_LABELS.customers[lang];
+    const maintenanceNavLabel = NAV_LABELS.maintenance[lang];
+    const revenueNavLabel = NAV_LABELS.revenue[lang];
+    const showFab = canManage || isDriverRole;
+    const fabAction = canManage ? this.openNewBooking : this.openTripRequest;
     const withOpen = (b) => Object.assign({}, b, {
       open: () => this.setState({ detail: b }),
       edit: (e) => { e.stopPropagation(); this.openEditBooking(b); },
@@ -2265,8 +2422,11 @@ class Component extends DCLogic {
         issued: trWords(i.issued, lang),
         statusLabel: statusLabel, statusStyle: invoicePaymentStatusStyle(statusKey),
         balanceDueLabel: formatRupiah(balanceDueNum),
+        subtotalLabel: formatRupiah(subtotalNum), discountLabel: formatRupiah(discountNum),
+        downPaymentLabel: formatRupiah(dpNum), receivePaymentLabel: formatRupiah(receivedNum),
         edit: (e) => { e.stopPropagation(); this.openFormFor("invoice", "edit", i); },
-        remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); }
+        remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); },
+        download: (e) => { e.stopPropagation(); this.openInvoicePrint(i, { statusLabel, subtotalNum, discountNum, dpNum, receivedNum, balanceDueNum }); }
       });
     });
     const servicesTr = s.maintenance.map((sv) => {
@@ -2582,6 +2742,8 @@ class Component extends DCLogic {
       })),
       fleet: fleetTr, drivers: driversSorted, customers: customersTr, invoices: invoicesTr, services: servicesTr,
       pendingTripRequests: pendingTripRequests, hasTripRequests: hasTripRequests,
+      showInvoicePrint: s.showInvoicePrint, closeInvoicePrint: this.closeInvoicePrint,
+      printInvoice: s.printInvoice || {}, triggerPrint: this.triggerPrint,
       showCompleteService: s.showCompleteService, closeCompleteService: this.closeCompleteService,
       completeServiceItems: completeServiceItemsTr, completeServiceTotalLabel: completeServiceTotalLabel,
       completeServiceError: s.completeServiceError, addCompleteItem: this.addCompleteItem,
@@ -2662,8 +2824,12 @@ class Component extends DCLogic {
       selectedVehiclePrice: selectedVehiclePrice,
 
       isAdmin: isAdmin, isGuest: isGuest,
-      sidebarClass: s.mobileNavOpen ? "nav-open" : "",
-      openMobileNav: this.openMobileNav, closeMobileNav: this.closeMobileNav,
+      showBottomNav: showBottomNav, bottomNavTabs: bottomNavTabs, moreTabActive: moreTabActive, moreTabInactive: moreTabInactive,
+      openMoreSheet: this.openMoreSheet, closeMoreSheet: this.closeMoreSheet, showMoreSheet: s.showMoreSheet,
+      showFab: showFab, fabAction: fabAction,
+      customersNavLabel: customersNavLabel, maintenanceNavLabel: maintenanceNavLabel, revenueNavLabel: revenueNavLabel,
+      goCustomersMobile: this.go("customers"), goMaintenanceMobile: this.go("maintenance"), goRevenueMobile: this.go("revenue"),
+      openSettingsMobile: this.openSettingsMobile,
       showLogin: s.showLogin, openLogin: this.openLogin, closeLogin: this.closeLogin,
       loginEmail: s.loginEmail, loginPassword: s.loginPassword,
       setLoginEmail: this.setLoginEmail, setLoginPassword: this.setLoginPassword,
