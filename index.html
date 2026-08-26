@@ -900,6 +900,12 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ veh.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ veh.meta }}</div></div>
 <div style="font-size:12.5px;font-weight:600;color:#824703;flex:none">{{ veh.price }}</div>
+<sc-if value="{{ veh.isSelected }}" hint-placeholder-val="{{ false }}">
+<div style="width:20px;height:20px;border-radius:5px;background:#DBAF5D;flex:none;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#181818" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+</sc-if>
+<sc-if value="{{ veh.isUnselected }}" hint-placeholder-val="{{ true }}">
+<div style="width:20px;height:20px;border-radius:5px;border:1.5px solid rgba(89,50,3,.25);flex:none"></div>
+</sc-if>
 </div>
 </sc-for>
 </sc-if>
@@ -916,7 +922,17 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.phoneLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingPhoneText }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.tripLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingTripText }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.whenLabel }}</span><span style="margin-left:auto;font-weight:500">{{ newBookingWhenText }}</span></div>
+<sc-if value="{{ hasMultipleVehicles }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px">
+<span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }} ({{ selectedVehiclesRows.length }})</span>
+<sc-for list="{{ selectedVehiclesRows }}" as="sv" hint-placeholder-count="2">
+<div style="display:flex;font-size:12px"><span>{{ sv.name }} · {{ sv.plate }}</span><span style="margin-left:auto;font-weight:500">{{ sv.priceLabel }}</span></div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ singleVehicleMode }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehicleLabel }}</span></div>
+</sc-if>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.driverLabel }}</span><span style="margin-left:auto;font-weight:500">{{ L.autoAssignDriver }}</span></div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.subtotalLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehiclePrice }}</span></div>
 <div style="display:flex;align-items:center;gap:10px"><span style="color:rgba(24,24,24,.55);flex:none">{{ L.discountLabel }}</span><input value="{{ newBooking.discount }}" onChange="{{ setNewDiscount }}" placeholder="0" style="margin-left:auto;width:130px;text-align:right;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:7px 10px;font-size:12px;font-family:inherit"></div>
@@ -1865,7 +1881,7 @@ class Component extends DCLogic {
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
-    newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "", waConfirmed: false },
+    newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
     showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", revenueServiceMonth: "all",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
@@ -1940,8 +1956,7 @@ class Component extends DCLogic {
       this.setState((p) => ({
         bookings: b, fleet: res[1].data || [], drivers: res[2].data || [], customers: res[3].data || [],
         invoices: res[4].data || [], maintenance: res[5].data || [], tripRequests: res[6].data || [],
-        userRole: role, profileName: profile.name || "", profileAvatar: profile.avatar_url || "", loaded: true,
-        screen: role === "driver" && p.screen !== "bookings" ? "bookings" : p.screen
+        userRole: role, profileName: profile.name || "", profileAvatar: profile.avatar_url || "", loaded: true
       }));
     });
   };
@@ -2074,6 +2089,7 @@ class Component extends DCLogic {
     reader.readAsDataURL(file);
   };
   saveForm = () => {
+    if (this._submittingForm) return;
     const client = getSupabase();
     const s = this.state;
     if (!client || !s.session || !s.formType) return;
@@ -2091,8 +2107,10 @@ class Component extends DCLogic {
       if (dpNum > subtotalNum) { this.setState({ formError: STR.invoiceDpExceedsError[lang] }); return; }
       if (receivedNum > subtotalNum) { this.setState({ formError: STR.invoiceReceivedExceedsError[lang] }); return; }
     }
+    this._submittingForm = true;
     const req = s.formMode === "add" ? client.from(table).insert(payload) : client.from(table).update(payload).eq("id", s.formEditId);
     req.then((res) => {
+      this._submittingForm = false;
       if (res.error) { this.setState({ formError: STR.saveErrorGeneric[lang] }); return; }
       this.loadAll().then(() => this.setState({ showForm: false }));
     });
@@ -2251,6 +2269,7 @@ class Component extends DCLogic {
     this.setState((p) => ({ tripRequestForm: Object.assign({}, p.tripRequestForm, { [key]: v }) }));
   };
   submitTripRequest = () => {
+    if (this._submittingTripRequest) return;
     const client = getSupabase();
     const s = this.state;
     if (!client || !s.session) return;
@@ -2260,11 +2279,13 @@ class Component extends DCLogic {
       return;
     }
     this.setState({ tripRequestError: "" });
+    this._submittingTripRequest = true;
     client.from("trip_requests").insert({
       requested_by: s.session.user.email || "driver",
       customer: f.customer, phone: f.phone, pickup: f.pickup, destination: f.destination, notes: f.notes,
       status: "Pending"
     }).then((res) => {
+      this._submittingTripRequest = false;
       if (res.error) return;
       this.setState({ tripRequestSent: true, tripRequestError: "" });
       this.loadAll();
@@ -2284,7 +2305,7 @@ class Component extends DCLogic {
         customer: request.customer || "", phoneCountry: "62", phone: phoneDigits,
         serviceType: "", pickup: request.pickup || "", destination: request.destination || "",
         date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "",
-        vehicleIndex: 0, discount: "", waConfirmed: false
+        vehicleIndexes: [0], discount: "", waConfirmed: false
       }
     });
   };
@@ -2300,7 +2321,7 @@ class Component extends DCLogic {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: null,
-      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndex: 0, discount: "", waConfirmed: false }
+      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
     });
   };
   openEditBooking = (row) => {
@@ -2321,7 +2342,7 @@ class Component extends DCLogic {
         serviceType: row.type || "", pickup: row.from_location || "", destination: row.to_location || "",
         date: dateDisplay, dateISO: displayDateToISO(dateDisplay), pickupTime: pickupTime,
         passengers: String(row.pax || "").replace(/\s*pax$/, ""), durationHours: durationLabelToHours(row.duration),
-        vehicleIndex: vIdx, discount: discountNum ? String(discountNum) : "", waConfirmed: true
+        vehicleIndexes: [vIdx], discount: discountNum ? String(discountNum) : "", waConfirmed: true
       }
     });
   };
@@ -2340,7 +2361,15 @@ class Component extends DCLogic {
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { date: display, dateISO: iso }) }));
   };
   selectVehicle = (i) => () => {
-    this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { vehicleIndex: i }) }));
+    this.setState((p) => {
+      if (p.editingBookingId) {
+        return { newBooking: Object.assign({}, p.newBooking, { vehicleIndexes: [i] }) };
+      }
+      const cur = p.newBooking.vehicleIndexes || [];
+      const has = cur.indexOf(i) >= 0;
+      const next = has ? cur.filter((x) => x !== i) : cur.concat([i]);
+      return { newBooking: Object.assign({}, p.newBooking, { vehicleIndexes: next.length ? next : cur }) };
+    });
   };
   confirmWhatsapp = () => {
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { waConfirmed: true }) }));
@@ -2370,29 +2399,42 @@ class Component extends DCLogic {
   };
   prevStep = () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1, newBookingError: "" });
   submitNewBooking = () => {
+    if (this._submittingBooking) return;
     const client = getSupabase();
     const nb = this.state.newBooking;
     if (!client || !this.state.session) return;
     const fleetForBooking = pickBookingFleet(this.state.fleet);
-    const vehicle = fleetForBooking[nb.vehicleIndex];
-    if (!vehicle) return;
-    const baseNum = parseAmount(cleanVehicleRate(vehicle.rate));
-    const discountNum = parseAmount(nb.discount);
-    const finalNum = Math.max(0, baseNum - discountNum);
-    const price = formatRupiah(baseNum);
-    const finalPrice = formatRupiah(finalNum);
     const editingId = this.state.editingBookingId;
-    const payload = {
+    const indexes = editingId ? [(nb.vehicleIndexes || [0])[0]] : (nb.vehicleIndexes || []);
+    const vehicles = indexes.map((i) => fleetForBooking[i]).filter(Boolean);
+    if (!vehicles.length) return;
+    this._submittingBooking = true;
+    const totalDiscountNum = parseAmount(nb.discount);
+    const totalBaseNum = vehicles.reduce((sum, v) => sum + parseAmount(cleanVehicleRate(v.rate)), 0);
+    const basePayload = {
       customer: nb.customer || "-", phone: composeFullPhone(nb.phoneCountry, nb.phone), type: nb.serviceType || "-",
-      vehicle: vehicle.name, route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
+      route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
       time: (nb.date || "-") + " " + (nb.pickupTime || ""),
-      amount: finalPrice, from_location: nb.pickup || "", to_location: nb.destination || "",
-      eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(nb.durationHours), base: price
+      from_location: nb.pickup || "", to_location: nb.destination || "",
+      eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(nb.durationHours)
     };
-    if (!editingId) { payload.status = "Awaiting driver"; payload.driver = "Unassigned"; payload.driver_meta = ""; }
-    const req = editingId ? client.from("bookings").update(payload).eq("id", editingId) : client.from("bookings").insert(payload);
-    req.then((res) => {
-      if (res.error) return;
+    let allocatedDiscount = 0;
+    const payloads = vehicles.map((vehicle, idx) => {
+      const baseNum = parseAmount(cleanVehicleRate(vehicle.rate));
+      const isLast = idx === vehicles.length - 1;
+      const shareDiscount = isLast ? (totalDiscountNum - allocatedDiscount) : Math.round(totalDiscountNum * (baseNum / (totalBaseNum || 1)));
+      allocatedDiscount += shareDiscount;
+      const finalNum = Math.max(0, baseNum - shareDiscount);
+      const payload = Object.assign({}, basePayload, { vehicle: vehicle.name, amount: formatRupiah(finalNum), base: formatRupiah(baseNum) });
+      if (!editingId) { payload.status = "Awaiting driver"; payload.driver = "Unassigned"; payload.driver_meta = ""; }
+      return payload;
+    });
+    const reqs = editingId
+      ? [client.from("bookings").update(payloads[0]).eq("id", editingId)]
+      : payloads.map((p) => client.from("bookings").insert(p));
+    Promise.all(reqs).then((results) => {
+      this._submittingBooking = false;
+      if (results.some((r) => r.error)) return;
       this.setState({ showNew: false, editingBookingId: null });
       this.loadAll();
     });
@@ -2412,7 +2454,7 @@ class Component extends DCLogic {
     const roleBadgeLabel = isDriverRole ? L.driverBadge : isDirectorRole ? L.directorBadge : L.adminBadge;
     const roleNameLabel = s.profileName || (isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager);
     const roleTitleLabel = isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager;
-    const showFinancials = !isDriverRole;
+    const showFinancials = true;
     const hasProfileAvatar = !!s.profileAvatar;
     const hasSettingsAvatar = !!s.settingsAvatar;
     const settingsFormVisible = !s.settingsSaved;
@@ -2431,7 +2473,7 @@ class Component extends DCLogic {
       active: s.screen === n.id, inactive: s.screen !== n.id, go: this.go(n.id)
     }));
     const showBottomNav = isAdmin;
-    const showFullBottomNav = isAdmin && !isDriverRole;
+    const showFullBottomNav = isAdmin;
     const NAV_ON = "#824703", NAV_OFF = "rgba(24,24,24,.45)";
     const dashTabColor = s.screen === "dashboard" ? NAV_ON : NAV_OFF;
     const bookingsTabColor = s.screen === "bookings" ? NAV_ON : NAV_OFF;
@@ -2824,27 +2866,37 @@ class Component extends DCLogic {
     const SELECTED_CARD = "border:2px solid #DBAF5D;border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;background:rgba(219,175,93,.08);cursor:pointer";
     const UNSELECTED_CARD = "border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;cursor:pointer";
     const fleetForBooking = pickBookingFleet(s.fleet);
+    const nb = s.newBooking;
+    const selectedVehicleIndexes = nb.vehicleIndexes || [];
+    const isMultiVehicleMode = !s.editingBookingId;
     const vehicleOptions = fleetForBooking.map((v, i) => ({
       name: v.name,
       meta: v.plate + " · " + v.seats + " " + L.seatsWord,
       price: cleanVehicleRate(v.rate),
       photo_url: v.photo_url, hasPhoto: !!v.photo_url, noPhoto: !v.photo_url,
-      cardStyle: s.newBooking.vehicleIndex === i ? SELECTED_CARD : UNSELECTED_CARD,
+      isSelected: selectedVehicleIndexes.indexOf(i) >= 0,
+      isUnselected: selectedVehicleIndexes.indexOf(i) < 0,
+      cardStyle: selectedVehicleIndexes.indexOf(i) >= 0 ? SELECTED_CARD : UNSELECTED_CARD,
       select: this.selectVehicle(i)
     }));
     const hasVehicleOptions = fleetForBooking.length > 0;
-    const availableUnitsText = lang === "id" ? (fleetForBooking.length + " unit tersedia") : (fleetForBooking.length + " units available");
-    const selectedVehicle = fleetForBooking[s.newBooking.vehicleIndex] || null;
+    const availableUnitsText = (lang === "id" ? (fleetForBooking.length + " unit tersedia") : (fleetForBooking.length + " units available"))
+      + (isMultiVehicleMode ? (lang === "id" ? " · pilih satu atau lebih" : " · select one or more") : "");
+    const selectedVehicles = selectedVehicleIndexes.map((i) => fleetForBooking[i]).filter(Boolean);
+    const selectedVehiclesRows = selectedVehicles.map((v) => ({
+      name: v.name, plate: v.plate, priceLabel: cleanVehicleRate(v.rate)
+    }));
+    const hasMultipleVehicles = selectedVehicles.length > 1;
+    const singleVehicleMode = !hasMultipleVehicles;
     const newBookingCustomerText = s.newBooking.customer || dash;
     const newBookingPhoneText = composeFullPhone(s.newBooking.phoneCountry, s.newBooking.phone) || dash;
     const newBookingTripText = (s.newBooking.pickup || dash) + " → " + (s.newBooking.destination || dash);
     const newBookingWhenText = (s.newBooking.date || dash) + " · " + (s.newBooking.pickupTime || dash);
-    const selectedVehicleLabel = selectedVehicle ? (selectedVehicle.name + " · " + selectedVehicle.plate) : dash;
-    const selectedVehiclePrice = selectedVehicle ? cleanVehicleRate(selectedVehicle.rate) : "Rp 0";
-    const newBookingSubtotalNum = parseAmount(selectedVehiclePrice);
+    const selectedVehicleLabel = selectedVehicles.length ? selectedVehicles.map((v) => v.name).join(", ") : dash;
+    const newBookingSubtotalNum = selectedVehicles.reduce((sum, v) => sum + parseAmount(cleanVehicleRate(v.rate)), 0);
+    const selectedVehiclePrice = formatRupiah(newBookingSubtotalNum);
     const newBookingDiscountNum = parseAmount(s.newBooking.discount);
     const newBookingTotalLabel = formatRupiah(Math.max(0, newBookingSubtotalNum - newBookingDiscountNum));
-    const nb = s.newBooking;
     const waMessage = lang === "id"
       ? ("Halo " + (nb.customer || "-") + ", berikut konfirmasi pemesanan Anda di Atharrzaka Transport:\n" +
          "- Layanan: " + (trWords(nb.serviceType, lang) || "-") + "\n" +
@@ -2873,16 +2925,16 @@ class Component extends DCLogic {
       langIdStyle: lang === "id" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
       setLangEn: () => this.setState({ lang: "en" }),
       setLangId: () => this.setState({ lang: "id" }),
-      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings") : NAV_OPS),
-      navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
+      navOps: nav(NAV_OPS),
+      navInsight: nav(NAV_INSIGHT),
       pageTitle: s.screen === "dashboard" ? dashboardGreeting : t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
       canManage: canManage, isDriverRole: isDriverRole, isDirectorRole: isDirectorRole, showFinancials: showFinancials,
       roleBadgeLabel: roleBadgeLabel, roleNameLabel: roleNameLabel, roleTitleLabel: roleTitleLabel,
-      isDashboard: s.screen === "dashboard" && s.loaded && !isDriverRole, isBookings: s.screen === "bookings" && s.loaded,
-      isFleet: s.screen === "fleet" && s.loaded && !isDriverRole, isDrivers: s.screen === "drivers" && s.loaded && !isDriverRole,
-      isCustomers: s.screen === "customers" && s.loaded && !isDriverRole, isRevenue: s.screen === "revenue" && s.loaded && !isDriverRole,
-      isMaintenance: s.screen === "maintenance" && s.loaded && !isDriverRole,
+      isDashboard: s.screen === "dashboard" && s.loaded, isBookings: s.screen === "bookings" && s.loaded,
+      isFleet: s.screen === "fleet" && s.loaded, isDrivers: s.screen === "drivers" && s.loaded,
+      isCustomers: s.screen === "customers" && s.loaded, isRevenue: s.screen === "revenue" && s.loaded,
+      isMaintenance: s.screen === "maintenance" && s.loaded,
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"),
       todayCols: [
         { key: "customer", label: L.colCustomer, align: "left" },
@@ -3000,6 +3052,7 @@ class Component extends DCLogic {
       newBookingWhenText: newBookingWhenText,
       selectedVehicleLabel: selectedVehicleLabel,
       selectedVehiclePrice: selectedVehiclePrice,
+      selectedVehiclesRows: selectedVehiclesRows, hasMultipleVehicles: hasMultipleVehicles, singleVehicleMode: singleVehicleMode,
 
       isAdmin: isAdmin, isGuest: isGuest,
       showBottomNav: showBottomNav, showFullBottomNav: showFullBottomNav, moreTabActive: moreTabActive, moreTabColor: moreTabColor,
