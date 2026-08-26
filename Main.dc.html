@@ -15,6 +15,9 @@ a{color:#824703}a:hover{color:#DBAF5D}
 .data-grid-wrap{overflow-x:visible}
 .bottom-nav{display:none}
 .fab-btn{display:none}
+.form-grid-2>div,.form-grid-3>div{min-width:0}
+select{max-width:100%}
+html,body{overflow-x:hidden}
 @media print{
   body *{visibility:hidden}
   .print-invoice,.print-invoice *{visibility:visible}
@@ -1005,10 +1008,12 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-top:2px">{{ L.tripRequestSubtitle }}</div>
 </div>
 <sc-if value="{{ tripRequestSent }}" hint-placeholder-val="{{ false }}">
-<div class="wizard-pad" style="padding:22px 26px 0">
-<div style="font-size:12.5px;color:#4d6a30;background:rgba(93,138,58,.1);border-radius:10px;padding:14px;text-align:center">{{ L.tripRequestSentMsg }}</div>
+<div class="dc-success-wrap">
+<div class="dc-success-circle"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4d6a30" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline class="dc-success-check" points="20 6 9 17 4 12"/></svg></div>
+<div style="font-size:15px;font-weight:600">{{ L.tripRequestSentMsg }}</div>
 </div>
 </sc-if>
+<sc-if value="{{ tripRequestFormVisible }}" hint-placeholder-val="{{ true }}">
 <div class="wizard-pad" style="padding:22px 26px;display:flex;flex-direction:column;gap:16px">
 <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.customerLabel }} <span style="color:#a8471f">*</span></div><input value="{{ tripRequestForm.customer }}" onChange="{{ setTripCustomer }}" placeholder="PT Sinar Mandiri" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
@@ -1068,6 +1073,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div onClick="{{ closeTripRequest }}" style="font-size:12px;color:rgba(24,24,24,.55);padding:11px 15px;border-radius:10px;border:1px solid rgba(89,50,3,.14);cursor:pointer">{{ L.cancelBtn }}</div>
 <div onClick="{{ submitTripRequest }}" style="margin-left:auto;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px 20px;cursor:pointer">{{ L.requestTrip }}</div>
 </div>
+</sc-if>
 </div>
 </div>
 </sc-if>
@@ -1524,6 +1530,7 @@ const STR = {
   durationHoursLabel: { en: "Duration (hours)", id: "Durasi (jam)" },
   noFleetYet: { en: "No vehicles in fleet yet — add one on the Fleet page first.", id: "Belum ada armada — tambahkan dulu di halaman Armada." },
   vehicleDateConflict: { en: "Already booked on this date", id: "Sudah ada booking di tanggal ini" },
+  vehicleDateConflictError: { en: "One of the selected vehicles is already booked on this date. Choose a different vehicle or date.", id: "Salah satu kendaraan yang dipilih sudah dibooking di tanggal ini. Pilih kendaraan lain atau ubah tanggal." },
   autoAssignDriver: { en: "Auto-assigned by shift", id: "Ditugaskan otomatis sesuai shift" },
   tripLabel: { en: "Trip", id: "Perjalanan" },
   whenLabel: { en: "When", id: "Waktu" },
@@ -2346,6 +2353,9 @@ class Component extends DCLogic {
       this._submittingTripRequest = false;
       if (res.error) return;
       this.setState({ tripRequestSent: true, tripRequestError: "" });
+      setTimeout(() => {
+        this.setState({ showTripRequest: false, tripRequestSent: false, screen: "bookings", showMoreSheet: false });
+      }, 1400);
       this.loadAll();
     });
   };
@@ -2446,9 +2456,21 @@ class Component extends DCLogic {
       this.setState({ newBookingError: STR.newBookingRequiredError[lang] });
       return;
     }
-    if (this.state.step === 2 && pickBookingFleet(this.state.fleet).length === 0) {
-      this.setState({ newBookingError: STR.newBookingNoVehicleError[lang] });
-      return;
+    if (this.state.step === 2) {
+      const fleetForBooking = pickBookingFleet(this.state.fleet);
+      if (fleetForBooking.length === 0) {
+        this.setState({ newBookingError: STR.newBookingNoVehicleError[lang] });
+        return;
+      }
+      const nb = this.state.newBooking;
+      const selected = (nb.vehicleIndexes || []).map((i) => fleetForBooking[i]).filter(Boolean);
+      const hasConflict = selected.some((v) => this.state.bookings.some((b) =>
+        b.vehicle === v.name && (!this.state.editingBookingId || b.id !== this.state.editingBookingId) && String(b.time || "").indexOf(nb.date) === 0
+      ));
+      if (hasConflict) {
+        this.setState({ newBookingError: STR.vehicleDateConflictError[lang] });
+        return;
+      }
     }
     if (this.state.step === 3 && !this.state.newBooking.waConfirmed) {
       this.setState({ newBookingError: STR.newBookingWaRequiredError[lang] });
@@ -2519,6 +2541,7 @@ class Component extends DCLogic {
     const hasProfileAvatar = !!s.profileAvatar;
     const hasSettingsAvatar = !!s.settingsAvatar;
     const settingsFormVisible = !s.settingsSaved;
+    const tripRequestFormVisible = !s.tripRequestSent;
     const completeServiceItemsTr = s.completeServiceItems.map((it, idx) => Object.assign({}, it, {
       setDescription: this.setCompleteItemField(idx, "description"),
       setQty: this.setCompleteItemField(idx, "qty"),
@@ -3056,6 +3079,7 @@ class Component extends DCLogic {
       setSettingsNewPassword: this.setSettingsNewPassword, setSettingsConfirmPassword: this.setSettingsConfirmPassword,
       showTripRequest: s.showTripRequest, openTripRequest: this.openTripRequest, closeTripRequest: this.closeTripRequest,
       tripRequestForm: s.tripRequestForm, tripRequestError: s.tripRequestError, tripRequestSent: s.tripRequestSent,
+      tripRequestFormVisible: tripRequestFormVisible,
       submitTripRequest: this.submitTripRequest,
       setTripCustomer: this.setTripRequestField("customer"), setTripPhone: this.setTripPhoneNumber,
       setTripPhoneCountry: this.setTripRequestField("phoneCountry"), setTripServiceType: this.setTripRequestField("serviceType"),
