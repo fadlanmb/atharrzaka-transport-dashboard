@@ -370,7 +370,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div class="tbl-min" onClick="{{ b.open }}" style="display:grid;grid-template-columns:1fr 1.5fr 1.2fr 1.5fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
 <div style="font-weight:500;color:#824703">{{ b.ref }}</div>
 <div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.type }}</div></div>
-<div>{{ b.vehicle }}</div>
+<div><div>{{ b.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.vehiclePlate }}</div></div>
 <div style="color:rgba(24,24,24,.62)"><div>{{ b.route }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.42)">{{ b.time }}</div></div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
@@ -487,7 +487,9 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">
 <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703)"></div>
 <div style="flex:1"><div style="font-size:12px">{{ fd.name }}</div><div style="font-size:10px;color:rgba(255,255,255,.5)">{{ fd.meta }}</div></div>
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ fd.assign }}" style="font-size:10.5px;font-weight:600;color:#181818;background:#DBAF5D;border-radius:7px;padding:6px 10px;cursor:pointer">{{ L.assignAction }}</div>
+</sc-if>
 </div>
 </sc-for>
 </div>
@@ -747,7 +749,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 <div style="display:flex;gap:8px;margin-top:18px">
 <div style="font-size:10.5px;font-weight:600;color:#181818;background:#DBAF5D;border-radius:20px;padding:5px 11px">{{ detail.status }}</div>
-<div style="font-size:10.5px;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 11px">{{ detail.vehicle }}</div>
+<div style="font-size:10.5px;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 11px">{{ detail.vehicle }} · {{ detail.vehiclePlate }}</div>
 </div>
 </div>
 <div style="padding:22px 24px;display:flex;flex-direction:column;gap:22px">
@@ -782,9 +784,11 @@ a{color:#824703}a:hover{color:#DBAF5D}
 </div>
 </div>
 <div style="display:flex;gap:10px;font-size:12px">
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ confirmDispatchBtn }}" style="flex:1;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.confirmDispatch }}</div>
 <sc-if value="{{ detailNotInvoiced }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ createInvoiceBtn }}" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.invoiceBtn }}</div>
+</sc-if>
 </sc-if>
 <sc-if value="{{ detailAlreadyInvoiced }}" hint-placeholder-val="{{ false }}">
 <div style="padding:12px 16px;border-radius:10px;border:1px solid rgba(93,138,58,.35);background:rgba(93,138,58,.08);color:#4d6a30;font-weight:600;display:flex;align-items:center;gap:6px">
@@ -898,7 +902,11 @@ a{color:#824703}a:hover{color:#DBAF5D}
 <div style="width:100%;height:100%;background:repeating-linear-gradient(115deg,#F4F1EC 0 8px,#E7DFCE 8px 16px)"></div>
 </sc-if>
 </div>
-<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ veh.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ veh.meta }}</div></div>
+<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ veh.name }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ veh.meta }}</div>
+<sc-if value="{{ veh.hasDateConflict }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:10px;font-weight:600;color:#a8471f;margin-top:2px">⚠ {{ L.vehicleDateConflict }}</div>
+</sc-if>
+</div>
 <div style="font-size:12.5px;font-weight:600;color:#824703;flex:none">{{ veh.price }}</div>
 <sc-if value="{{ veh.isSelected }}" hint-placeholder-val="{{ false }}">
 <div style="width:20px;height:20px;border-radius:5px;background:#DBAF5D;flex:none;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#181818" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
@@ -1144,7 +1152,7 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 </div>
 <div style="display:flex;font-size:12.5px;padding:8px 0 26px">
 <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-<div style="font-weight:600">{{ L.rentalDescription }} — {{ printInvoice.booking_ref }}</div>
+<div style="font-weight:600">{{ L.rentalDescription }}</div>
 <div style="color:rgba(24,24,24,.65)">{{ L.invoiceVehicleLabel }}: {{ printInvoice.vehicleName }}</div>
 <div style="color:rgba(24,24,24,.65)">{{ L.invoiceDurationLabel }}: {{ printInvoice.rentalDaysLabel }}</div>
 <div style="color:rgba(24,24,24,.65)">{{ L.invoicePricePerDayLabel }}: {{ printInvoice.pricePerDayLabel }}</div>
@@ -1477,6 +1485,7 @@ const STR = {
   selectPh: { en: "Select…", id: "Pilih…" },
   durationHoursLabel: { en: "Duration (hours)", id: "Durasi (jam)" },
   noFleetYet: { en: "No vehicles in fleet yet — add one on the Fleet page first.", id: "Belum ada armada — tambahkan dulu di halaman Armada." },
+  vehicleDateConflict: { en: "Already booked on this date", id: "Sudah ada booking di tanggal ini" },
   autoAssignDriver: { en: "Auto-assigned by shift", id: "Ditugaskan otomatis sesuai shift" },
   tripLabel: { en: "Trip", id: "Perjalanan" },
   whenLabel: { en: "When", id: "Waktu" },
@@ -2490,12 +2499,17 @@ class Component extends DCLogic {
     const revenueNavLabel = NAV_LABELS.revenue[lang];
     const showFab = canManage || isDriverRole;
     const fabAction = canManage ? this.openNewBooking : this.openTripRequest;
-    const withOpen = (b) => Object.assign({}, b, {
-      open: () => this.setState({ detail: b }),
-      edit: (e) => { e.stopPropagation(); this.openEditBooking(b); },
-      remove: (e) => { e.stopPropagation(); this.askDelete("booking", b.id); },
-      status: trWords(b.status, lang), time: trWords(b.time, lang), type: trWords(b.type, lang)
-    });
+    const withOpen = (b) => {
+      const matchedVehicle = s.fleet.find((v) => v.name === b.vehicle);
+      const enhanced = Object.assign({}, b, {
+        edit: (e) => { e.stopPropagation(); this.openEditBooking(b); },
+        remove: (e) => { e.stopPropagation(); this.askDelete("booking", b.id); },
+        status: trWords(b.status, lang), time: trWords(b.time, lang), type: trWords(b.type, lang),
+        vehiclePlate: matchedVehicle ? matchedVehicle.plate : ""
+      });
+      enhanced.open = () => this.setState({ detail: enhanced });
+      return enhanced;
+    };
     const todayDateStr = this.formatToday();
     const filtered = s.bookings.filter((b) => {
       if (s.filter === "Today") return (b.time || "").indexOf(todayDateStr) === 0;
@@ -2869,6 +2883,10 @@ class Component extends DCLogic {
     const nb = s.newBooking;
     const selectedVehicleIndexes = nb.vehicleIndexes || [];
     const isMultiVehicleMode = !s.editingBookingId;
+    const vehicleHasDateConflict = (vehicleName) => {
+      if (!nb.date) return false;
+      return s.bookings.some((b) => b.vehicle === vehicleName && (!s.editingBookingId || b.id !== s.editingBookingId) && String(b.time || "").indexOf(nb.date) === 0);
+    };
     const vehicleOptions = fleetForBooking.map((v, i) => ({
       name: v.name,
       meta: v.plate + " · " + v.seats + " " + L.seatsWord,
@@ -2877,6 +2895,7 @@ class Component extends DCLogic {
       isSelected: selectedVehicleIndexes.indexOf(i) >= 0,
       isUnselected: selectedVehicleIndexes.indexOf(i) < 0,
       cardStyle: selectedVehicleIndexes.indexOf(i) >= 0 ? SELECTED_CARD : UNSELECTED_CARD,
+      hasDateConflict: vehicleHasDateConflict(v.name),
       select: this.selectVehicle(i)
     }));
     const hasVehicleOptions = fleetForBooking.length > 0;
