@@ -220,7 +220,7 @@ html,body{overflow-x:hidden}
 </div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
 <div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.kpiRevenueMonth }}</div>
-<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">{{ revenueMonthLabel }}</span></div>
+<div style="display:flex;align-items:baseline;gap:7px;margin-top:10px"><span style="font-size:29px;font-weight:600;letter-spacing:-1px">{{ dashboardNetRevenueLabel }}</span></div>
 <div style="margin-top:12px;font-size:11.5px;color:rgba(24,24,24,.45)">{{ tripsTodayLabel }}</div>
 </div>
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:18px">
@@ -1501,7 +1501,7 @@ const STR = {
 
   kpiFleetOnRoad: { en: "FLEET ON ROAD", id: "ARMADA DI JALAN" },
   unitsWord: { en: "units", id: "unit" },
-  kpiRevenueMonth: { en: "REVENUE THIS MONTH", id: "PENDAPATAN BULAN INI" },
+  kpiRevenueMonth: { en: "NET REVENUE THIS MONTH", id: "PENDAPATAN BERSIH BULAN INI" },
   kpiUtilisation: { en: "UTILISATION", id: "UTILISASI" },
   targetAvg: { en: "Target 78%", id: "Target 78%" },
   kpiRating: { en: "RATING", id: "PENILAIAN" },
@@ -2920,6 +2920,8 @@ class Component extends DCLogic {
     const expensesThisMonth = s.expenses.filter((ex) => ex.expense_date && new Date(ex.expense_date) >= monthStart);
     const expensesMonthNum = expensesThisMonth.reduce((sum, ex) => sum + parseAmount(ex.amount), 0);
     const expensesMonthLabel = formatRupiahShort(expensesMonthNum);
+    const dashboardNetRevenueNum = revenueMonthNum - expensesMonthNum;
+    const dashboardNetRevenueLabel = formatRupiahShort(dashboardNetRevenueNum);
     const totalExpensesAllNum = s.expenses.reduce((sum, ex) => sum + parseAmount(ex.amount), 0);
     const totalPaidAllTimeNum = s.bookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
     const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
@@ -3279,7 +3281,7 @@ class Component extends DCLogic {
       setTripNotes: this.setTripRequestField("notes"),
       hasServices: hasServices, noServicesYet: noServicesYet,
       revenuePeriodLabel: revenuePeriodLabel, revenueChangeLabel: revenueChangeLabel,
-      revenueMonthLabel: revenueMonthLabel, revenueWeekBars: revenueWeekBars, revenueByServiceRows: revenueByServiceRows,
+      revenueMonthLabel: revenueMonthLabel, dashboardNetRevenueLabel: dashboardNetRevenueLabel, revenueWeekBars: revenueWeekBars, revenueByServiceRows: revenueByServiceRows,
       revenueMonthOptions: revenueMonthOptions, revenueServiceMonth: s.revenueServiceMonth, setRevenueServiceMonth: this.setRevenueServiceMonth,
       revenueServiceTotalLabel: revenueServiceTotalLabel,
       odometerRows: odometerRows, hasOdometerRows: hasOdometerRows, noOdometerRows: noOdometerRows,
