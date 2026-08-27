@@ -279,7 +279,7 @@ html,body{overflow-x:hidden}
 <div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.ref }}</div></div>
 <div><div>{{ b.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.vehiclePlate }}</div></div><div style="color:rgba(24,24,24,.62)">{{ b.route }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
-<div style="text-align:right;font-weight:500">{{ b.amount }}</div>
+<div style="text-align:right;font-weight:500;white-space:nowrap">{{ b.amount }}</div>
 </div>
 </sc-for>
 </div>
@@ -400,7 +400,7 @@ html,body{overflow-x:hidden}
 <div onClick="{{ b.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
 <sc-if value="{{ showFinancials }}" hint-placeholder-val="{{ true }}">
-<span>{{ b.amount }}</span>
+<span style="white-space:nowrap">{{ b.amount }}</span>
 </sc-if>
 </div>
 </div>
@@ -446,12 +446,12 @@ html,body{overflow-x:hidden}
 <div style="font-size:11px;color:rgba(24,24,24,.5);margin-top:4px">{{ v.plate }} · {{ v.seats }} {{ L.seatsWord }} · {{ v.kmLabel }}</div>
 <div style="display:flex;align-items:baseline;margin-top:14px"><div style="font-size:13px;font-weight:600;color:#824703">{{ v.rate }}</div></div>
 <div style="display:flex;gap:8px;margin-top:15px;font-size:11px">
-<div onClick="{{ openNewBooking }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.assignTrip }}</div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ openNewBooking }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.assignTrip }}</div>
 <div onClick="{{ v.edit }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.edit }}</div>
 <div onClick="{{ v.remove }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(168,71,31,.3);color:#a8471f;cursor:pointer">{{ L.deleteBtn }}</div>
 </sc-if>
-<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ isNotManager }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;text-align:center;padding:9px;border-radius:8px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.details }}</div>
 </sc-if>
 </div>
@@ -558,7 +558,7 @@ html,body{overflow-x:hidden}
 <div onClick="{{ c.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ c.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
-<span>{{ c.value }}</span>
+<span style="white-space:nowrap">{{ c.value }}</span>
 </div>
 </div>
 </sc-for>
@@ -621,7 +621,7 @@ html,body{overflow-x:hidden}
 <div onClick="{{ i.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ i.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
-<span>{{ i.balanceDueLabel }}</span>
+<span style="white-space:nowrap">{{ i.balanceDueLabel }}</span>
 </div>
 </div>
 </sc-for>
@@ -645,7 +645,7 @@ html,body{overflow-x:hidden}
 <div style="width:78px;flex:none;text-align:center;background:#F4F1EC;border-radius:10px;padding:10px 4px;font-size:11px;font-weight:600">{{ sv.date }}</div>
 <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">{{ sv.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ sv.subtitle }}</div></div>
 <div style="font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;{{ sv.statusStyle }}">{{ sv.status }}</div>
-<div style="font-size:11.5px;font-weight:500;width:96px;text-align:right">{{ sv.costLabel }}</div>
+<div style="font-size:11.5px;font-weight:500;width:96px;flex:none;text-align:right;white-space:nowrap">{{ sv.costLabel }}</div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;gap:8px;flex:none;align-items:center">
 <sc-if value="{{ sv.canComplete }}" hint-placeholder-val="{{ true }}">
@@ -706,7 +706,7 @@ html,body{overflow-x:hidden}
 <div onClick="{{ ex.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
 <div onClick="{{ ex.remove }}" style="color:#a8471f;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
 </sc-if>
-<span>{{ ex.amountLabel }}</span>
+<span style="white-space:nowrap">{{ ex.amountLabel }}</span>
 </div>
 </div>
 </sc-for>
@@ -831,15 +831,18 @@ html,body{overflow-x:hidden}
 <div style="display:flex;align-items:center;gap:12px;border:1px solid rgba(89,50,3,.1);border-radius:12px;padding:13px">
 <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,#DBAF5D,#824703);flex:none"></div>
 <div style="flex:1"><div style="font-size:12.5px;font-weight:500">{{ detail.driver }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.5)">{{ detail.driverMeta }}</div></div>
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ goDrivers }}" style="font-size:11px;font-weight:600;color:#824703;border:1px solid rgba(130,71,3,.3);border-radius:8px;padding:7px 11px;cursor:pointer">{{ L.change }}</div>
+</sc-if>
 </div>
 </div>
 <div>
 <div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin-bottom:12px">{{ L.priceBreakdown }}</div>
 <div style="display:flex;flex-direction:column;gap:9px;font-size:12px">
 <div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.vehicleDriver }}</span><span style="margin-left:auto">{{ detail.base }}</span></div>
-<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.tollParking }}</span><span style="margin-left:auto">Rp 185.000</span></div>
-<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.overtimeBuffer }}</span><span style="margin-left:auto">Rp 300.000</span></div>
+<sc-if value="{{ detail.hasDiscount }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex"><span style="color:rgba(24,24,24,.6)">{{ L.discountLabel }}</span><span style="margin-left:auto">-{{ detail.discountLabel }}</span></div>
+</sc-if>
 <div style="height:1px;background:rgba(89,50,3,.1)"></div>
 <div style="display:flex;font-weight:600;font-size:13.5px"><span>{{ L.total }}</span><span style="margin-left:auto">{{ detail.amount }}</span></div>
 </div>
@@ -2004,7 +2007,7 @@ function buildChartBars(bookings, range, lang) {
     if (!bk.created_at) return;
     const dt = new Date(bk.created_at);
     const bucket = buckets.find((b) => dt >= b.start && dt < b.end);
-    if (bucket) { bucket.value += parseAmount(bk.amount); bucket.trips += 1; }
+    if (bucket) { bucket.value += (typeof bk.paidAmount === "number" ? bk.paidAmount : parseAmount(bk.amount)); bucket.trips += 1; }
   });
   const maxVal = Math.max(0, ...buckets.map((b) => b.value));
   return buckets.map((b, i) => {
@@ -2882,7 +2885,8 @@ class Component extends DCLogic {
     }));
     const hasMyPendingRequests = myPendingRequests.length > 0;
     const detailAlreadyInvoiced = !!(s.detail && s.invoices.some((i) => i.booking_ref === s.detail.ref));
-    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone }) : null;
+    const detailDiscountNum = s.detail ? Math.max(0, parseAmount(s.detail.base) - parseAmount(s.detail.amount)) : 0;
+    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone, hasDiscount: detailDiscountNum > 0, discountLabel: formatRupiah(detailDiscountNum) }) : null;
 
     const fleetAvailableCount = s.fleet.filter((v) => v.status === "Available").length;
     const fleetOnTripCountVal = s.fleet.filter((v) => v.status === "On trip").length;
@@ -3093,7 +3097,8 @@ class Component extends DCLogic {
     });
     const hasNextPickups = nextPickupItems.length > 0;
 
-    const chartBars = buildChartBars(s.bookings, s.chartRange, lang);
+    const bookingsWithPaid = s.bookings.map((b) => Object.assign({}, b, { paidAmount: paidAmountForBooking(b) }));
+    const chartBars = buildChartBars(bookingsWithPaid, s.chartRange, lang);
     const chartTabs = ["dtd", "mtd", "ytd"].map((r) => ({
       label: CHART_RANGE_LABEL[r][lang],
       style: s.chartRange === r
@@ -3204,7 +3209,7 @@ class Component extends DCLogic {
       navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
       pageTitle: (s.screen === "dashboard" || isDriverRole) ? dashboardGreeting : t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
-      canManage: canManage, isDriverRole: isDriverRole, isDirectorRole: isDirectorRole, showFinancials: showFinancials,
+      canManage: canManage, isNotManager: !canManage, isDriverRole: isDriverRole, isDirectorRole: isDirectorRole, showFinancials: showFinancials,
       roleBadgeLabel: roleBadgeLabel, roleNameLabel: roleNameLabel, roleTitleLabel: roleTitleLabel,
       isDashboard: s.screen === "dashboard" && s.loaded && !isDriverRole, isBookings: s.screen === "bookings" && s.loaded,
       isFleet: s.screen === "fleet" && s.loaded && !isDriverRole, isDrivers: s.screen === "drivers" && s.loaded && !isDriverRole,
