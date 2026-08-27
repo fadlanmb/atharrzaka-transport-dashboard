@@ -948,7 +948,6 @@ html,body{overflow-x:hidden}
 </select>
 </div>
 </div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.durationHoursLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.durationHours }}" onChange="{{ setNewDurationHours }}" placeholder="4" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
 </sc-if>
 
@@ -1006,7 +1005,18 @@ html,body{overflow-x:hidden}
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.vehicleLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehicleLabel }}</span></div>
 </sc-if>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.driverLabel }}</span><span style="margin-left:auto;font-weight:500">{{ L.autoAssignDriver }}</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="color:rgba(24,24,24,.55);flex:none">{{ L.durationLabel }}</span>
+<div style="margin-left:auto;display:flex;gap:6px">
+<input value="{{ newBooking.durationValue }}" onChange="{{ setNewDurationValue }}" placeholder="1" inputmode="numeric" style="width:64px;text-align:right;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:7px 10px;font-size:12px;font-family:inherit">
+<select value="{{ newBooking.durationUnit }}" onChange="{{ setNewDurationUnit }}" style="width:88px;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:7px 6px;font-size:12px;font-family:inherit;background:#fff">
+<sc-for list="{{ durationUnitOptions }}" as="du" hint-placeholder-count="2">
+<option value="{{ du.value }}">{{ du.label }}</option>
+</sc-for>
+</select>
+</div>
+</div>
 <div style="display:flex"><span style="color:rgba(24,24,24,.55)">{{ L.subtotalLabel }}</span><span style="margin-left:auto;font-weight:500">{{ selectedVehiclePrice }}</span></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="color:rgba(24,24,24,.55);flex:none">{{ L.extraFeeLabel }}</span><input value="{{ newBooking.extraFee }}" onChange="{{ setNewExtraFee }}" placeholder="0" style="margin-left:auto;width:130px;text-align:right;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:7px 10px;font-size:12px;font-family:inherit"></div>
 <div style="display:flex;align-items:center;gap:10px"><span style="color:rgba(24,24,24,.55);flex:none">{{ L.discountLabel }}</span><input value="{{ newBooking.discount }}" onChange="{{ setNewDiscount }}" placeholder="0" style="margin-left:auto;width:130px;text-align:right;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:7px 10px;font-size:12px;font-family:inherit"></div>
 <div style="height:1px;background:rgba(89,50,3,.12)"></div>
 <div style="display:flex;font-size:15px;font-weight:600"><span>{{ L.total }}</span><span style="margin-left:auto">{{ newBookingTotalLabel }}</span></div>
@@ -1617,6 +1627,8 @@ const STR = {
   whatsappSent: { en: "Sent to WhatsApp", id: "Terkirim ke WhatsApp" },
   subtotalLabel: { en: "Subtotal", id: "Subtotal" },
   discountLabel: { en: "Discount", id: "Diskon" },
+  durationLabel: { en: "Duration", id: "Durasi" },
+  extraFeeLabel: { en: "Additional fee", id: "Biaya tambahan" },
   newBookingRequiredError: { en: "Please fill in all fields before continuing.", id: "Mohon lengkapi semua kolom sebelum lanjut." },
   newBookingNoVehicleError: { en: "No vehicle available to select.", id: "Tidak ada kendaraan yang bisa dipilih." },
   newBookingWaRequiredError: { en: "Please send the WhatsApp confirmation first.", id: "Mohon kirim konfirmasi WhatsApp terlebih dahulu." },
@@ -1849,6 +1861,22 @@ function durationLabelToHours(label) {
   if (isNaN(n)) return "";
   return /day/.test(label) ? String(n * 24) : String(n);
 }
+function hoursToDurationValueUnit(hoursStr) {
+  const n = parseFloat(hoursStr);
+  if (!n || n <= 0) return { value: "", unit: "days" };
+  if (n >= 24) return { value: String(Math.round((n / 24) * 10) / 10), unit: "days" };
+  return { value: String(Math.round(n * 10) / 10), unit: "hours" };
+}
+function durationLabelToValueUnit(label) {
+  if (!label) return { value: "", unit: "days" };
+  const n = parseFloat(label);
+  if (isNaN(n)) return { value: "", unit: "days" };
+  return { value: String(n), unit: /day/.test(label) ? "days" : "hours" };
+}
+function durationMultiplierOf(value, unit) {
+  const n = parseFloat(value) || 0;
+  return unit === "hours" ? n / 24 : n;
+}
 function displayDateToISO(str) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const parts = String(str || "").trim().split(" ");
@@ -2036,7 +2064,7 @@ class Component extends DCLogic {
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
-    newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
+    newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
     showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", revenueServiceMonth: "all",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
@@ -2503,13 +2531,15 @@ class Component extends DCLogic {
     const phoneMatch = String(request.phone || "").match(/^\+(\d+)\s+(\d+)$/);
     const phoneCountry = phoneMatch ? phoneMatch[1] : "62";
     const phoneDigits = phoneMatch ? phoneMatch[2] : String(request.phone || "").replace(/[^0-9]/g, "");
+    const requestDurVU = hoursToDurationValueUnit(request.duration_hours);
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: null,
       newBooking: {
         customer: request.customer || "", phoneCountry: phoneCountry, phone: phoneDigits,
         serviceType: request.service_type || "", pickup: request.pickup || "", destination: request.destination || "",
         date: request.trip_date || "", dateISO: request.trip_date ? displayDateToISO(request.trip_date) : "",
-        pickupTime: request.pickup_time || "", passengers: request.passengers || "", durationHours: request.duration_hours || "",
+        pickupTime: request.pickup_time || "", passengers: request.passengers || "",
+        durationValue: requestDurVU.value, durationUnit: requestDurVU.unit, extraFee: "",
         vehicleIndexes: [0], discount: "", waConfirmed: false
       }
     });
@@ -2526,7 +2556,7 @@ class Component extends DCLogic {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: null,
-      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
+      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
     });
   };
   openEditBooking = (row) => {
@@ -2537,23 +2567,33 @@ class Component extends DCLogic {
     const baseNum = parseAmount(row.base);
     const finalNum = parseAmount(row.amount);
     const discountNum = Math.max(0, baseNum - finalNum);
+    const editDurVU = durationLabelToValueUnit(row.duration);
+    const editVehicle = fleetList[vIdx];
+    const editRateNum = editVehicle ? parseAmount(cleanVehicleRate(editVehicle.rate)) : 0;
+    const editRateBaseNum = editRateNum * durationMultiplierOf(editDurVU.value, editDurVU.unit);
+    const editExtraFeeNum = Math.max(0, Math.round(baseNum - editRateBaseNum));
     const timeParts = String(row.time || "").trim().split(" ");
     const pickupTime = timeParts.length >= 2 ? timeParts[timeParts.length - 1] : "";
     const dateDisplay = timeParts.length >= 2 ? timeParts.slice(0, -1).join(" ") : "";
+    const editPhoneMatch = String(row.phone || "").match(/^\+(\d+)\s+(\d+)$/);
+    const editPhoneCountry = editPhoneMatch ? editPhoneMatch[1] : "62";
+    const editPhoneDigits = editPhoneMatch ? editPhoneMatch[2] : String(row.phone || "").replace(/[^0-9]/g, "");
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: row.id,
       newBooking: {
-        customer: row.customer || "", phoneCountry: "62", phone: String(row.phone || "").replace(/[^0-9]/g, ""),
+        customer: row.customer || "", phoneCountry: editPhoneCountry, phone: editPhoneDigits,
         serviceType: row.type || "", pickup: row.from_location || "", destination: row.to_location || "",
         date: dateDisplay, dateISO: displayDateToISO(dateDisplay), pickupTime: pickupTime,
-        passengers: String(row.pax || "").replace(/\s*pax$/, ""), durationHours: durationLabelToHours(row.duration),
+        passengers: String(row.pax || "").replace(/\s*pax$/, ""),
+        durationValue: editDurVU.value, durationUnit: editDurVU.unit,
+        extraFee: editExtraFeeNum ? String(editExtraFeeNum) : "",
         vehicleIndexes: [vIdx], discount: discountNum ? String(discountNum) : "", waConfirmed: true
       }
     });
   };
   closeNewBooking = () => this.setState({ showNew: false, newBookingError: "", editingBookingId: null });
   setNewBookingField = (key) => (e) => {
-    const v = key === "discount" ? formatRupiahTyping(e.target.value) : e.target.value;
+    const v = (key === "discount" || key === "extraFee") ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { [key]: v }) }));
   };
   setNewPhoneNumber = (e) => {
@@ -2581,7 +2621,7 @@ class Component extends DCLogic {
   };
   isStep1Valid = () => {
     const nb = this.state.newBooking;
-    return [nb.customer, nb.phone, nb.serviceType, nb.pickup, nb.destination, nb.date, nb.pickupTime, nb.passengers, nb.durationHours]
+    return [nb.customer, nb.phone, nb.serviceType, nb.pickup, nb.destination, nb.date, nb.pickupTime, nb.passengers]
       .every((v) => v != null && String(v).trim() !== "");
   };
   nextStep = () => {
@@ -2606,6 +2646,10 @@ class Component extends DCLogic {
         return;
       }
     }
+    if (this.state.step === 3 && !String(this.state.newBooking.durationValue || "").trim()) {
+      this.setState({ newBookingError: STR.newBookingRequiredError[lang] });
+      return;
+    }
     if (this.state.step === 3 && !this.state.newBooking.waConfirmed) {
       this.setState({ newBookingError: STR.newBookingWaRequiredError[lang] });
       return;
@@ -2626,21 +2670,29 @@ class Component extends DCLogic {
     const vehicles = indexes.map((i) => fleetForBooking[i]).filter(Boolean);
     if (!vehicles.length) return;
     this._submittingBooking = true;
+    const durationMultiplier = durationMultiplierOf(nb.durationValue, nb.durationUnit);
+    const durationHoursEquiv = nb.durationUnit === "days" ? (parseFloat(nb.durationValue) || 0) * 24 : (parseFloat(nb.durationValue) || 0);
     const totalDiscountNum = parseAmount(nb.discount);
-    const totalBaseNum = vehicles.reduce((sum, v) => sum + parseAmount(cleanVehicleRate(v.rate)), 0);
+    const totalExtraFeeNum = parseAmount(nb.extraFee);
+    const rateBaseNums = vehicles.map((v) => parseAmount(cleanVehicleRate(v.rate)) * durationMultiplier);
+    const totalRateBaseNum = rateBaseNums.reduce((sum, v) => sum + v, 0);
     const basePayload = {
       customer: nb.customer || "-", phone: composeFullPhone(nb.phoneCountry, nb.phone), type: nb.serviceType || "-",
       route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
       time: (nb.date || "-") + " " + (nb.pickupTime || ""),
       from_location: nb.pickup || "", to_location: nb.destination || "",
-      eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(nb.durationHours)
+      eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(String(durationHoursEquiv))
     };
     let allocatedDiscount = 0;
+    let allocatedExtraFee = 0;
     const payloads = vehicles.map((vehicle, idx) => {
-      const baseNum = parseAmount(cleanVehicleRate(vehicle.rate));
+      const rateBaseNum = rateBaseNums[idx];
       const isLast = idx === vehicles.length - 1;
-      const shareDiscount = isLast ? (totalDiscountNum - allocatedDiscount) : Math.round(totalDiscountNum * (baseNum / (totalBaseNum || 1)));
+      const shareExtraFee = isLast ? (totalExtraFeeNum - allocatedExtraFee) : Math.round(totalExtraFeeNum * (rateBaseNum / (totalRateBaseNum || 1)));
+      allocatedExtraFee += shareExtraFee;
+      const shareDiscount = isLast ? (totalDiscountNum - allocatedDiscount) : Math.round(totalDiscountNum * (rateBaseNum / (totalRateBaseNum || 1)));
       allocatedDiscount += shareDiscount;
+      const baseNum = rateBaseNum + shareExtraFee;
       const finalNum = Math.max(0, baseNum - shareDiscount);
       const payload = Object.assign({}, basePayload, { vehicle: vehicle.name, amount: formatRupiah(finalNum), base: formatRupiah(baseNum) });
       if (!editingId) { payload.status = "Awaiting driver"; payload.driver = "Unassigned"; payload.driver_meta = ""; }
@@ -3165,8 +3217,9 @@ class Component extends DCLogic {
     const availableUnitsText = (lang === "id" ? (fleetForBooking.length + " unit tersedia") : (fleetForBooking.length + " units available"))
       + (isMultiVehicleMode ? (lang === "id" ? " · pilih satu atau lebih" : " · select one or more") : "");
     const selectedVehicles = selectedVehicleIndexes.map((i) => fleetForBooking[i]).filter(Boolean);
+    const newBookingDurationMultiplier = durationMultiplierOf(nb.durationValue, nb.durationUnit);
     const selectedVehiclesRows = selectedVehicles.map((v) => ({
-      name: v.name, plate: v.plate, priceLabel: cleanVehicleRate(v.rate)
+      name: v.name, plate: v.plate, priceLabel: formatRupiah(parseAmount(cleanVehicleRate(v.rate)) * newBookingDurationMultiplier)
     }));
     const hasMultipleVehicles = selectedVehicles.length > 1;
     const singleVehicleMode = !hasMultipleVehicles;
@@ -3175,10 +3228,15 @@ class Component extends DCLogic {
     const newBookingTripText = (s.newBooking.pickup || dash) + " → " + (s.newBooking.destination || dash);
     const newBookingWhenText = (s.newBooking.date || dash) + " · " + (s.newBooking.pickupTime || dash);
     const selectedVehicleLabel = selectedVehicles.length ? selectedVehicles.map((v) => v.name).join(", ") : dash;
-    const newBookingSubtotalNum = selectedVehicles.reduce((sum, v) => sum + parseAmount(cleanVehicleRate(v.rate)), 0);
+    const newBookingSubtotalNum = selectedVehicles.reduce((sum, v) => sum + parseAmount(cleanVehicleRate(v.rate)), 0) * newBookingDurationMultiplier;
     const selectedVehiclePrice = formatRupiah(newBookingSubtotalNum);
+    const newBookingExtraFeeNum = parseAmount(s.newBooking.extraFee);
     const newBookingDiscountNum = parseAmount(s.newBooking.discount);
-    const newBookingTotalLabel = formatRupiah(Math.max(0, newBookingSubtotalNum - newBookingDiscountNum));
+    const newBookingTotalLabel = formatRupiah(Math.max(0, newBookingSubtotalNum + newBookingExtraFeeNum - newBookingDiscountNum));
+    const durationUnitOptions = [
+      { value: "days", label: lang === "id" ? "Hari" : "Days" },
+      { value: "hours", label: lang === "id" ? "Jam" : "Hours" }
+    ];
     const waMessage = lang === "id"
       ? ("Halo " + (nb.customer || "-") + ", berikut konfirmasi pemesanan Anda di Atharrzaka Transport:\n" +
          "- Layanan: " + (trWords(nb.serviceType, lang) || "-") + "\n" +
@@ -3331,7 +3389,10 @@ class Component extends DCLogic {
       setNewPickupTime: this.setNewBookingField("pickupTime"),
       setNewPassengers: this.setNewBookingField("passengers"),
       pickupTimeOptions: pickupTimeOptions, passengerOptions: passengerOptions,
-      setNewDurationHours: this.setNewBookingField("durationHours"),
+      setNewDurationValue: this.setNewBookingField("durationValue"),
+      setNewDurationUnit: this.setNewBookingField("durationUnit"),
+      setNewExtraFee: this.setNewBookingField("extraFee"),
+      durationUnitOptions: durationUnitOptions,
       vehicleOptions: vehicleOptions, hasVehicleOptions: hasVehicleOptions, noVehicleOptions: !hasVehicleOptions,
       availableUnitsText: availableUnitsText,
       newBookingCustomerText: newBookingCustomerText, newBookingPhoneText: newBookingPhoneText,
