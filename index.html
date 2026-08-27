@@ -714,6 +714,45 @@ html,body{overflow-x:hidden}
 </div>
 </sc-if>
 
+<sc-if value="{{ isCalendar }}" hint-placeholder-val="{{ false }}">
+<div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+<div onClick="{{ calendarPrev }}" style="width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(89,50,3,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+<div style="font-size:14px;font-weight:600;min-width:120px">{{ calendarRangeLabel }}</div>
+<div onClick="{{ calendarNext }}" style="width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(89,50,3,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+<div onClick="{{ calendarToday }}" style="margin-left:4px;font-size:11.5px;font-weight:600;color:#824703;border:1px solid rgba(130,71,3,.3);border-radius:8px;padding:7px 12px;cursor:pointer">{{ L.todayBtn }}</div>
+<div style="margin-left:auto;display:flex;align-items:center;gap:14px;font-size:11px;color:rgba(24,24,24,.5)">
+<div style="display:flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:3px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);display:inline-block"></span>{{ L.legendBooked }}</div>
+<div style="display:flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:3px;background:rgba(89,50,3,.07);border:1px dashed rgba(89,50,3,.16);display:inline-block"></span>{{ L.legendAvailable }}</div>
+</div>
+</div>
+<sc-if value="{{ noCalendarVehicles }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px;font-size:12px;color:rgba(24,24,24,.5)">{{ L.noCalendarVehiclesText }}</div>
+</sc-if>
+<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px 20px;overflow-x:auto">
+<div style="display:flex;flex-direction:column;gap:6px;min-width:900px">
+<div style="display:flex;gap:4px">
+<div style="width:150px;flex:none"></div>
+<sc-for list="{{ calendarDayHeaders }}" as="dh" hint-placeholder-count="14">
+<div style="flex:1;min-width:36px;text-align:center;font-size:10.5px;font-weight:600;color:{{ dh.headerColor }}">{{ dh.label }}</div>
+</sc-for>
+</div>
+<sc-for list="{{ calendarRows }}" as="row" hint-placeholder-count="4">
+<div style="display:flex;gap:4px;align-items:center;padding:5px 0;border-top:1px solid rgba(89,50,3,.06)">
+<div style="width:150px;flex:none;min-width:0">
+<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.name }}</div>
+<div style="font-size:10px;color:rgba(24,24,24,.42)">{{ row.plate }}</div>
+</div>
+<sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="14">
+<div onClick="{{ cell.click }}" title="{{ cell.title }}" style="flex:1;min-width:36px;height:32px;border-radius:6px;cursor:pointer;{{ cell.style }};display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#fff;overflow:hidden">{{ cell.shortLabel }}</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
 </div>
 
 <sc-if value="{{ showFab }}" hint-placeholder-val="{{ false }}">
@@ -762,6 +801,10 @@ html,body{overflow-x:hidden}
 <div style="width:100%;background:#fff;border-radius:18px 18px 0 0;padding:10px 8px 22px;box-shadow:0 -20px 50px rgba(24,24,24,.2)" onClick="{{ stop }}">
 <div style="width:36px;height:4px;border-radius:3px;background:rgba(89,50,3,.2);margin:6px auto 14px"></div>
 <sc-if value="{{ showFullBottomNav }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ goCalendarMobile }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">
+<div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+{{ calendarNavLabel }}
+</div>
 <div onClick="{{ goCustomersMobile }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">
 <div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
 {{ customersNavLabel }}
@@ -804,7 +847,7 @@ html,body{overflow-x:hidden}
 <sc-if value="{{ detail.hasPhone }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11.5px;color:rgba(255,255,255,.75);margin-top:3px">{{ detail.phone }}</div>
 </sc-if>
-<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:3px">{{ detail.type }} · {{ L.createdText }}</div>
+<div style="font-size:11.5px;color:rgba(255,255,255,.6);margin-top:3px">{{ detail.type }} · {{ detail.createdLabel }}</div>
 </div>
 <div onClick="{{ closeDetail }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
 </div>
@@ -1497,6 +1540,11 @@ const STR = {
   fldExpenseDate: { en: "Expense date", id: "Tanggal pengeluaran" },
   expensesThisMonth: { en: "Expenses this month", id: "Pengeluaran bulan ini" },
   companyBalance: { en: "Company balance", id: "Saldo perusahaan" },
+  todayBtn: { en: "Today", id: "Hari ini" },
+  calendarBookSlot: { en: "Click to book this date", id: "Klik untuk memesan tanggal ini" },
+  legendBooked: { en: "Booked", id: "Sudah dipesan" },
+  legendAvailable: { en: "Available", id: "Tersedia" },
+  noCalendarVehiclesText: { en: "No vehicles in fleet yet.", id: "Belum ada armada." },
   colDescription: { en: "DESCRIPTION", id: "DESKRIPSI" },
   colCategory: { en: "CATEGORY", id: "KATEGORI" },
   colDate: { en: "DATE", id: "TANGGAL" },
@@ -1643,11 +1691,13 @@ const NAV_LABELS = {
   customers: { en: "Customers", id: "Pelanggan" },
   revenue: { en: "Revenue", id: "Pendapatan" },
   maintenance: { en: "Maintenance", id: "Perawatan" },
-  expenses: { en: "Expenses", id: "Pengeluaran" }
+  expenses: { en: "Expenses", id: "Pengeluaran" },
+  calendar: { en: "Calendar", id: "Kalender" }
 };
 
 const NAV_OPS = [
   { id: "dashboard", badge: "" },
+  { id: "calendar", badge: "" },
   { id: "fleet", badge: "" },
   { id: "maintenance", badge: "" },
   { id: "bookings", badge: "" },
@@ -1666,7 +1716,8 @@ const TITLES = {
   customers: { en: ["Customers", "28 corporate accounts · 486 individuals"], id: ["Pelanggan", "28 akun korporat · 486 individu"] },
   revenue: { en: ["Revenue", "August 2026 · Rp 612,4 jt booked"], id: ["Pendapatan", "Agustus 2026 · Rp 612,4 jt terpesan"] },
   maintenance: { en: ["Maintenance", "3 units in service · 1 overdue"], id: ["Perawatan", "3 unit dalam servis · 1 terlambat"] },
-  expenses: { en: ["Expenses", "Track spending and company balance"], id: ["Pengeluaran", "Pantau pengeluaran dan saldo perusahaan"] }
+  expenses: { en: ["Expenses", "Track spending and company balance"], id: ["Pengeluaran", "Pantau pengeluaran dan saldo perusahaan"] },
+  calendar: { en: ["Calendar", "Vehicle timeline and availability"], id: ["Kalender", "Timeline dan ketersediaan kendaraan"] }
 };
 const SUPABASE_URL = "https://apjlwgidhtyqhpuyeomq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwamx3Z2lkaHR5cWhwdXllb21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NjgxNjMsImV4cCI6MjEwMzE0NDE2M30.1euYKx9zMEKZnsQV7EPk56qUi3T3L-M9_yWS5kNJrwU";
@@ -1679,7 +1730,7 @@ function getSupabase() {
 }
 
 const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices", maintenance: "maintenance", expense: "expenses" };
-const FLEET_STATUS_OPTIONS = ["Available", "On trip", "In service"];
+const FLEET_STATUS_OPTIONS = ["Available", "In service"];
 const SERVICE_TYPE_OPTIONS = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package", "Individual"];
 const COUNTRY_CODE_OPTIONS = [
   { code: "62", label: "🇮🇩 +62" },
@@ -1897,8 +1948,43 @@ function isoToDisplayDate(iso) {
 function cleanVehicleRate(rate) {
   return (rate || "").split(" / ")[0].trim() || "Rp 0";
 }
-function pickBookingFleet(fleet) {
-  const available = fleet.filter((v) => v.status === "Available");
+function formatCreatedAt(isoStr, lang) {
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return "";
+  const monthsAbbr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mo = trWords(monthsAbbr[d.getMonth()], lang);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return d.getDate() + " " + mo + " " + hh + ":" + mi;
+}
+function bookingDateTimeRange(b) {
+  const timeStr = String(b.time || "");
+  const spaceIdx = timeStr.lastIndexOf(" ");
+  if (spaceIdx < 0) return null;
+  const datePart = timeStr.slice(0, spaceIdx);
+  const timePart = timeStr.slice(spaceIdx + 1);
+  const iso = displayDateToISO(datePart);
+  if (!iso || !/^\d{2}:\d{2}$/.test(timePart)) return null;
+  const start = new Date(iso + "T" + timePart + ":00");
+  if (isNaN(start.getTime())) return null;
+  const hours = parseFloat(durationLabelToHours(b.duration)) || 24;
+  const end = new Date(start.getTime() + hours * 3600000);
+  return { start: start, end: end };
+}
+function vehicleOnTripNow(vehicleName, bookings) {
+  const now = new Date();
+  return (bookings || []).some((b) => {
+    if (b.vehicle !== vehicleName) return false;
+    const range = bookingDateTimeRange(b);
+    return range && now >= range.start && now < range.end;
+  });
+}
+function computedFleetStatus(v, bookings) {
+  if (v.status === "In service") return "In service";
+  return vehicleOnTripNow(v.name, bookings) ? "On trip" : "Available";
+}
+function pickBookingFleet(fleet, bookings) {
+  const available = fleet.filter((v) => computedFleetStatus(v, bookings) === "Available");
   return available.length ? available : fleet;
 }
 function timeToMinutes(t) {
@@ -2066,6 +2152,7 @@ class Component extends DCLogic {
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
     showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", revenueServiceMonth: "all",
+    calendarDayOffset: 0,
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
     showTripRequest: false, tripRequestForm: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
@@ -2559,9 +2646,22 @@ class Component extends DCLogic {
       newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
     });
   };
+  openNewBookingForSlot = (vehicle, dayISO, dayDisplay) => () => {
+    if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
+    const fleetForBooking = pickBookingFleet(this.state.fleet, this.state.bookings);
+    let vIdx = fleetForBooking.findIndex((v) => v.name === vehicle.name);
+    if (vIdx < 0) vIdx = 0;
+    this.setState({
+      showNew: true, step: 1, newBookingError: "", editingBookingId: null,
+      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: dayDisplay, dateISO: dayISO, pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [vIdx], discount: "", waConfirmed: false }
+    });
+  };
+  calendarPrev = () => this.setState((p) => ({ calendarDayOffset: p.calendarDayOffset - 7 }));
+  calendarNext = () => this.setState((p) => ({ calendarDayOffset: p.calendarDayOffset + 7 }));
+  calendarToday = () => this.setState({ calendarDayOffset: 0 });
   openEditBooking = (row) => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
-    const fleetList = pickBookingFleet(this.state.fleet);
+    const fleetList = pickBookingFleet(this.state.fleet, this.state.bookings);
     let vIdx = fleetList.findIndex((v) => v.name === row.vehicle);
     if (vIdx < 0) vIdx = 0;
     const baseNum = parseAmount(row.base);
@@ -2631,7 +2731,7 @@ class Component extends DCLogic {
       return;
     }
     if (this.state.step === 2) {
-      const fleetForBooking = pickBookingFleet(this.state.fleet);
+      const fleetForBooking = pickBookingFleet(this.state.fleet, this.state.bookings);
       if (fleetForBooking.length === 0) {
         this.setState({ newBookingError: STR.newBookingNoVehicleError[lang] });
         return;
@@ -2664,7 +2764,7 @@ class Component extends DCLogic {
     const client = getSupabase();
     const nb = this.state.newBooking;
     if (!client || !this.state.session) return;
-    const fleetForBooking = pickBookingFleet(this.state.fleet);
+    const fleetForBooking = pickBookingFleet(this.state.fleet, this.state.bookings);
     const editingId = this.state.editingBookingId;
     const indexes = editingId ? [(nb.vehicleIndexes || [0])[0]] : (nb.vehicleIndexes || []);
     const vehicles = indexes.map((i) => fleetForBooking[i]).filter(Boolean);
@@ -2766,7 +2866,7 @@ class Component extends DCLogic {
     const fleetTabLabel = NAV_LABELS.fleet[lang], driversTabLabel = NAV_LABELS.drivers[lang];
     const goDashTab = this.go("dashboard"), goBookingsTab = this.go("bookings");
     const goFleetTab = this.go("fleet"), goDriversTab = this.go("drivers");
-    const moreTabActive = ["customers", "maintenance", "revenue"].indexOf(s.screen) >= 0;
+    const moreTabActive = ["customers", "maintenance", "revenue", "expenses", "calendar"].indexOf(s.screen) >= 0;
     const moreTabColor = moreTabActive ? NAV_ON : NAV_OFF;
     const customersNavLabel = NAV_LABELS.customers[lang];
     const maintenanceNavLabel = NAV_LABELS.maintenance[lang];
@@ -2815,7 +2915,7 @@ class Component extends DCLogic {
       3: { en: "Confirmation sent to customer", id: "Konfirmasi dikirim ke pelanggan" }
     };
     const fleetTr = s.fleet.map((v) => Object.assign({}, v, {
-      status: trWords(v.status, lang), rate: trWords(v.rate, lang),
+      status: trWords(computedFleetStatus(v, s.bookings), lang), rate: trWords(v.rate, lang),
       kmLabel: formatKm(v.km), hasPhoto: !!v.photo_url, noPhoto: !v.photo_url,
       edit: (e) => { e.stopPropagation(); this.openFormFor("fleet", "edit", v); },
       remove: (e) => { e.stopPropagation(); this.askDelete("fleet", v.id); }
@@ -2938,11 +3038,64 @@ class Component extends DCLogic {
     const hasMyPendingRequests = myPendingRequests.length > 0;
     const detailAlreadyInvoiced = !!(s.detail && s.invoices.some((i) => i.booking_ref === s.detail.ref));
     const detailDiscountNum = s.detail ? Math.max(0, parseAmount(s.detail.base) - parseAmount(s.detail.amount)) : 0;
-    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone, hasDiscount: detailDiscountNum > 0, discountLabel: formatRupiah(detailDiscountNum) }) : null;
+    const detailCreatedLabel = s.detail && s.detail.created_at ? (lang === "id" ? "dibuat " : "created ") + formatCreatedAt(s.detail.created_at, lang) : "";
+    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone, hasDiscount: detailDiscountNum > 0, discountLabel: formatRupiah(detailDiscountNum), createdLabel: detailCreatedLabel }) : null;
 
-    const fleetAvailableCount = s.fleet.filter((v) => v.status === "Available").length;
-    const fleetOnTripCountVal = s.fleet.filter((v) => v.status === "On trip").length;
-    const fleetInServiceCountVal = s.fleet.filter((v) => v.status === "In service").length;
+    const fleetComputedStatuses = s.fleet.map((v) => computedFleetStatus(v, s.bookings));
+    const fleetAvailableCount = fleetComputedStatuses.filter((st) => st === "Available").length;
+    const fleetOnTripCountVal = fleetComputedStatuses.filter((st) => st === "On trip").length;
+    const fleetInServiceCountVal = fleetComputedStatuses.filter((st) => st === "In service").length;
+
+    const CALENDAR_WINDOW_DAYS = 14;
+    const calendarTodayDate = new Date();
+    calendarTodayDate.setHours(0, 0, 0, 0);
+    const calendarBaseDate = new Date(calendarTodayDate);
+    calendarBaseDate.setDate(calendarBaseDate.getDate() + (s.calendarDayOffset || 0));
+    const calendarDayDefs = Array.from({ length: CALENDAR_WINDOW_DAYS }, (_, i) => {
+      const d = new Date(calendarBaseDate); d.setDate(d.getDate() + i); return d;
+    });
+    const monthsAbbrCal = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const calFirst = calendarDayDefs[0], calLast = calendarDayDefs[CALENDAR_WINDOW_DAYS - 1];
+    const calendarRangeLabel = trWords(monthsAbbrCal[calFirst.getMonth()], lang) + " " + calFirst.getFullYear()
+      + (calFirst.getMonth() !== calLast.getMonth() || calFirst.getFullYear() !== calLast.getFullYear()
+        ? " – " + trWords(monthsAbbrCal[calLast.getMonth()], lang) + " " + calLast.getFullYear()
+        : "");
+    const calendarDayHeaders = calendarDayDefs.map((d) => {
+      const isToday = d.getTime() === calendarTodayDate.getTime();
+      return { label: String(d.getDate()), isToday: isToday, headerColor: isToday ? "#824703" : "rgba(24,24,24,.45)" };
+    });
+    const calendarDayISOs = calendarDayDefs.map((d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"));
+    const calendarDayDisplays = calendarDayDefs.map((d) => d.getDate() + " " + monthsAbbrCal[d.getMonth()] + " " + d.getFullYear());
+    const calendarRows = s.fleet.map((v) => {
+      const cells = calendarDayDefs.map((day, i) => {
+        const dayStart = day;
+        const dayEnd = new Date(day); dayEnd.setDate(dayEnd.getDate() + 1);
+        const booking = s.bookings.find((b) => {
+          if (b.vehicle !== v.name) return false;
+          const range = bookingDateTimeRange(b);
+          return range && range.start < dayEnd && range.end > dayStart;
+        });
+        const occupied = !!booking;
+        const isPast = dayEnd <= calendarTodayDate;
+        const ringStyle = day.getTime() === calendarTodayDate.getTime() ? "box-shadow:0 0 0 2px #824703 inset;" : "";
+        const bgStyle = occupied
+          ? "background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E)"
+          : "background:" + (isPast ? "rgba(89,50,3,.04)" : "rgba(89,50,3,.07)") + ";border:1px dashed rgba(89,50,3,.16)";
+        const clickHandler = occupied
+          ? (() => { const bk = booking; return (e) => { e.stopPropagation(); this.setState({ detail: withOpen(bk) }); }; })()
+          : (isPast ? (e) => e.stopPropagation() : this.openNewBookingForSlot(v, calendarDayISOs[i], calendarDayDisplays[i]));
+        return {
+          key: v.id + "-" + i,
+          style: ringStyle + bgStyle + (isPast && !occupied ? ";opacity:.5" : ""),
+          shortLabel: occupied ? String(booking.ref || "").replace(/^\D+/, "").slice(-4) : "",
+          title: occupied ? (booking.customer + " · " + booking.ref) : (isPast ? "" : L.calendarBookSlot),
+          click: clickHandler
+        };
+      });
+      return { id: v.id, name: v.name, plate: v.plate, cells: cells };
+    });
+    const hasCalendarVehicles = calendarRows.length > 0;
+
     let pageSub = t[1];
     if (s.screen === "fleet") {
       pageSub = lang === "id"
@@ -2979,6 +3132,7 @@ class Component extends DCLogic {
     const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
     const companyBalanceLabel = formatRupiahShort(companyBalanceNum);
     const expensesNavLabel = NAV_LABELS.expenses[lang];
+    const calendarNavLabel = NAV_LABELS.calendar[lang];
     const tripsTodayLabel = lang === "id"
       ? (bookingsThisMonth.length + " pemesanan bulan ini")
       : (bookingsThisMonth.length + " bookings this month");
@@ -3194,7 +3348,7 @@ class Component extends DCLogic {
     const dash = lang === "id" ? "—" : "—";
     const SELECTED_CARD = "border:2px solid #DBAF5D;border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;background:rgba(219,175,93,.08);cursor:pointer";
     const UNSELECTED_CARD = "border:1px solid rgba(89,50,3,.12);border-radius:12px;padding:14px;display:flex;gap:13px;align-items:center;cursor:pointer";
-    const fleetForBooking = pickBookingFleet(s.fleet);
+    const fleetForBooking = pickBookingFleet(s.fleet, s.bookings);
     const nb = s.newBooking;
     const selectedVehicleIndexes = nb.vehicleIndexes || [];
     const isMultiVehicleMode = !s.editingBookingId;
@@ -3276,6 +3430,7 @@ class Component extends DCLogic {
       isCustomers: s.screen === "customers" && s.loaded && !isDriverRole, isRevenue: s.screen === "revenue" && s.loaded && !isDriverRole,
       isMaintenance: s.screen === "maintenance" && s.loaded,
       isExpenses: s.screen === "expenses" && s.loaded && !isDriverRole,
+      isCalendar: s.screen === "calendar" && s.loaded && !isDriverRole,
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"),
       todayCols: [
         { key: "customer", label: L.colCustomer, align: "left" },
@@ -3356,6 +3511,9 @@ class Component extends DCLogic {
       fleetOnTripCount: fleetOnTripCountVal,
       fleetInServiceCount: fleetInServiceCountVal,
       fleetOnRoadCount: fleetOnTripCountVal, fleetOnRoadPct: fleetOnRoadPct,
+      calendarRangeLabel: calendarRangeLabel, calendarDayHeaders: calendarDayHeaders, calendarRows: calendarRows,
+      hasCalendarVehicles: hasCalendarVehicles, noCalendarVehicles: !hasCalendarVehicles,
+      calendarPrev: this.calendarPrev, calendarNext: this.calendarNext, calendarToday: this.calendarToday,
       tripsTodayLabel: tripsTodayLabel,
       utilAvgLabel: utilAvgLabel, ratingLabel: "–",
       needsAttentionItems: needsAttentionItems, hasAttentionItems: hasAttentionItems, noAttentionItems: !hasAttentionItems,
@@ -3414,9 +3572,9 @@ class Component extends DCLogic {
       openMoreSheet: this.openMoreSheet, closeMoreSheet: this.closeMoreSheet, showMoreSheet: s.showMoreSheet,
       showFab: showFab, fabAction: fabAction,
       customersNavLabel: customersNavLabel, maintenanceNavLabel: maintenanceNavLabel, revenueNavLabel: revenueNavLabel,
-      expensesNavLabel: expensesNavLabel,
+      expensesNavLabel: expensesNavLabel, calendarNavLabel: calendarNavLabel,
       goCustomersMobile: this.go("customers"), goMaintenanceMobile: this.go("maintenance"), goRevenueMobile: this.go("revenue"),
-      goExpensesMobile: this.go("expenses"),
+      goExpensesMobile: this.go("expenses"), goCalendarMobile: this.go("calendar"),
       openSettingsMobile: this.openSettingsMobile,
       showLogin: s.showLogin, openLogin: this.openLogin, closeLogin: this.closeLogin,
       loginEmail: s.loginEmail, loginPassword: s.loginPassword,
