@@ -2239,7 +2239,7 @@ const INACTIVE_LANG_STYLE = "font-size:11px;font-weight:500;padding:6px 11px;bor
 
 class Component extends DCLogic {
   state = {
-    screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en",
+    screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en", approvingTripRequestId: null,
     session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "", loginPasswordVisible: false,
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
@@ -2704,18 +2704,12 @@ class Component extends DCLogic {
     });
   };
   approveTripRequest = (request) => () => {
-    const client = getSupabase();
-    if (!client || !this.state.session) return;
-    client.from("trip_requests").update({ status: "Approved" }).eq("id", request.id).then((res) => {
-      if (res.error) return;
-      this.loadAll();
-    });
     const phoneMatch = String(request.phone || "").match(/^\+(\d+)\s+(\d+)$/);
     const phoneCountry = phoneMatch ? phoneMatch[1] : "62";
     const phoneDigits = phoneMatch ? phoneMatch[2] : String(request.phone || "").replace(/[^0-9]/g, "");
     const requestDurVU = hoursToDurationValueUnit(request.duration_hours);
     this.setState({
-      showNew: true, step: 1, newBookingError: "", editingBookingId: null,
+      showNew: true, step: 1, newBookingError: "", editingBookingId: null, approvingTripRequestId: request.id,
       newBooking: {
         customer: request.customer || "", phoneCountry: phoneCountry, phone: phoneDigits,
         serviceType: request.service_type || "", pickup: request.pickup || "", destination: request.destination || "",
@@ -2737,7 +2731,7 @@ class Component extends DCLogic {
   openNewBooking = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
-      showNew: true, step: 1, newBookingError: "", editingBookingId: null,
+      showNew: true, step: 1, newBookingError: "", editingBookingId: null, approvingTripRequestId: null,
       newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
     });
   };
@@ -2747,7 +2741,7 @@ class Component extends DCLogic {
     let vIdx = fleetForBooking.findIndex((v) => v.name === vehicle.name);
     if (vIdx < 0) vIdx = 0;
     this.setState({
-      showNew: true, step: 1, newBookingError: "", editingBookingId: null,
+      showNew: true, step: 1, newBookingError: "", editingBookingId: null, approvingTripRequestId: null,
       newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: dayDisplay, dateISO: dayISO, pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [vIdx], discount: "", waConfirmed: false }
     });
   };
@@ -2775,7 +2769,7 @@ class Component extends DCLogic {
     const editPhoneCountry = editPhoneMatch ? editPhoneMatch[1] : "62";
     const editPhoneDigits = editPhoneMatch ? editPhoneMatch[2] : String(row.phone || "").replace(/[^0-9]/g, "");
     this.setState({
-      showNew: true, step: 1, newBookingError: "", editingBookingId: row.id,
+      showNew: true, step: 1, newBookingError: "", editingBookingId: row.id, approvingTripRequestId: null,
       newBooking: {
         customer: row.customer || "", phoneCountry: editPhoneCountry, phone: editPhoneDigits,
         serviceType: row.type || "", pickup: row.from_location || "", destination: row.to_location || "",
@@ -2787,7 +2781,7 @@ class Component extends DCLogic {
       }
     });
   };
-  closeNewBooking = () => this.setState({ showNew: false, newBookingError: "", editingBookingId: null });
+  closeNewBooking = () => this.setState({ showNew: false, newBookingError: "", editingBookingId: null, approvingTripRequestId: null });
   setNewBookingField = (key) => (e) => {
     const v = (key === "discount" || key === "extraFee") ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { [key]: v }) }));
@@ -2854,7 +2848,7 @@ class Component extends DCLogic {
     if (this.state.step === 3) { this.submitNewBooking(); return; }
     this.setState((p) => ({ step: p.step + 1 }));
   };
-  prevStep = () => this.setState((p) => p.step === 1 ? { showNew: false } : { step: p.step - 1, newBookingError: "" });
+  prevStep = () => this.setState((p) => p.step === 1 ? { showNew: false, approvingTripRequestId: null } : { step: p.step - 1, newBookingError: "" });
   submitNewBooking = () => {
     if (this._submittingBooking) return;
     const client = getSupabase();
@@ -2897,10 +2891,14 @@ class Component extends DCLogic {
     const reqs = editingId
       ? [client.from("bookings").update(payloads[0]).eq("id", editingId)]
       : payloads.map((p) => client.from("bookings").insert(p).select());
+    const approvingTripRequestId = this.state.approvingTripRequestId;
     Promise.all(reqs).then((results) => {
       this._submittingBooking = false;
       if (results.some((r) => r.error)) return;
-      this.setState({ showNew: false, editingBookingId: null });
+      this.setState({ showNew: false, editingBookingId: null, approvingTripRequestId: null });
+      if (approvingTripRequestId) {
+        client.from("trip_requests").update({ status: "Approved" }).eq("id", approvingTripRequestId).then(() => {});
+      }
       if (editingId) { this.loadAll(); return; }
       const invoiceReqs = results.map((r) => {
         const row = r.data && r.data[0];
