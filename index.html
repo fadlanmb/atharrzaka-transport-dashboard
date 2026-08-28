@@ -28,9 +28,9 @@ html,body{overflow-x:hidden}
 @keyframes dcSpin{to{transform:rotate(360deg)}}
 @keyframes dcFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes dcBarGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-@keyframes dcPulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes dcCheckPop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
 @keyframes dcCheckDraw{to{stroke-dashoffset:0}}
+@keyframes dcPulse{0%,100%{opacity:1}50%{opacity:.3}}
 .dc-success-circle{width:64px;height:64px;border-radius:50%;background:rgba(93,138,58,.12);display:flex;align-items:center;justify-content:center;animation:dcCheckPop .45s cubic-bezier(.22,1,.36,1) both}
 .dc-success-check{stroke-dasharray:28;stroke-dashoffset:28;animation:dcCheckDraw .35s ease .25s forwards}
 .dc-success-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 10px;animation:dcFadeIn .25s ease both}
@@ -105,7 +105,22 @@ html,body{overflow-x:hidden}
 </div>
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.passwordLabel }}</div>
-<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
+<div style="position:relative">
+<sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
+<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 40px 12px 13px;font-size:13px;font-family:inherit">
+</sc-if>
+<sc-if value="{{ loginPasswordVisible }}" hint-placeholder-val="{{ false }}">
+<input type="text" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 40px 12px 13px;font-size:13px;font-family:inherit">
+</sc-if>
+<div onClick="{{ toggleLoginPasswordVisible }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(24,24,24,.42);display:flex">
+<sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+</sc-if>
+<sc-if value="{{ loginPasswordVisible }}" hint-placeholder-val="{{ false }}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+</sc-if>
+</div>
+</div>
 </div>
 <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11.5px;color:#a8471f">{{ loginError }}</div>
@@ -721,6 +736,11 @@ html,body{overflow-x:hidden}
 <div style="font-size:14px;font-weight:600;min-width:120px">{{ calendarRangeLabel }}</div>
 <div onClick="{{ calendarNext }}" style="width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(89,50,3,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
 <div onClick="{{ calendarToday }}" style="margin-left:4px;font-size:11.5px;font-weight:600;color:#824703;border:1px solid rgba(130,71,3,.3);border-radius:8px;padding:7px 12px;cursor:pointer">{{ L.todayBtn }}</div>
+<select value="{{ calendarVehicleFilter }}" onChange="{{ setCalendarVehicleFilter }}" style="margin-left:8px;font-size:11px;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:7px 8px;font-family:inherit;background:#fff;cursor:pointer;max-width:180px">
+<sc-for list="{{ calendarVehicleOptions }}" as="vo" hint-placeholder-count="4">
+<option value="{{ vo.value }}">{{ vo.label }}</option>
+</sc-for>
+</select>
 <div style="margin-left:auto;display:flex;align-items:center;gap:14px;font-size:11px;color:rgba(24,24,24,.5)">
 <div style="display:flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:3px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);display:inline-block"></span>{{ L.legendBooked }}</div>
 <div style="display:flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:3px;background:rgba(89,50,3,.07);border:1px dashed rgba(89,50,3,.16);display:inline-block"></span>{{ L.legendAvailable }}</div>
@@ -729,22 +749,22 @@ html,body{overflow-x:hidden}
 <sc-if value="{{ noCalendarVehicles }}" hint-placeholder-val="{{ false }}">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px;font-size:12px;color:rgba(24,24,24,.5)">{{ L.noCalendarVehiclesText }}</div>
 </sc-if>
-<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px 20px;overflow-x:auto">
-<div style="display:flex;flex-direction:column;gap:6px;min-width:900px">
-<div style="display:flex;gap:4px">
-<div style="width:150px;flex:none"></div>
+<div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px 20px">
+<div style="display:flex;flex-direction:column;gap:6px;width:100%">
+<div style="display:flex;gap:3px">
+<div style="width:120px;flex:none"></div>
 <sc-for list="{{ calendarDayHeaders }}" as="dh" hint-placeholder-count="14">
-<div style="flex:1;min-width:36px;text-align:center;font-size:10.5px;font-weight:600;color:{{ dh.headerColor }}">{{ dh.label }}</div>
+<div style="flex:1;min-width:0;text-align:center;font-size:10px;font-weight:600;color:{{ dh.headerColor }}">{{ dh.label }}</div>
 </sc-for>
 </div>
 <sc-for list="{{ calendarRows }}" as="row" hint-placeholder-count="4">
-<div style="display:flex;gap:4px;align-items:center;padding:5px 0;border-top:1px solid rgba(89,50,3,.06)">
-<div style="width:150px;flex:none;min-width:0">
+<div style="display:flex;gap:3px;align-items:center;padding:5px 0;border-top:1px solid rgba(89,50,3,.06)">
+<div style="width:120px;flex:none;min-width:0">
 <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.name }}</div>
 <div style="font-size:10px;color:rgba(24,24,24,.42)">{{ row.plate }}</div>
 </div>
 <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="14">
-<div onClick="{{ cell.click }}" title="{{ cell.title }}" style="flex:1;min-width:36px;height:32px;border-radius:6px;cursor:pointer;{{ cell.style }};display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#fff;overflow:hidden">{{ cell.shortLabel }}</div>
+<div onClick="{{ cell.click }}" title="{{ cell.title }}" style="flex:1;min-width:0;height:32px;border-radius:6px;cursor:pointer;{{ cell.style }};display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#fff;overflow:hidden">{{ cell.shortLabel }}</div>
 </sc-for>
 </div>
 </sc-for>
@@ -1102,7 +1122,22 @@ html,body{overflow-x:hidden}
 </div>
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.passwordLabel }}</div>
-<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+<div style="position:relative">
+<sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
+<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 40px 11px 12px;font-size:12.5px;font-family:inherit">
+</sc-if>
+<sc-if value="{{ loginPasswordVisible }}" hint-placeholder-val="{{ false }}">
+<input type="text" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 40px 11px 12px;font-size:12.5px;font-family:inherit">
+</sc-if>
+<div onClick="{{ toggleLoginPasswordVisible }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(24,24,24,.42);display:flex">
+<sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+</sc-if>
+<sc-if value="{{ loginPasswordVisible }}" hint-placeholder-val="{{ false }}">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+</sc-if>
+</div>
+</div>
 </div>
 <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11px;color:#a8471f">{{ loginError }}</div>
@@ -1541,6 +1576,7 @@ const STR = {
   expensesThisMonth: { en: "Expenses this month", id: "Pengeluaran bulan ini" },
   companyBalance: { en: "Company balance", id: "Saldo perusahaan" },
   todayBtn: { en: "Today", id: "Hari ini" },
+  allVehiclesFilter: { en: "All vehicles", id: "Semua kendaraan" },
   calendarBookSlot: { en: "Click to book this date", id: "Klik untuk memesan tanggal ini" },
   legendBooked: { en: "Booked", id: "Sudah dipesan" },
   legendAvailable: { en: "Available", id: "Tersedia" },
@@ -1563,9 +1599,9 @@ const STR = {
   kpiUtilisation: { en: "UTILISATION", id: "UTILISASI" },
   targetAvg: { en: "Target 78%", id: "Target 78%" },
   kpiRating: { en: "RATING", id: "PENILAIAN" },
-  reviewsMonth: { en: "Not connected yet", id: "Belum terhubung" },
   chartTitle: { en: "Trips & revenue", id: "Perjalanan & pendapatan" },
   liveNow: { en: "Live", id: "Langsung" },
+  reviewsMonth: { en: "Not connected yet", id: "Belum terhubung" },
   loadingText: { en: "Loading your dashboard…", id: "Memuat dashboard Anda…" },
   allClear: { en: "All caught up — nothing needs attention.", id: "Semua aman — tidak ada yang perlu diperhatikan." },
   noPickups: { en: "No pickups scheduled yet.", id: "Belum ada jemputan terjadwal." },
@@ -2131,8 +2167,8 @@ function buildChartBars(bookings, range, lang) {
       : (b.value > 0 ? "linear-gradient(180deg,#DBAF5D,#824703)" : "rgba(89,50,3,.14)");
     const delay = (i * 0.04).toFixed(2);
     const tooltip = lang === "id"
-      ? (b.trips + " perjalanan · " + formatRupiahShort(b.value))
-      : (b.trips + " trips · " + formatRupiahShort(b.value));
+      ? (b.trips + " perjalanan · " + formatRupiah(b.value))
+      : (b.trips + " trips · " + formatRupiah(b.value));
     return {
       label: b.label, tooltip: tooltip,
       style: "width:100%;height:" + pct + "%;border-radius:6px 6px 2px 2px;background:" + bg + ";animation-delay:" + delay + "s"
@@ -2146,13 +2182,13 @@ const INACTIVE_LANG_STYLE = "font-size:11px;font-weight:500;padding:6px 11px;bor
 class Component extends DCLogic {
   state = {
     screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en",
-    session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "",
+    session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "", loginPasswordVisible: false,
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
     showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", revenueServiceMonth: "all",
-    calendarDayOffset: 0,
+    calendarDayOffset: 0, calendarVehicleFilter: "all",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
     showTripRequest: false, tripRequestForm: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
@@ -2297,17 +2333,18 @@ class Component extends DCLogic {
     });
   };
 
-  openLogin = () => this.setState({ showLogin: true, loginError: "" });
-  closeLogin = () => this.setState({ showLogin: false });
+  openLogin = () => this.setState({ showLogin: true, loginError: "", loginPasswordVisible: false });
+  closeLogin = () => this.setState({ showLogin: false, loginPasswordVisible: false });
   setLoginEmail = (e) => this.setState({ loginEmail: e.target.value });
   setLoginPassword = (e) => this.setState({ loginPassword: e.target.value });
+  toggleLoginPasswordVisible = () => this.setState((p) => ({ loginPasswordVisible: !p.loginPasswordVisible }));
   submitLogin = () => {
     const client = getSupabase();
     if (!client) return;
     const lang = this.state.lang;
     client.auth.signInWithPassword({ email: this.state.loginEmail, password: this.state.loginPassword }).then((res) => {
       if (res.error) { this.setState({ loginError: STR.loginErrorGeneric[lang] }); return; }
-      this.setState({ session: res.data.session, showLogin: false, loginEmail: "", loginPassword: "" });
+      this.setState({ session: res.data.session, showLogin: false, loginEmail: "", loginPassword: "", loginPasswordVisible: false });
     });
   };
   logout = () => {
@@ -2659,6 +2696,7 @@ class Component extends DCLogic {
   calendarPrev = () => this.setState((p) => ({ calendarDayOffset: p.calendarDayOffset - 7 }));
   calendarNext = () => this.setState((p) => ({ calendarDayOffset: p.calendarDayOffset + 7 }));
   calendarToday = () => this.setState({ calendarDayOffset: 0 });
+  setCalendarVehicleFilter = (e) => this.setState({ calendarVehicleFilter: e.target.value });
   openEditBooking = (row) => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     const fleetList = pickBookingFleet(this.state.fleet, this.state.bookings);
@@ -3066,7 +3104,11 @@ class Component extends DCLogic {
     });
     const calendarDayISOs = calendarDayDefs.map((d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"));
     const calendarDayDisplays = calendarDayDefs.map((d) => d.getDate() + " " + monthsAbbrCal[d.getMonth()] + " " + d.getFullYear());
-    const calendarRows = s.fleet.map((v) => {
+    const calendarVehicleOptions = [{ value: "all", label: L.allVehiclesFilter }].concat(
+      s.fleet.map((v) => ({ value: v.id, label: v.name + " · " + v.plate }))
+    );
+    const calendarFleetFiltered = s.calendarVehicleFilter === "all" ? s.fleet : s.fleet.filter((v) => v.id === s.calendarVehicleFilter);
+    const calendarRows = calendarFleetFiltered.map((v) => {
       const cells = calendarDayDefs.map((day, i) => {
         const dayStart = day;
         const dayEnd = new Date(day); dayEnd.setDate(dayEnd.getDate() + 1);
@@ -3513,6 +3555,7 @@ class Component extends DCLogic {
       fleetOnRoadCount: fleetOnTripCountVal, fleetOnRoadPct: fleetOnRoadPct,
       calendarRangeLabel: calendarRangeLabel, calendarDayHeaders: calendarDayHeaders, calendarRows: calendarRows,
       hasCalendarVehicles: hasCalendarVehicles, noCalendarVehicles: !hasCalendarVehicles,
+      calendarVehicleOptions: calendarVehicleOptions, calendarVehicleFilter: s.calendarVehicleFilter, setCalendarVehicleFilter: this.setCalendarVehicleFilter,
       calendarPrev: this.calendarPrev, calendarNext: this.calendarNext, calendarToday: this.calendarToday,
       tripsTodayLabel: tripsTodayLabel,
       utilAvgLabel: utilAvgLabel, ratingLabel: "–",
@@ -3579,6 +3622,8 @@ class Component extends DCLogic {
       showLogin: s.showLogin, openLogin: this.openLogin, closeLogin: this.closeLogin,
       loginEmail: s.loginEmail, loginPassword: s.loginPassword,
       setLoginEmail: this.setLoginEmail, setLoginPassword: this.setLoginPassword,
+      loginPasswordVisible: s.loginPasswordVisible, loginPasswordHidden: !s.loginPasswordVisible,
+      toggleLoginPasswordVisible: this.toggleLoginPasswordVisible,
       loginError: s.loginError, submitLogin: this.submitLogin, logout: this.logout,
 
       addBooking: this.openNewBooking,
