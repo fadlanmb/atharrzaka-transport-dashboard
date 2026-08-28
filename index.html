@@ -42,7 +42,11 @@ html{overflow-x:hidden}
 .dc-bar-hover{transition:transform .16s ease,filter .16s ease;cursor:pointer}
 .dc-bar-hover:hover{transform:scaleY(1.04);filter:brightness(1.08)}
 .dc-bar-wrap{flex:1;height:100%;position:relative;display:flex;align-items:flex-end}
-.dc-bar-tip{position:absolute;left:50%;bottom:100%;transform:translate(-50%,-4px);background:#181818;color:#fff;font-size:10px;font-weight:600;line-height:1.4;padding:6px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease;z-index:5;box-shadow:0 8px 18px rgba(24,24,24,.22)}
+.dc-bar-tip{position:absolute;left:50%;bottom:100%;transform:translate(-50%,-4px);background:#181818;color:#fff;font-size:10px;font-weight:600;line-height:1.4;padding:6px 9px;border-radius:7px;white-space:normal;max-width:110px;width:max-content;text-align:center;opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease;z-index:5;box-shadow:0 8px 18px rgba(24,24,24,.22)}
+.dc-bar-wrap:first-child .dc-bar-tip{left:0;transform:translate(0,-4px)}
+.dc-bar-wrap:first-child:hover .dc-bar-tip{transform:translate(0,-9px)}
+.dc-bar-wrap:last-child .dc-bar-tip{left:auto;right:0;transform:translate(0,-4px)}
+.dc-bar-wrap:last-child:hover .dc-bar-tip{transform:translate(0,-9px)}
 .dc-bar-wrap:hover .dc-bar-tip{opacity:1;transform:translate(-50%,-9px)}
 .dc-live-dot{width:6px;height:6px;border-radius:50%;background:#5b7a3a;display:inline-block;animation:dcPulse 1.6s ease-in-out infinite}
 @media (max-width:860px){
@@ -949,6 +953,9 @@ html{overflow-x:hidden}
 <div onClick="{{ createInvoiceBtn }}" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.invoiceBtn }}</div>
 </sc-if>
 </sc-if>
+<sc-if value="{{ canCompleteTrip }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ openCompleteTrip }}" style="flex:1;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.completeTripBtn }}</div>
+</sc-if>
 <sc-if value="{{ detailAlreadyInvoiced }}" hint-placeholder-val="{{ false }}">
 <div style="padding:12px 16px;border-radius:10px;border:1px solid rgba(93,138,58,.35);background:rgba(93,138,58,.08);color:#4d6a30;font-weight:600;display:flex;align-items:center;gap:6px">
 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>{{ L.invoiceCreated }}
@@ -1268,7 +1275,10 @@ html{overflow-x:hidden}
 </div>
 </sc-if>
 <sc-if value="{{ settingsFormVisible }}" hint-placeholder-val="{{ true }}">
-<div style="font-size:17px;font-weight:600;margin-bottom:18px">{{ L.settingsTitle }}</div>
+<div style="display:flex;align-items:center;margin-bottom:18px">
+<div style="font-size:17px;font-weight:600">{{ L.settingsTitle }}</div>
+<div onClick="{{ closeSettings }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
+</div>
 <div style="display:flex;flex-direction:column;gap:14px">
 <div style="display:flex;align-items:center;gap:14px">
 <div style="width:56px;height:56px;border-radius:50%;flex:none;overflow:hidden;background:linear-gradient(140deg,#DBAF5D,#824703)">
@@ -1339,6 +1349,26 @@ html{overflow-x:hidden}
 </sc-if>
 <div onClick="{{ submitCompleteService }}" style="margin-top:6px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.completeServiceBtn }}</div>
 </div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showCompleteTrip }}" hint-placeholder-val="{{ false }}">
+<div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeCompleteTrip }}">
+<div class="modal-panel" style="width:400px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
+<div style="display:flex;align-items:center;margin-bottom:6px">
+<div style="font-size:17px;font-weight:600">{{ L.completeTripTitle }}</div>
+<div onClick="{{ closeCompleteTrip }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
+</div>
+<div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.completeTripSubtitle }}</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.completeTripOdometerLabel }}</div>
+<input value="{{ completeTripOdometer }}" onChange="{{ setCompleteTripOdometer }}" inputmode="numeric" placeholder="12500" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<sc-if value="{{ completeTripError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;color:#a8471f;margin-top:10px">{{ completeTripError }}</div>
+</sc-if>
+<div onClick="{{ submitCompleteTrip }}" style="margin-top:16px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.completeTripBtn }}</div>
 </div>
 </div>
 </sc-if>
@@ -1583,6 +1613,7 @@ const STR = {
   fldPlate: { en: "Plate", id: "Plat nomor" },
   fldSeats: { en: "Seats", id: "Kursi" },
   fldKm: { en: "Odometer", id: "Odometer" },
+  fldServiceIntervalKm: { en: "Service interval (km)", id: "Interval servis (km)" },
   fldRate: { en: "Rate", id: "Tarif" },
   fldPhotoUrl: { en: "Vehicle photo", id: "Foto kendaraan" },
   fldAvatar: { en: "Profile photo", id: "Foto profil" },
@@ -1602,6 +1633,12 @@ const STR = {
   completeServiceTitle: { en: "Complete service", id: "Selesaikan servis" },
   addItemBtn: { en: "+ Add item", id: "+ Tambah item" },
   completeServiceRequiredError: { en: "Fill in description and nominal for every item.", id: "Isi deskripsi dan nominal untuk setiap item." },
+  completeTripBtn: { en: "Complete trip", id: "Selesaikan perjalanan" },
+  completeTripTitle: { en: "Complete trip", id: "Selesaikan perjalanan" },
+  completeTripSubtitle: { en: "Enter the vehicle's current odometer reading to finish this trip.", id: "Masukkan angka odometer kendaraan saat ini untuk menyelesaikan perjalanan ini." },
+  completeTripOdometerLabel: { en: "Current odometer (km)", id: "Odometer saat ini (km)" },
+  completeTripOdometerRequired: { en: "Please enter the current odometer reading.", id: "Mohon masukkan angka odometer saat ini." },
+  completeTripOdometerTooLow: { en: "Odometer can't be lower than the vehicle's last recorded reading.", id: "Odometer tidak boleh lebih kecil dari catatan terakhir kendaraan." },
   fldDate: { en: "Date", id: "Tanggal" },
   fldCategory: { en: "Category", id: "Kategori" },
   fldExpenseDate: { en: "Expense date", id: "Tanggal pengeluaran" },
@@ -1847,6 +1884,7 @@ const FIELD_DEFS = {
   fleet: [
     { key: "name", labelKey: "fldName", required: true }, { key: "plate", labelKey: "fldPlate", required: true },
     { key: "seats", labelKey: "fldSeats", required: true }, { key: "km", labelKey: "fldKm", type: "number", required: true },
+    { key: "service_interval_km", labelKey: "fldServiceIntervalKm", type: "number", placeholder: "10000" },
     { key: "status", labelKey: "fldStatus", type: "select", options: FLEET_STATUS_OPTIONS, required: true },
     { key: "rate", labelKey: "fldRate", required: true, placeholder: "Rp 500.000 / hari" },
     { key: "photo_url", labelKey: "fldPhotoUrl", type: "file" }
@@ -1907,6 +1945,7 @@ const WORD_MAP_ID = {
   "Partner": "Mitra",
   "Available": "Tersedia",
   "Confirmed": "Dikonfirmasi",
+  "Completed": "Selesai",
   "Overdue": "Terlambat",
   "overdue": "terlambat",
   "Scheduled": "Terjadwal",
@@ -2252,6 +2291,7 @@ class Component extends DCLogic {
     showTripRequest: false, tripRequestForm: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
     showSettings: false, settingsName: "", settingsAvatar: "", settingsNewPassword: "", settingsConfirmPassword: "", settingsError: "", settingsSaved: false,
     showCompleteService: false, completeServiceId: null, completeServiceItems: [], completeServiceError: "",
+    showCompleteTrip: false, completeTripOdometer: "", completeTripError: "",
     editingBookingId: null,
     showInvoicePrint: false, printInvoice: null
   };
@@ -2345,6 +2385,46 @@ class Component extends DCLogic {
     if (!client || !this.state.session) return;
     client.from("bookings").update({ driver: driverName, status: "Confirmed" }).eq("id", bookingId).then((res) => {
       if (res.error) return;
+      this.loadAll();
+    });
+  };
+  openCompleteTrip = () => {
+    const d = this.state.detail;
+    if (!d) return;
+    const matchedVehicle = this.state.fleet.find((v) => v.name === d.vehicle);
+    this.setState({
+      showCompleteTrip: true, completeTripError: "",
+      completeTripOdometer: matchedVehicle && matchedVehicle.km ? String(matchedVehicle.km) : ""
+    });
+  };
+  closeCompleteTrip = () => this.setState({ showCompleteTrip: false, completeTripError: "" });
+  setCompleteTripOdometer = (e) => this.setState({ completeTripOdometer: e.target.value.replace(/[^0-9]/g, "") });
+  submitCompleteTrip = () => {
+    if (this._submittingCompleteTrip) return;
+    const client = getSupabase();
+    const s = this.state;
+    const d = s.detail;
+    if (!client || !s.session || !d) return;
+    const lang = s.lang;
+    const odo = parseFloat(s.completeTripOdometer);
+    if (!s.completeTripOdometer || isNaN(odo) || odo <= 0) {
+      this.setState({ completeTripError: STR.completeTripOdometerRequired[lang] });
+      return;
+    }
+    const matchedVehicle = s.fleet.find((v) => v.name === d.vehicle);
+    const prevKm = matchedVehicle ? parseFloat(matchedVehicle.km) || 0 : 0;
+    if (odo < prevKm) {
+      this.setState({ completeTripError: STR.completeTripOdometerTooLow[lang] });
+      return;
+    }
+    this.setState({ completeTripError: "" });
+    this._submittingCompleteTrip = true;
+    const reqs = [client.from("bookings").update({ status: "Completed" }).eq("id", d.id)];
+    if (matchedVehicle) reqs.push(client.from("fleet").update({ km: odo }).eq("id", matchedVehicle.id));
+    Promise.all(reqs).then((results) => {
+      this._submittingCompleteTrip = false;
+      if (results.some((r) => r.error)) return;
+      this.setState({ showCompleteTrip: false, detail: null, completeTripOdometer: "" });
       this.loadAll();
     });
   };
@@ -3134,6 +3214,7 @@ class Component extends DCLogic {
     const detailDiscountNum = s.detail ? Math.max(0, parseAmount(s.detail.base) - parseAmount(s.detail.amount)) : 0;
     const detailCreatedLabel = s.detail && s.detail.created_at ? (lang === "id" ? "dibuat " : "created ") + formatCreatedAt(s.detail.created_at, lang) : "";
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone, hasDiscount: detailDiscountNum > 0, discountLabel: formatRupiah(detailDiscountNum), createdLabel: detailCreatedLabel }) : null;
+    const canCompleteTrip = isDriverRole && !!s.detail && (s.detail.status === "Confirmed" || s.detail.status === "Dikonfirmasi");
 
     const fleetComputedStatuses = s.fleet.map((v) => computedFleetStatus(v, s.bookings));
     const fleetAvailableCount = fleetComputedStatuses.filter((st) => st === "Available").length;
@@ -3327,9 +3408,10 @@ class Component extends DCLogic {
 
     const odometerRows = s.fleet.map((v) => {
       const km = parseFloat(v.km) || 0;
-      const interval = 100000;
-      const pct = Math.min(100, Math.round((km / interval) * 100));
-      const remain = interval - (km % interval);
+      const interval = parseFloat(v.service_interval_km) || 10000;
+      const intoInterval = interval > 0 ? km % interval : 0;
+      const pct = interval > 0 ? Math.min(100, Math.round((intoInterval / interval) * 100)) : 0;
+      const remain = interval - intoInterval;
       return {
         plate: v.name + (v.plate ? " · " + v.plate : ""), pct: pct,
         overLimit: pct >= 90,
@@ -3635,6 +3717,10 @@ class Component extends DCLogic {
       detail: detailTr, detailAlreadyInvoiced: detailAlreadyInvoiced, detailNotInvoiced: !detailAlreadyInvoiced,
       closeDetail: () => this.setState({ detail: null }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
+      canCompleteTrip: canCompleteTrip, openCompleteTrip: this.openCompleteTrip,
+      showCompleteTrip: s.showCompleteTrip, closeCompleteTrip: this.closeCompleteTrip,
+      completeTripOdometer: s.completeTripOdometer, setCompleteTripOdometer: this.setCompleteTripOdometer,
+      completeTripError: s.completeTripError, submitCompleteTrip: this.submitCompleteTrip,
       stop: (e) => e.stopPropagation(),
       showNew: s.showNew, step: s.step,
       stepLabel: stepLabels[s.step][lang], stepHint: stepHints[s.step][lang],
