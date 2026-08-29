@@ -1615,6 +1615,7 @@ const STR = {
   fldKm: { en: "Odometer", id: "Odometer" },
   fldServiceIntervalKm: { en: "Service interval (km)", id: "Interval servis (km)" },
   fldRate: { en: "Rate", id: "Tarif" },
+  fldRateUnit: { en: "Rate unit", id: "Satuan tarif" },
   fldPhotoUrl: { en: "Vehicle photo", id: "Foto kendaraan" },
   fldAvatar: { en: "Profile photo", id: "Foto profil" },
   photoSizeHint: { en: "Recommended: landscape photo, at least 800×600px (4:3), JPG or PNG, under 5MB.", id: "Disarankan: foto landscape, minimal 800×600px (4:3), JPG atau PNG, di bawah 5MB." },
@@ -1838,6 +1839,7 @@ function getSupabase() {
 
 const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices", maintenance: "maintenance", expense: "expenses" };
 const FLEET_STATUS_OPTIONS = ["Available", "In service"];
+const RATE_UNIT_OPTIONS = ["Hour", "Day", "Week", "Month"];
 const SERVICE_TYPE_OPTIONS = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package", "Individual"];
 const COUNTRY_CODE_OPTIONS = [
   { code: "62", label: "🇮🇩 +62" },
@@ -1886,7 +1888,8 @@ const FIELD_DEFS = {
     { key: "seats", labelKey: "fldSeats", required: true }, { key: "km", labelKey: "fldKm", type: "number", required: true },
     { key: "service_interval_km", labelKey: "fldServiceIntervalKm", type: "number", placeholder: "10000" },
     { key: "status", labelKey: "fldStatus", type: "select", options: FLEET_STATUS_OPTIONS, required: true },
-    { key: "rate", labelKey: "fldRate", required: true, placeholder: "Rp 500.000 / hari" },
+    { key: "rate", labelKey: "fldRate", required: true, placeholder: "Rp 500.000" },
+    { key: "rate_unit", labelKey: "fldRateUnit", type: "select", options: RATE_UNIT_OPTIONS, required: true },
     { key: "photo_url", labelKey: "fldPhotoUrl", type: "file" }
   ],
   driver: [
@@ -1946,6 +1949,10 @@ const WORD_MAP_ID = {
   "Available": "Tersedia",
   "Confirmed": "Dikonfirmasi",
   "Completed": "Selesai",
+  "Hour": "Jam",
+  "Day": "Hari",
+  "Week": "Minggu",
+  "Month": "Bulan",
   "Overdue": "Terlambat",
   "overdue": "terlambat",
   "Scheduled": "Terjadwal",
@@ -2033,10 +2040,6 @@ function durationLabelToValueUnit(label) {
   if (isNaN(n)) return { value: "", unit: "days" };
   return { value: String(n), unit: /day/.test(label) ? "days" : "hours" };
 }
-function durationMultiplierOf(value, unit) {
-  const n = parseFloat(value) || 0;
-  return unit === "hours" ? n / 24 : n;
-}
 function displayDateToISO(str) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const parts = String(str || "").trim().split(" ");
@@ -2056,6 +2059,22 @@ function isoToDisplayDate(iso) {
 }
 function cleanVehicleRate(rate) {
   return (rate || "").split(" / ")[0].trim() || "Rp 0";
+}
+const RATE_UNIT_HOURS = { Hour: 1, Day: 24, Week: 168, Month: 720 };
+function durationToHours(value, unit) {
+  const n = parseFloat(value) || 0;
+  return unit === "hours" ? n : n * 24;
+}
+function vehicleRateAmount(vehicle) {
+  return parseAmount(cleanVehicleRate(vehicle.rate));
+}
+function vehicleRateBaseForHours(vehicle, hours) {
+  const hoursPerUnit = RATE_UNIT_HOURS[vehicle.rate_unit] || 24;
+  return vehicleRateAmount(vehicle) * (hours / hoursPerUnit);
+}
+function formatVehicleRateDisplay(v, lang) {
+  const unit = v.rate_unit || "Day";
+  return cleanVehicleRate(v.rate) + " / " + trWords(unit, lang).toLowerCase();
 }
 function formatCreatedAt(isoStr, lang) {
   const d = new Date(isoStr);
@@ -2840,8 +2859,7 @@ class Component extends DCLogic {
     const discountNum = Math.max(0, baseNum - finalNum);
     const editDurVU = durationLabelToValueUnit(row.duration);
     const editVehicle = fleetList[vIdx];
-    const editRateNum = editVehicle ? parseAmount(cleanVehicleRate(editVehicle.rate)) : 0;
-    const editRateBaseNum = editRateNum * durationMultiplierOf(editDurVU.value, editDurVU.unit);
+    const editRateBaseNum = editVehicle ? vehicleRateBaseForHours(editVehicle, durationToHours(editDurVU.value, editDurVU.unit)) : 0;
     const editExtraFeeNum = Math.max(0, Math.round(baseNum - editRateBaseNum));
     const timeParts = String(row.time || "").trim().split(" ");
     const pickupTime = timeParts.length >= 2 ? timeParts[timeParts.length - 1] : "";
@@ -2941,11 +2959,10 @@ class Component extends DCLogic {
     const vehicles = indexes.map((i) => fleetForBooking[i]).filter(Boolean);
     if (!vehicles.length) return;
     this._submittingBooking = true;
-    const durationMultiplier = durationMultiplierOf(nb.durationValue, nb.durationUnit);
-    const durationHoursEquiv = nb.durationUnit === "days" ? (parseFloat(nb.durationValue) || 0) * 24 : (parseFloat(nb.durationValue) || 0);
+    const durationHoursEquiv = durationToHours(nb.durationValue, nb.durationUnit);
     const totalDiscountNum = parseAmount(nb.discount);
     const totalExtraFeeNum = parseAmount(nb.extraFee);
-    const rateBaseNums = vehicles.map((v) => parseAmount(cleanVehicleRate(v.rate)) * durationMultiplier);
+    const rateBaseNums = vehicles.map((v) => vehicleRateBaseForHours(v, durationHoursEquiv));
     const totalRateBaseNum = rateBaseNums.reduce((sum, v) => sum + v, 0);
     const basePayload = {
       customer: nb.customer || "-", phone: composeFullPhone(nb.phoneCountry, nb.phone), type: nb.serviceType || "-",
@@ -3090,7 +3107,7 @@ class Component extends DCLogic {
       3: { en: "Confirmation sent to customer", id: "Konfirmasi dikirim ke pelanggan" }
     };
     const fleetTr = s.fleet.map((v) => Object.assign({}, v, {
-      status: trWords(computedFleetStatus(v, s.bookings), lang), rate: trWords(v.rate, lang),
+      status: trWords(computedFleetStatus(v, s.bookings), lang), rate: formatVehicleRateDisplay(v, lang),
       kmLabel: formatKm(v.km), hasPhoto: !!v.photo_url, noPhoto: !v.photo_url,
       edit: (e) => { e.stopPropagation(); this.openFormFor("fleet", "edit", v); },
       remove: (e) => { e.stopPropagation(); this.askDelete("fleet", v.id); }
@@ -3551,7 +3568,7 @@ class Component extends DCLogic {
     const vehicleOptions = fleetForBooking.map((v, i) => ({
       name: v.name,
       meta: v.plate + " · " + v.seats + " " + L.seatsWord,
-      price: cleanVehicleRate(v.rate),
+      price: formatVehicleRateDisplay(v, lang),
       photo_url: v.photo_url, hasPhoto: !!v.photo_url, noPhoto: !v.photo_url,
       isSelected: selectedVehicleIndexes.indexOf(i) >= 0,
       isUnselected: selectedVehicleIndexes.indexOf(i) < 0,
@@ -3563,9 +3580,9 @@ class Component extends DCLogic {
     const availableUnitsText = (lang === "id" ? (fleetForBooking.length + " unit tersedia") : (fleetForBooking.length + " units available"))
       + (isMultiVehicleMode ? (lang === "id" ? " · pilih satu atau lebih" : " · select one or more") : "");
     const selectedVehicles = selectedVehicleIndexes.map((i) => fleetForBooking[i]).filter(Boolean);
-    const newBookingDurationMultiplier = durationMultiplierOf(nb.durationValue, nb.durationUnit);
+    const newBookingDurationHours = durationToHours(nb.durationValue, nb.durationUnit);
     const selectedVehiclesRows = selectedVehicles.map((v) => ({
-      name: v.name, plate: v.plate, priceLabel: formatRupiah(parseAmount(cleanVehicleRate(v.rate)) * newBookingDurationMultiplier)
+      name: v.name, plate: v.plate, priceLabel: formatRupiah(vehicleRateBaseForHours(v, newBookingDurationHours))
     }));
     const hasMultipleVehicles = selectedVehicles.length > 1;
     const singleVehicleMode = !hasMultipleVehicles;
@@ -3574,7 +3591,7 @@ class Component extends DCLogic {
     const newBookingTripText = (s.newBooking.pickup || dash) + " → " + (s.newBooking.destination || dash);
     const newBookingWhenText = (s.newBooking.date || dash) + " · " + (s.newBooking.pickupTime || dash);
     const selectedVehicleLabel = selectedVehicles.length ? selectedVehicles.map((v) => v.name).join(", ") : dash;
-    const newBookingSubtotalNum = selectedVehicles.reduce((sum, v) => sum + parseAmount(cleanVehicleRate(v.rate)), 0) * newBookingDurationMultiplier;
+    const newBookingSubtotalNum = selectedVehicles.reduce((sum, v) => sum + vehicleRateBaseForHours(v, newBookingDurationHours), 0);
     const selectedVehiclePrice = formatRupiah(newBookingSubtotalNum);
     const newBookingExtraFeeNum = parseAmount(s.newBooking.extraFee);
     const newBookingDiscountNum = parseAmount(s.newBooking.discount);
