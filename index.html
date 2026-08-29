@@ -2218,8 +2218,9 @@ function buildChartBars(bookings, range, lang) {
   }
   buckets.forEach((b) => { b.value = 0; b.trips = 0; });
   bookings.forEach((bk) => {
-    if (!bk.created_at) return;
-    const dt = new Date(bk.created_at);
+    const tripRange = bookingDateTimeRange(bk);
+    if (!tripRange) return;
+    const dt = tripRange.start;
     const bucket = buckets.find((b) => dt >= b.start && dt < b.end);
     if (bucket) { bucket.value += (typeof bk.paidAmount === "number" ? bk.paidAmount : parseAmount(bk.amount)); bucket.trips += 1; }
   });
