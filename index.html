@@ -106,8 +106,12 @@ html{overflow-x:hidden}
 <div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
 <div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
 </div>
+<sc-if value="{{ isNormalGuestLogin }}" hint-placeholder-val="{{ true }}">
 <div style="font-size:19px;font-weight:600;text-align:center;margin-bottom:24px">{{ L.loginTitle }}</div>
 <div style="display:flex;flex-direction:column;gap:14px">
+<sc-if value="{{ passwordResetDone }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:#5b7a3a;background:rgba(91,122,58,.1);border-radius:8px;padding:10px 12px">{{ L.passwordResetDoneMsg }}</div>
+</sc-if>
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.emailLabel }}</div>
 <input type="email" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
@@ -136,6 +140,25 @@ html{overflow-x:hidden}
 </sc-if>
 <div onClick="{{ submitLogin }}" style="margin-top:4px;text-align:center;font-size:13px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:13px;cursor:pointer">{{ L.loginBtn }}</div>
 </div>
+</sc-if>
+<sc-if value="{{ isPasswordRecovery }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:19px;font-weight:600;text-align:center;margin-bottom:6px">{{ L.resetPasswordTitle }}</div>
+<div style="font-size:12px;color:rgba(24,24,24,.5);text-align:center;margin-bottom:24px">{{ L.resetPasswordSubtitle }}</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.resetNewPasswordLabel }}</div>
+<input type="password" value="{{ newPasswordValue }}" onChange="{{ setNewPasswordValue }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
+</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.fldConfirmPassword }}</div>
+<input type="password" value="{{ confirmNewPasswordValue }}" onChange="{{ setConfirmNewPasswordValue }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
+</div>
+<sc-if value="{{ newPasswordError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11.5px;color:#a8471f">{{ newPasswordError }}</div>
+</sc-if>
+<div onClick="{{ submitNewPassword }}" style="margin-top:4px;text-align:center;font-size:13px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:13px;cursor:pointer">{{ L.saveNewPasswordBtn }}</div>
+</div>
+</sc-if>
 </div>
 </div>
 </div>
@@ -1574,6 +1597,11 @@ const STR = {
   passwordLabel: { en: "Password", id: "Kata sandi" },
   loginBtn: { en: "Sign in", id: "Masuk" },
   loginErrorGeneric: { en: "Invalid email or password.", id: "Email atau kata sandi salah." },
+  resetPasswordTitle: { en: "Set new password", id: "Atur kata sandi baru" },
+  resetPasswordSubtitle: { en: "Enter a new password for your account.", id: "Masukkan kata sandi baru untuk akun Anda." },
+  resetNewPasswordLabel: { en: "New password", id: "Kata sandi baru" },
+  saveNewPasswordBtn: { en: "Save new password", id: "Simpan kata sandi baru" },
+  passwordResetDoneMsg: { en: "Password updated. Please sign in.", id: "Kata sandi diperbarui. Silakan masuk." },
   addBtn: { en: "+ Add", id: "+ Tambah" },
   edit: { en: "Edit", id: "Ubah" },
   deleteBtn: { en: "Delete", id: "Hapus" },
@@ -2332,6 +2360,7 @@ class Component extends DCLogic {
   state = {
     screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en", approvingTripRequestId: null,
     session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "", loginPasswordVisible: false,
+    passwordRecovery: false, newPasswordValue: "", confirmNewPasswordValue: "", newPasswordError: "", passwordResetDone: false,
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
@@ -2358,21 +2387,24 @@ class Component extends DCLogic {
       .catch(() => {});
     const client = getSupabase();
     if (!client) { this.setState({ checkingSession: false }); return; }
+    const isRecoveryLink = typeof window !== "undefined" && window.location.hash.indexOf("type=recovery") !== -1;
+    if (isRecoveryLink) this.setState({ passwordRecovery: true });
     const lastActivity = parseInt(localStorage.getItem(IDLE_STORAGE_KEY), 10) || 0;
     const idleExpired = lastActivity > 0 && (Date.now() - lastActivity) > IDLE_TIMEOUT_MS;
     client.auth.getSession().then((res) => {
       const session = res.data ? res.data.session : null;
-      if (session && idleExpired) {
+      if (session && idleExpired && !isRecoveryLink) {
         client.auth.signOut();
         this.setState({ session: null, checkingSession: false });
         return;
       }
       this.setState({ session: session, checkingSession: false });
-      if (session) { this.loadAll(); this.markActivity(); }
+      if (session && !isRecoveryLink) { this.loadAll(); this.markActivity(); }
     });
-    client.auth.onAuthStateChange((_evt, session) => {
+    client.auth.onAuthStateChange((evt, session) => {
+      if (evt === "PASSWORD_RECOVERY") { this.setState({ passwordRecovery: true, session: session }); return; }
       this.setState({ session: session });
-      if (session) { this.loadAll(); this.markActivity(); } else { this.setState({ loaded: false }); }
+      if (session && !isRecoveryLink) { this.loadAll(); this.markActivity(); } else if (!session) { this.setState({ loaded: false }); }
     });
     this.markActivity();
     const activityHandler = () => this.markActivity();
@@ -2532,9 +2564,36 @@ class Component extends DCLogic {
     const client = getSupabase();
     if (!client) return;
     const lang = this.state.lang;
+    this.setState({ passwordResetDone: false });
     client.auth.signInWithPassword({ email: this.state.loginEmail, password: this.state.loginPassword }).then((res) => {
       if (res.error) { this.setState({ loginError: STR.loginErrorGeneric[lang] }); return; }
       this.setState({ session: res.data.session, showLogin: false, loginEmail: "", loginPassword: "", loginPasswordVisible: false });
+    });
+  };
+  setNewPasswordValue = (e) => this.setState({ newPasswordValue: e.target.value });
+  setConfirmNewPasswordValue = (e) => this.setState({ confirmNewPasswordValue: e.target.value });
+  submitNewPassword = () => {
+    const client = getSupabase();
+    const s = this.state;
+    if (!client) return;
+    const lang = s.lang;
+    if (!s.newPasswordValue || s.newPasswordValue !== s.confirmNewPasswordValue) {
+      this.setState({ newPasswordError: STR.settingsPasswordMismatch[lang] });
+      return;
+    }
+    if (s.newPasswordValue.length < 6) {
+      this.setState({ newPasswordError: STR.settingsPasswordTooShort[lang] });
+      return;
+    }
+    this.setState({ newPasswordError: "" });
+    client.auth.updateUser({ password: s.newPasswordValue }).then((res) => {
+      if (res.error) { this.setState({ newPasswordError: STR.saveErrorGeneric[lang] }); return; }
+      client.auth.signOut().then(() => {
+        this.setState({
+          passwordRecovery: false, session: null, newPasswordValue: "", confirmNewPasswordValue: "",
+          newPasswordError: "", passwordResetDone: true
+        });
+      });
     });
   };
   logout = () => {
@@ -3050,8 +3109,10 @@ class Component extends DCLogic {
     const lang = s.lang;
     const L = {};
     Object.keys(STR).forEach((k) => { L[k] = STR[k][lang]; });
-    const isAdmin = !s.checkingSession && !!s.session;
-    const isGuest = !s.checkingSession && !s.session;
+    const isPasswordRecovery = !!s.passwordRecovery;
+    const isAdmin = !s.checkingSession && !!s.session && !isPasswordRecovery;
+    const isGuest = !s.checkingSession && (!s.session || isPasswordRecovery);
+    const isNormalGuestLogin = !isPasswordRecovery;
     const contentLoading = isAdmin && !s.loaded;
     const canManage = isAdmin && s.userRole === "manager";
     const isDriverRole = isAdmin && s.userRole === "driver";
@@ -3848,6 +3909,11 @@ class Component extends DCLogic {
       selectedVehiclesRows: selectedVehiclesRows, hasMultipleVehicles: hasMultipleVehicles, singleVehicleMode: singleVehicleMode,
 
       isAdmin: isAdmin, isGuest: isGuest,
+      isPasswordRecovery: isPasswordRecovery, isNormalGuestLogin: isNormalGuestLogin,
+      newPasswordValue: s.newPasswordValue, setNewPasswordValue: this.setNewPasswordValue,
+      confirmNewPasswordValue: s.confirmNewPasswordValue, setConfirmNewPasswordValue: this.setConfirmNewPasswordValue,
+      newPasswordError: s.newPasswordError, submitNewPassword: this.submitNewPassword,
+      passwordResetDone: s.passwordResetDone,
       showBottomNav: showBottomNav, showFullBottomNav: showFullBottomNav, moreTabActive: moreTabActive, moreTabColor: moreTabColor,
       dashTabColor: dashTabColor, dashTabLabel: dashTabLabel, goDashTab: goDashTab,
       bookingsTabColor: bookingsTabColor, bookingsTabLabel: bookingsTabLabel, goBookingsTab: goBookingsTab,
