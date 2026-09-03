@@ -3363,7 +3363,14 @@ class Component extends DCLogic {
       const latest = invs.reduce((a, c) => (new Date(c.created_at) > new Date(a.created_at) ? c : a));
       return parseAmount(latest.down_payment) + parseAmount(latest.receive_payment);
     };
-    const revenueMonthNum = bookingsThisMonth.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
+    const paidAmountAsOf = (b, cutoff) => {
+      const invs = s.invoices.filter((i) => i.booking_ref === b.ref && new Date(i.created_at) <= cutoff);
+      if (!invs.length) return 0;
+      const latest = invs.reduce((a, c) => (new Date(c.created_at) > new Date(a.created_at) ? c : a));
+      return parseAmount(latest.down_payment) + parseAmount(latest.receive_payment);
+    };
+    const monthStartCutoff = new Date(monthStart.getTime() - 1);
+    const revenueMonthNum = s.bookings.reduce((sum, b) => sum + Math.max(0, paidAmountForBooking(b) - paidAmountAsOf(b, monthStartCutoff)), 0);
     const revenueMonthLabel = formatRupiah(revenueMonthNum);
     const expensesTr = s.expenses.map((ex) => Object.assign({}, ex, {
       categoryLabel: trWords(ex.category, lang),
@@ -3431,8 +3438,8 @@ class Component extends DCLogic {
     }
 
     const prevMonthStart = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
-    const bookingsPrevMonth = s.bookings.filter((b) => b.created_at && new Date(b.created_at) >= prevMonthStart && new Date(b.created_at) < monthStart);
-    const revenuePrevMonthNum = bookingsPrevMonth.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
+    const prevMonthStartCutoff = new Date(prevMonthStart.getTime() - 1);
+    const revenuePrevMonthNum = s.bookings.reduce((sum, b) => sum + Math.max(0, paidAmountAsOf(b, monthStartCutoff) - paidAmountAsOf(b, prevMonthStartCutoff)), 0);
     const revenueChangePct = revenuePrevMonthNum > 0
       ? Math.round(((revenueMonthNum - revenuePrevMonthNum) / revenuePrevMonthNum) * 100)
       : (revenueMonthNum > 0 ? 100 : 0);
