@@ -3382,10 +3382,10 @@ class Component extends DCLogic {
     const totalPaidAllTimeNum = s.bookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
     const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
     const companyBalanceLabel = formatRupiah(companyBalanceNum);
-    const totalRevenueAllTimeLabel = formatRupiah(totalPaidAllTimeNum);
+    const totalRevenueAllTimeLabel = formatRupiah(companyBalanceNum);
     const totalRevenueBookingsLabel = lang === "id"
-      ? (s.bookings.length + " pemesanan sepanjang waktu")
-      : (s.bookings.length + " bookings all-time");
+      ? (s.bookings.length + " pemesanan · setelah pengeluaran")
+      : (s.bookings.length + " bookings · after expenses");
     const expensesNavLabel = NAV_LABELS.expenses[lang];
     const calendarNavLabel = NAV_LABELS.calendar[lang];
     const tripsTodayLabel = lang === "id"
