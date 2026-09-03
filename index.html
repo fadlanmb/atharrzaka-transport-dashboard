@@ -310,10 +310,11 @@ html{overflow-x:hidden}
 </div>
 
 <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
-<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;overflow:hidden">
-<div style="padding:16px 18px 12px;display:flex;align-items:baseline"><div style="font-size:14px;font-weight:600">{{ L.liveFleet }}</div><div style="margin-left:auto;font-size:11px;color:rgba(24,24,24,.45)">{{ liveFleetMovingLabel }}</div></div>
-<div style="height:196px;background:repeating-linear-gradient(135deg,#F4F1EC 0 9px,#EDE6D8 9px 18px);display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(89,50,3,.07)">
-<span style="font:11px ui-monospace,Menlo,monospace;color:rgba(89,50,3,.5);background:rgba(255,255,255,.75);padding:6px 10px;border-radius:6px">{{ L.liveMapPh }}</span>
+<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;overflow:hidden;color:#fff">
+<div style="padding:16px 18px 12px;display:flex;align-items:baseline"><div style="font-size:14px;font-weight:600">{{ L.totalRevenueCard }}</div><div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.55)">{{ L.allTimeLabel }}</div></div>
+<div style="height:196px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,.12);gap:10px">
+<span style="font-size:34px;font-weight:600;letter-spacing:-1px">{{ totalRevenueAllTimeLabel }}</span>
+<span style="font-size:11.5px;color:rgba(255,255,255,.6)">{{ totalRevenueBookingsLabel }}</span>
 </div>
 </div>
 
@@ -1715,8 +1716,8 @@ const STR = {
   colRoute: { en: "ROUTE", id: "RUTE" },
   colStatus: { en: "STATUS", id: "STATUS" },
   colTotal: { en: "TOTAL", id: "TOTAL" },
-  liveFleet: { en: "Live fleet", id: "Armada langsung" },
-  liveMapPh: { en: "live map · drop mapbox view", id: "peta langsung · pasang tampilan mapbox" },
+  totalRevenueCard: { en: "Total revenue", id: "Total pendapatan" },
+  allTimeLabel: { en: "All-time", id: "Sepanjang waktu" },
   needsAttention: { en: "Needs attention", id: "Perlu perhatian" },
   assignAction: { en: "Assign", id: "Tugaskan" },
   bookAction: { en: "Book", id: "Pesan" },
@@ -3381,6 +3382,10 @@ class Component extends DCLogic {
     const totalPaidAllTimeNum = s.bookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
     const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
     const companyBalanceLabel = formatRupiah(companyBalanceNum);
+    const totalRevenueAllTimeLabel = formatRupiah(totalPaidAllTimeNum);
+    const totalRevenueBookingsLabel = lang === "id"
+      ? (s.bookings.length + " pemesanan sepanjang waktu")
+      : (s.bookings.length + " bookings all-time");
     const expensesNavLabel = NAV_LABELS.expenses[lang];
     const calendarNavLabel = NAV_LABELS.calendar[lang];
     const tripsTodayLabel = lang === "id"
@@ -3506,7 +3511,6 @@ class Component extends DCLogic {
       : (lang === "id" ? "Tidak ada unit dalam servis saat ini." : "No units currently in service.");
 
     const fleetOnRoadPct = s.fleet.length ? Math.round((fleetOnTripCountVal / s.fleet.length) * 100) : 0;
-    const liveFleetMovingLabel = lang === "id" ? (fleetOnTripCountVal + " bergerak") : (fleetOnTripCountVal + " moving");
     const utilAvgLabel = fleetOnRoadPct + "%";
 
     const unassignedBooking = s.bookings.find((b) => b.driver === "Unassigned");
@@ -3788,7 +3792,7 @@ class Component extends DCLogic {
       chartBars: chartBars, chartTabs: chartTabs, chartSubLabel: chartSubLabel,
       fleetDaysRows: fleetDaysRows, fleetDaysTabs: fleetDaysTabs, fleetDaysSubLabel: fleetDaysSubLabel,
       hasFleetDaysRows: hasFleetDaysRows, noFleetDaysRows: !hasFleetDaysRows,
-      liveFleetMovingLabel: liveFleetMovingLabel,
+      totalRevenueAllTimeLabel: totalRevenueAllTimeLabel, totalRevenueBookingsLabel: totalRevenueBookingsLabel,
       detail: detailTr, detailAlreadyInvoiced: detailAlreadyInvoiced, detailNotInvoiced: !detailAlreadyInvoiced,
       closeDetail: () => this.setState({ detail: null }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
