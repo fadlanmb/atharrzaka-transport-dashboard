@@ -2172,8 +2172,7 @@ function computedFleetStatus(v, bookings) {
   return vehicleOnTripNow(v.name, bookings) ? "On trip" : "Available";
 }
 function pickBookingFleet(fleet, bookings) {
-  const available = fleet.filter((v) => computedFleetStatus(v, bookings) === "Available");
-  return available.length ? available : fleet;
+  return fleet;
 }
 function timeToMinutes(t) {
   if (!t) return null;
