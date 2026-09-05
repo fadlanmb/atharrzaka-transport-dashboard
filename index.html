@@ -1830,8 +1830,8 @@ const STR = {
   selectPh: { en: "Select…", id: "Pilih…" },
   durationHoursLabel: { en: "Duration (hours)", id: "Durasi (jam)" },
   noFleetYet: { en: "No vehicles in fleet yet — add one on the Fleet page first.", id: "Belum ada armada — tambahkan dulu di halaman Armada." },
-  vehicleDateConflict: { en: "Already booked on this date", id: "Sudah ada booking di tanggal ini" },
-  vehicleDateConflictError: { en: "One of the selected vehicles is already booked on this date. Choose a different vehicle or date.", id: "Salah satu kendaraan yang dipilih sudah dibooking di tanggal ini. Pilih kendaraan lain atau ubah tanggal." },
+  vehicleDateConflict: { en: "Already booked at this time", id: "Sudah ada booking di jam ini" },
+  vehicleDateConflictError: { en: "One of the selected vehicles is already booked at this time. Choose a different vehicle or time.", id: "Salah satu kendaraan yang dipilih sudah dibooking di jam ini. Pilih kendaraan lain atau ubah jam." },
   autoAssignDriver: { en: "Auto-assigned by shift", id: "Ditugaskan otomatis sesuai shift" },
   tripLabel: { en: "Trip", id: "Perjalanan" },
   whenLabel: { en: "When", id: "Waktu" },
@@ -2170,6 +2170,33 @@ function vehicleOnTripNow(vehicleName, bookings) {
 function computedFleetStatus(v, bookings) {
   if (v.status === "In service") return "In service";
   return vehicleOnTripNow(v.name, bookings) ? "On trip" : "Available";
+}
+function newBookingStartDate(nb) {
+  const iso = displayDateToISO(nb.date);
+  if (!iso || !/^\d{2}:\d{2}$/.test(nb.pickupTime || "")) return null;
+  const d = new Date(iso + "T" + nb.pickupTime + ":00");
+  return isNaN(d.getTime()) ? null : d;
+}
+function newBookingEndDate(nb) {
+  const start = newBookingStartDate(nb);
+  if (!start) return null;
+  if (!String(nb.durationValue || "").trim()) return null;
+  const hours = durationToHours(nb.durationValue, nb.durationUnit);
+  if (!hours) return null;
+  return new Date(start.getTime() + hours * 3600000);
+}
+function vehicleTimeConflict(vehicleName, nb, bookings, excludeId) {
+  const newStart = newBookingStartDate(nb);
+  if (!newStart) return false;
+  const newEnd = newBookingEndDate(nb);
+  return (bookings || []).some((b) => {
+    if (b.vehicle !== vehicleName) return false;
+    if (excludeId && b.id === excludeId) return false;
+    const range = bookingDateTimeRange(b);
+    if (!range) return false;
+    if (newEnd) return newStart < range.end && range.start < newEnd;
+    return newStart >= range.start && newStart < range.end;
+  });
 }
 function pickBookingFleet(fleet, bookings) {
   return fleet;
@@ -3016,9 +3043,7 @@ class Component extends DCLogic {
       }
       const nb = this.state.newBooking;
       const selected = (nb.vehicleIndexes || []).map((i) => fleetForBooking[i]).filter(Boolean);
-      const hasConflict = selected.some((v) => this.state.bookings.some((b) =>
-        b.vehicle === v.name && (!this.state.editingBookingId || b.id !== this.state.editingBookingId) && String(b.time || "").indexOf(nb.date) === 0
-      ));
+      const hasConflict = selected.some((v) => vehicleTimeConflict(v.name, nb, this.state.bookings, this.state.editingBookingId));
       if (hasConflict) {
         this.setState({ newBookingError: STR.vehicleDateConflictError[lang] });
         return;
@@ -3047,6 +3072,11 @@ class Component extends DCLogic {
     const indexes = editingId ? [(nb.vehicleIndexes || [0])[0]] : (nb.vehicleIndexes || []);
     const vehicles = indexes.map((i) => fleetForBooking[i]).filter(Boolean);
     if (!vehicles.length) return;
+    const hasFinalConflict = vehicles.some((v) => vehicleTimeConflict(v.name, nb, this.state.bookings, editingId));
+    if (hasFinalConflict) {
+      this.setState({ newBookingError: STR.vehicleDateConflictError[this.state.lang], step: 2 });
+      return;
+    }
     this._submittingBooking = true;
     const durationHoursEquiv = durationToHours(nb.durationValue, nb.durationUnit);
     const totalDiscountNum = parseAmount(nb.discount);
@@ -3685,10 +3715,7 @@ class Component extends DCLogic {
     const nb = s.newBooking;
     const selectedVehicleIndexes = nb.vehicleIndexes || [];
     const isMultiVehicleMode = !s.editingBookingId;
-    const vehicleHasDateConflict = (vehicleName) => {
-      if (!nb.date) return false;
-      return s.bookings.some((b) => b.vehicle === vehicleName && (!s.editingBookingId || b.id !== s.editingBookingId) && String(b.time || "").indexOf(nb.date) === 0);
-    };
+    const vehicleHasDateConflict = (vehicleName) => vehicleTimeConflict(vehicleName, nb, s.bookings, s.editingBookingId);
     const vehicleOptions = fleetForBooking.map((v, i) => ({
       name: v.name,
       meta: v.plate + " · " + v.seats + " " + L.seatsWord,
