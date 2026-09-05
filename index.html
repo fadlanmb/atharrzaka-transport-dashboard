@@ -337,7 +337,7 @@ html{overflow-x:hidden}
 <div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;overflow:hidden;color:#fff">
 <div style="padding:16px 18px 12px;display:flex;align-items:baseline"><div style="font-size:14px;font-weight:600">{{ L.totalRevenueCard }}</div><div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.55)">{{ L.allTimeLabel }}</div></div>
 <div style="height:196px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,.12);gap:10px">
-<span style="font-size:34px;font-weight:600;letter-spacing:-1px">{{ totalRevenueAllTimeLabel }}</span>
+<span style="{{ totalRevenueValueStyle }}">{{ totalRevenueAllTimeLabel }}</span>
 <span style="font-size:11.5px;color:rgba(255,255,255,.6)">{{ totalRevenueBookingsLabel }}</span>
 </div>
 </div>
@@ -765,7 +765,7 @@ html{overflow-x:hidden}
 <div class="screen-pad" style="padding:24px 28px 34px;display:flex;flex-direction:column;gap:18px">
 <div class="stat-grid-3" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:16px"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.42)">{{ L.expensesThisMonth }}</div><div style="font-size:26px;font-weight:600;margin-top:8px;color:#a8471f">{{ expensesMonthLabel }}</div></div>
-<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:16px;color:#fff"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.companyBalance }}</div><div style="font-size:26px;font-weight:600;margin-top:8px">{{ companyBalanceLabel }}</div></div>
+<div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;padding:16px;color:#fff"><div style="font-size:10px;font-weight:600;letter-spacing:.11em;color:#DBAF5D">{{ L.companyBalance }}</div><div style="{{ companyBalanceValueStyle }}">{{ companyBalanceLabel }}</div></div>
 </div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addExpense }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
@@ -3144,9 +3144,9 @@ class Component extends DCLogic {
     const isGuest = !s.checkingSession && (!s.session || isPasswordRecovery);
     const isNormalGuestLogin = !isPasswordRecovery;
     const contentLoading = isAdmin && !s.loaded;
-    const canManage = isAdmin && s.userRole === "manager";
     const isDriverRole = isAdmin && s.userRole === "driver";
     const isDirectorRole = isAdmin && s.userRole === "director";
+    const canManage = isAdmin && (s.userRole === "manager" || isDirectorRole);
     const roleBadgeLabel = isDriverRole ? L.driverBadge : isDirectorRole ? L.directorBadge : L.adminBadge;
     const roleNameLabel = s.profileName || (isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager);
     const roleTitleLabel = isDriverRole ? L.driverRoleTitle : isDirectorRole ? L.directorRoleTitle : L.opsManager;
@@ -3288,7 +3288,7 @@ class Component extends DCLogic {
     const shiftCoverageRows = SHIFT_WINDOWS.map((w) => {
       const count = s.drivers.filter((d) => shiftOverlapsWindow(d.shift_start, d.shift_end, w.start, w.end)).length;
       const pct = s.drivers.length ? Math.round((count / s.drivers.length) * 100) : 0;
-      return { label: L[w.labelKey], countLabel: count + (lang === "id" ? " pengemudi" : " drivers"), pct: pct };
+      return { label: L[w.labelKey], countLabel: count + (lang === "id" ? " pengemudi" : (count === 1 ? " driver" : " drivers")), pct: pct };
     });
 
     const corpAccountsCount = s.customers.filter((c) => c.type === "Corporate").length;
@@ -3331,6 +3331,7 @@ class Component extends DCLogic {
         ? items.map((it) => it.description).join(", ")
         : (lang === "id" ? "Ditugaskan: " : "Assigned: ") + (sv.assigned_driver || "—");
       return Object.assign({}, sv, {
+        date: isoToDisplayDate(sv.date) || sv.date,
         status: trWords(sv.status, lang),
         statusStyle: maintenanceStatusStyle(sv.status),
         subtitle: subtitle, costLabel: isDone ? sv.cost : "—", canComplete: !isDone,
@@ -3481,6 +3482,9 @@ class Component extends DCLogic {
     const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
     const companyBalanceLabel = formatRupiah(companyBalanceNum);
     const totalRevenueAllTimeLabel = formatRupiah(companyBalanceNum);
+    const negativeBalanceColor = "#ffb4a0";
+    const totalRevenueValueStyle = "font-size:34px;font-weight:600;letter-spacing:-1px" + (companyBalanceNum < 0 ? ";color:" + negativeBalanceColor : "");
+    const companyBalanceValueStyle = "font-size:26px;font-weight:600;margin-top:8px" + (companyBalanceNum < 0 ? ";color:" + negativeBalanceColor : "");
     const totalRevenueBookingsLabel = lang === "id"
       ? (s.bookings.length + " pemesanan · setelah pengeluaran")
       : (s.bookings.length + " bookings · after expenses");
@@ -3539,10 +3543,20 @@ class Component extends DCLogic {
     const revenuePeriodLabel = (lang === "id" ? "PENDAPATAN · " : "REVENUE · ") + trWords(monthsAbbr[new Date().getMonth()], lang).toUpperCase();
 
     const weekBuckets = [0, 0, 0, 0, 0];
-    bookingsThisMonth.forEach((b) => {
-      const d = new Date(b.created_at);
-      const idx = Math.min(4, Math.floor((d.getDate() - 1) / 7));
-      weekBuckets[idx] += paidAmountForBooking(b);
+    const monthEndExclusive = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+    s.bookings.forEach((b) => {
+      const invs = s.invoices.filter((i) => i.booking_ref === b.ref).slice().sort((a, c) => new Date(a.created_at) - new Date(c.created_at));
+      let prevTotal = 0;
+      invs.forEach((inv) => {
+        const total = parseAmount(inv.down_payment) + parseAmount(inv.receive_payment);
+        const delta = total - prevTotal;
+        prevTotal = total;
+        const invDate = new Date(inv.created_at);
+        if (delta > 0 && invDate >= monthStart && invDate < monthEndExclusive) {
+          const idx = Math.min(4, Math.floor((invDate.getDate() - 1) / 7));
+          weekBuckets[idx] += delta;
+        }
+      });
     });
     const maxWeek = Math.max(1, weekBuckets[0], weekBuckets[1], weekBuckets[2], weekBuckets[3], weekBuckets[4]);
     const revenueWeekBars = weekBuckets.map((v, i) => ({
@@ -3645,7 +3659,13 @@ class Component extends DCLogic {
     }));
     const hasAttentionItems = needsAttentionItems.length > 0;
 
-    const upcomingRaw = s.bookings.slice(0, 3);
+    const nowForPickups = new Date();
+    const upcomingRaw = s.bookings
+      .map((b) => ({ booking: b, range: bookingDateTimeRange(b) }))
+      .filter((x) => x.range && x.range.start >= nowForPickups && x.booking.status !== "Completed" && x.booking.status !== "Cancelled")
+      .sort((a, c) => a.range.start - c.range.start)
+      .slice(0, 3)
+      .map((x) => x.booking);
     const nextPickupItems = upcomingRaw.map((b, i) => {
       const matchedVehicle = s.fleet.find((v) => v.name === b.vehicle);
       const vehicleWithPlate = b.vehicle + (matchedVehicle && matchedVehicle.plate ? " · " + matchedVehicle.plate : "");
@@ -3804,7 +3824,7 @@ class Component extends DCLogic {
         align: c.align, go: this.sortToday(c.key)
       })),
       todayBookings: (() => {
-        const list = s.bookings.slice(0, 5).map(withOpen);
+        const list = todaysBookingsAll.slice(0, 5).map(withOpen);
         if (!s.todaySortKey) return list;
         const key = s.todaySortKey, dir = s.todaySortDir;
         return list.slice().sort((a, b) => {
@@ -3827,7 +3847,7 @@ class Component extends DCLogic {
       })),
       fleet: fleetTr, drivers: driversSorted, customers: customersTr, invoices: invoicesTr, services: servicesTr,
       expensesTr: expensesTr, hasExpenses: hasExpenses, noExpensesYet: noExpensesYet,
-      expensesMonthLabel: expensesMonthLabel, companyBalanceLabel: companyBalanceLabel,
+      expensesMonthLabel: expensesMonthLabel, companyBalanceLabel: companyBalanceLabel, companyBalanceValueStyle: companyBalanceValueStyle,
       pendingTripRequests: pendingTripRequests, hasTripRequests: hasTripRequests,
       myPendingRequests: myPendingRequests, hasMyPendingRequests: hasMyPendingRequests,
       showInvoicePrint: s.showInvoicePrint, closeInvoicePrint: this.closeInvoicePrint,
@@ -3887,7 +3907,7 @@ class Component extends DCLogic {
       chartBars: chartBars, chartTabs: chartTabs, chartSubLabel: chartSubLabel,
       fleetDaysRows: fleetDaysRows, fleetDaysTabs: fleetDaysTabs, fleetDaysSubLabel: fleetDaysSubLabel,
       hasFleetDaysRows: hasFleetDaysRows, noFleetDaysRows: !hasFleetDaysRows,
-      totalRevenueAllTimeLabel: totalRevenueAllTimeLabel, totalRevenueBookingsLabel: totalRevenueBookingsLabel,
+      totalRevenueAllTimeLabel: totalRevenueAllTimeLabel, totalRevenueBookingsLabel: totalRevenueBookingsLabel, totalRevenueValueStyle: totalRevenueValueStyle,
       detail: detailTr, detailAlreadyInvoiced: detailAlreadyInvoiced, detailNotInvoiced: !detailAlreadyInvoiced,
       closeDetail: () => this.setState({ detail: null }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
