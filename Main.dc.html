@@ -19,6 +19,7 @@ a{color:#824703}a:hover{color:#DBAF5D}
 .form-grid-2>div,.form-grid-3>div{min-width:0}
 .calendar-day-cell{min-width:0;overflow:hidden}
 select{max-width:100%}
+input[type=date]{min-width:0;max-width:100%}
 html{overflow-x:hidden}
 @media print{
   body *{visibility:hidden}
@@ -60,8 +61,11 @@ html{overflow-x:hidden}
   .profile-block{padding-left:0!important;border-left:none!important}
   .page-sub{display:none!important}
   .header-badge{display:none!important}
-  .page-title{font-size:15px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44vw}
+  .page-title{font-size:13.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
   .page-title-wrap{min-width:0}
+  .chart-header-row{flex-wrap:wrap!important;row-gap:8px!important}
+  .chart-tabs-row{margin-left:0!important;width:100%!important;justify-content:flex-end!important}
+  input[type=date]{font-size:11px!important;padding:10px 6px!important}
   .kpi-grid{grid-template-columns:repeat(2,1fr)!important}
   .stat-grid-3{grid-template-columns:repeat(2,1fr)!important}
   .two-col{grid-template-columns:1fr!important}
@@ -287,11 +291,11 @@ html{overflow-x:hidden}
 <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
 
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
-<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
+<div class="chart-header-row" style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
 <div style="font-size:14px;font-weight:600">{{ L.chartTitle }}</div>
 <div style="font-size:11px;color:rgba(24,24,24,.45)">{{ chartSubLabel }}</div>
 <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:#5b7a3a;font-weight:600"><span class="dc-live-dot"></span>{{ L.liveNow }}</div>
-<div style="margin-left:auto;display:flex;gap:6px;font-size:10.5px">
+<div class="chart-tabs-row" style="margin-left:auto;display:flex;gap:6px;font-size:10.5px">
 <sc-for list="{{ chartTabs }}" as="tab" hint-placeholder-count="3">
 <span onClick="{{ tab.go }}" style="{{ tab.style }}">{{ tab.label }}</span>
 </sc-for>
@@ -380,10 +384,10 @@ html{overflow-x:hidden}
 </div>
 
 <div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:20px">
-<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:18px">
+<div class="chart-header-row" style="display:flex;align-items:baseline;gap:12px;margin-bottom:18px">
 <div style="font-size:14px;font-weight:600">{{ L.fleetDaysTitle }}</div>
 <div style="font-size:11px;color:rgba(24,24,24,.45)">{{ fleetDaysSubLabel }}</div>
-<div style="margin-left:auto;display:flex;gap:6px;font-size:10.5px">
+<div class="chart-tabs-row" style="margin-left:auto;display:flex;gap:6px;font-size:10.5px">
 <sc-for list="{{ fleetDaysTabs }}" as="tab" hint-placeholder-count="3">
 <span onClick="{{ tab.go }}" style="{{ tab.style }}">{{ tab.label }}</span>
 </sc-for>
@@ -914,11 +918,11 @@ html{overflow-x:hidden}
 <div style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:75;display:flex;align-items:flex-end" onClick="{{ closeMoreSheet }}">
 <div style="width:100%;background:#fff;border-radius:18px 18px 0 0;padding:10px 8px 22px;box-shadow:0 -20px 50px rgba(24,24,24,.2)" onClick="{{ stop }}">
 <div style="width:36px;height:4px;border-radius:3px;background:rgba(89,50,3,.2);margin:6px auto 14px"></div>
-<sc-if value="{{ showFullBottomNav }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ goCalendarMobile }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">
 <div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
 {{ calendarNavLabel }}
 </div>
+<sc-if value="{{ showFullBottomNav }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ goCustomersMobile }}" style="display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:14px;font-weight:500;cursor:pointer">
 <div style="width:34px;height:34px;border-radius:9px;background:#F4F1EC;display:flex;align-items:center;justify-content:center;flex:none;color:#824703"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
 {{ customersNavLabel }}
@@ -1089,8 +1093,18 @@ html{overflow-x:hidden}
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.pickup }}" onChange="{{ setNewPickup }}" placeholder="Hotel Mulia, Senayan" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.destinationLabel }} <span style="color:#a8471f">*</span></div><input value="{{ newBooking.destination }}" onChange="{{ setNewDestination }}" placeholder="Terminal 3 CGK" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
 </div>
-<div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.dateLabel }} <span style="color:#a8471f">*</span></div><input type="date" value="{{ newBooking.dateISO }}" onChange="{{ setNewDate }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }} <span style="color:#a8471f">*</span></div>
+<select value="{{ newBooking.passengers }}" onChange="{{ setNewPassengers }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ passengerOptions }}" as="opt" hint-placeholder-count="6">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
+</div>
+</div>
+<div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
 <div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.pickupTimeLabel }} <span style="color:#a8471f">*</span></div>
 <select value="{{ newBooking.pickupTime }}" onChange="{{ setNewPickupTime }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
 <option value="">{{ L.selectPh }}</option>
@@ -1099,10 +1113,10 @@ html{overflow-x:hidden}
 </sc-for>
 </select>
 </div>
-<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.passengersLabel }} <span style="color:#a8471f">*</span></div>
-<select value="{{ newBooking.passengers }}" onChange="{{ setNewPassengers }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:7px">{{ L.arrivalTimeLabel }}</div>
+<select value="{{ newBooking.arrivalTime }}" onChange="{{ setNewArrivalTime }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:12.5px;font-family:inherit;background:#fff">
 <option value="">{{ L.selectPh }}</option>
-<sc-for list="{{ passengerOptions }}" as="opt" hint-placeholder-count="6">
+<sc-for list="{{ pickupTimeOptions }}" as="opt" hint-placeholder-count="6">
 <option value="{{ opt.value }}">{{ opt.label }}</option>
 </sc-for>
 </select>
@@ -1826,7 +1840,8 @@ const STR = {
   destinationLabel: { en: "Destination", id: "Tujuan" },
   dateLabel: { en: "Date", id: "Tanggal" },
   dateValue: { en: "23 Aug 2026", id: "23 Agu 2026" },
-  pickupTimeLabel: { en: "Pickup time", id: "Waktu jemput" },
+  pickupTimeLabel: { en: "Departure time", id: "Waktu keberangkatan" },
+  arrivalTimeLabel: { en: "Arrival time", id: "Waktu kedatangan" },
   passengersLabel: { en: "Passengers", id: "Penumpang" },
   selectPh: { en: "Select…", id: "Pilih…" },
   durationHoursLabel: { en: "Duration (hours)", id: "Durasi (jam)" },
@@ -2391,7 +2406,7 @@ class Component extends DCLogic {
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
-    newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
+    newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", arrivalTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
     showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", fleetDaysRange: "dtd", revenueServiceMonth: "all",
     calendarMonthOffset: 0, calendarVehicleFilter: "all", showCalendarDay: false, calendarDayModalDate: null, calendarDayModalDisplay: "",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
@@ -2932,7 +2947,7 @@ class Component extends DCLogic {
         customer: request.customer || "", phoneCountry: phoneCountry, phone: phoneDigits,
         serviceType: request.service_type || "", pickup: request.pickup || "", destination: request.destination || "",
         date: request.trip_date || "", dateISO: request.trip_date ? displayDateToISO(request.trip_date) : "",
-        pickupTime: request.pickup_time || "", passengers: request.passengers || "",
+        pickupTime: request.pickup_time || "", arrivalTime: "", passengers: request.passengers || "",
         durationValue: requestDurVU.value, durationUnit: requestDurVU.unit, extraFee: "",
         vehicleIndexes: [0], discount: "", waConfirmed: false
       }
@@ -2950,14 +2965,14 @@ class Component extends DCLogic {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: null, approvingTripRequestId: null,
-      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
+      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", arrivalTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
     });
   };
   openNewBookingForDate = (dayISO, dayDisplay) => () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: null, approvingTripRequestId: null,
-      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: dayDisplay, dateISO: dayISO, pickupTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
+      newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: dayDisplay, dateISO: dayISO, pickupTime: "", arrivalTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false }
     });
   };
   calendarPrev = () => this.setState((p) => ({ calendarMonthOffset: p.calendarMonthOffset - 1 }));
@@ -2989,7 +3004,7 @@ class Component extends DCLogic {
       newBooking: {
         customer: row.customer || "", phoneCountry: editPhoneCountry, phone: editPhoneDigits,
         serviceType: row.type || "", pickup: row.from_location || "", destination: row.to_location || "",
-        date: dateDisplay, dateISO: displayDateToISO(dateDisplay), pickupTime: pickupTime,
+        date: dateDisplay, dateISO: displayDateToISO(dateDisplay), pickupTime: pickupTime, arrivalTime: row.eta || "",
         passengers: String(row.pax || "").replace(/\s*pax$/, ""),
         durationValue: editDurVU.value, durationUnit: editDurVU.unit,
         extraFee: editExtraFeeNum ? String(editExtraFeeNum) : "",
@@ -3089,7 +3104,7 @@ class Component extends DCLogic {
       route: (nb.pickup || "-") + " -> " + (nb.destination || "-"),
       time: (nb.date || "-") + " " + (nb.pickupTime || ""),
       from_location: nb.pickup || "", to_location: nb.destination || "",
-      eta: "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(String(durationHoursEquiv))
+      eta: nb.arrivalTime || "", pax: (nb.passengers || "-") + " pax", duration: hoursToDurationLabel(String(durationHoursEquiv))
     };
     let allocatedDiscount = 0;
     let allocatedExtraFee = 0;
@@ -3800,7 +3815,7 @@ class Component extends DCLogic {
       langIdStyle: lang === "id" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
       setLangEn: () => this.setState({ lang: "en" }),
       setLangId: () => this.setState({ lang: "id" }),
-      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings" || n.id === "maintenance") : NAV_OPS),
+      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings" || n.id === "maintenance" || n.id === "calendar") : NAV_OPS),
       navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
       pageTitle: (s.screen === "dashboard" || isDriverRole) ? dashboardGreeting : t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
@@ -3811,7 +3826,7 @@ class Component extends DCLogic {
       isCustomers: s.screen === "customers" && s.loaded && !isDriverRole, isRevenue: s.screen === "revenue" && s.loaded && !isDriverRole,
       isMaintenance: s.screen === "maintenance" && s.loaded,
       isExpenses: s.screen === "expenses" && s.loaded && !isDriverRole,
-      isCalendar: s.screen === "calendar" && s.loaded && !isDriverRole,
+      isCalendar: s.screen === "calendar" && s.loaded,
       goBookings: this.go("bookings"), goDrivers: this.go("drivers"),
       todayCols: [
         { key: "customer", label: L.colCustomer, align: "left" },
@@ -3937,6 +3952,7 @@ class Component extends DCLogic {
       setNewDestination: this.setNewBookingField("destination"),
       setNewDate: this.setNewDateField,
       setNewPickupTime: this.setNewBookingField("pickupTime"),
+      setNewArrivalTime: this.setNewBookingField("arrivalTime"),
       setNewPassengers: this.setNewBookingField("passengers"),
       pickupTimeOptions: pickupTimeOptions, passengerOptions: passengerOptions,
       setNewDurationValue: this.setNewBookingField("durationValue"),
