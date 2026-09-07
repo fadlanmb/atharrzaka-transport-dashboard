@@ -708,7 +708,11 @@ html{overflow-x:hidden}
 <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
 <div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
-<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.statusLabel }}</span></div>
+<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.statusLabel }}</span>
+<sc-if value="{{ i.hasSupersededByLabel }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:9.5px;color:rgba(24,24,24,.4);margin-top:3px">{{ i.supersededByLabel }}</div>
+</sc-if>
+</div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
 <div onClick="{{ i.download }}" style="color:#824703;cursor:pointer;display:flex" title="Download"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
@@ -2763,7 +2767,7 @@ class Component extends DCLogic {
       const bookingRef = original ? original.booking_ref : payload.booking_ref;
       this.nextInvoiceNo().then((no) => client.from("invoices").insert(Object.assign({}, payload, { no: no, booking_ref: bookingRef })).then((res) => {
         if (res.error) { this._submittingForm = false; this.setState({ formError: STR.saveErrorGeneric[lang] }); return; }
-        const voidReq = original ? client.from("invoices").update({ voided: true }).eq("id", original.id) : Promise.resolve();
+        const voidReq = original ? client.from("invoices").update({ voided: true, superseded_by: no }).eq("id", original.id) : Promise.resolve();
         voidReq.then(() => {
           this._submittingForm = false;
           this.loadAll().then(() => this.setState({ showForm: false }));
@@ -3375,13 +3379,15 @@ class Component extends DCLogic {
       const paidNum = dpNum + receivedNum;
       const balanceDueNum = Math.max(0, subtotalNum - discountNum - paidNum);
       const statusKey = i.voided ? "voided" : (balanceDueNum <= 0 && subtotalNum > 0 ? "paid" : (paidNum > 0 ? "partial" : "unpaid"));
-      const statusLabel = statusKey === "voided" ? (lang === "id" ? "Dibatalkan" : "Cancelled")
+      const statusLabel = statusKey === "voided" ? (lang === "id" ? "Digantikan" : "Superseded")
         : statusKey === "paid" ? (lang === "id" ? "Lunas" : "Paid")
         : statusKey === "partial" ? (lang === "id" ? "Sebagian dibayar" : "Partially paid")
         : (lang === "id" ? "Belum dibayar" : "Unpaid");
+      const supersededByLabel = statusKey === "voided" && i.superseded_by ? "→ " + i.superseded_by : "";
       return Object.assign({}, i, {
         issued: trWords(i.issued, lang),
         statusKey: statusKey, statusLabel: statusLabel, statusStyle: invoicePaymentStatusStyle(statusKey),
+        supersededByLabel: supersededByLabel, hasSupersededByLabel: !!supersededByLabel,
         balanceDueLabel: formatRupiah(balanceDueNum),
         subtotalLabel: formatRupiah(subtotalNum), discountLabel: formatRupiah(discountNum),
         downPaymentLabel: formatRupiah(dpNum), receivePaymentLabel: formatRupiah(receivedNum),
