@@ -713,7 +713,11 @@ html{overflow-x:hidden}
 </div>
 <div class="data-grid-wrap" style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:6px 20px 16px">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .8fr .9fr;gap:12px;padding:16px 4px 12px;font-size:9.5px;font-weight:600;letter-spacing:.1em;color:rgba(24,24,24,.38);border-bottom:1px solid rgba(89,50,3,.08)">
-<div>{{ L.colInvoice }}</div><div>{{ L.colAccount }}</div><div>{{ L.colIssued }}</div><div>{{ L.colStatus }}</div><div></div><div style="text-align:right">{{ L.colBalance }}</div>
+<sc-for list="{{ invoiceColsLeft }}" as="col" hint-placeholder-count="4">
+<div onClick="{{ col.go }}" style="cursor:pointer;user-select:none;text-align:{{ col.align }}">{{ col.label }}</div>
+</sc-for>
+<div></div>
+<div onClick="{{ invoiceBalanceCol.go }}" style="cursor:pointer;user-select:none;text-align:right">{{ invoiceBalanceCol.label }}</div>
 </div>
 <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .8fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
@@ -2461,7 +2465,7 @@ class Component extends DCLogic {
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", arrivalTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
-    showMoreSheet: false, todaySortKey: null, todaySortDir: 1, chartRange: "dtd", fleetDaysRange: "dtd", revenueServiceMonth: "all",
+    showMoreSheet: false, todaySortKey: null, todaySortDir: 1, invoiceSortKey: null, invoiceSortDir: 1, chartRange: "dtd", fleetDaysRange: "dtd", revenueServiceMonth: "all",
     calendarMonthOffset: 0, calendarVehicleFilter: "all", showCalendarDay: false, calendarDayModalDate: null, calendarDayModalDisplay: "",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
@@ -2563,6 +2567,9 @@ class Component extends DCLogic {
   };
   sortDrivers = (key) => () => {
     this.setState((p) => ({ driverSortKey: key, driverSortDir: p.driverSortKey === key ? -p.driverSortDir : 1 }));
+  };
+  sortInvoices = (key) => () => {
+    this.setState((p) => ({ invoiceSortKey: key, invoiceSortDir: p.invoiceSortKey === key ? -p.invoiceSortDir : 1 }));
   };
   prevBookingsPage = () => this.setState((p) => ({ bookingsPage: Math.max(1, p.bookingsPage - 1) }));
   nextBookingsPage = () => this.setState((p) => ({ bookingsPage: p.bookingsPage + 1 }));
@@ -3402,11 +3409,12 @@ class Component extends DCLogic {
         : statusKey === "partial" ? (lang === "id" ? "Sebagian dibayar" : "Partially paid")
         : (lang === "id" ? "Belum dibayar" : "Unpaid");
       const supersededByLabel = statusKey === "voided" && i.superseded_by ? "→ " + i.superseded_by : "";
+      const issuedISO = displayDateToISO(i.issued) || "";
       return Object.assign({}, i, {
-        issued: trWords(i.issued, lang),
+        issued: trWords(i.issued, lang), issuedISO: issuedISO,
         statusKey: statusKey, statusLabel: statusLabel, statusStyle: invoicePaymentStatusStyle(statusKey),
         supersededByLabel: supersededByLabel, hasSupersededByLabel: !!supersededByLabel,
-        balanceDueLabel: formatRupiah(balanceDueNum),
+        balanceDueNum: balanceDueNum, balanceDueLabel: formatRupiah(balanceDueNum),
         subtotalLabel: formatRupiah(subtotalNum), discountLabel: formatRupiah(discountNum),
         downPaymentLabel: formatRupiah(dpNum), receivePaymentLabel: formatRupiah(receivedNum),
         edit: (e) => { e.stopPropagation(); this.openFormFor("invoice", "edit", i); },
@@ -3414,6 +3422,16 @@ class Component extends DCLogic {
         download: (e) => { e.stopPropagation(); this.openInvoicePrint(i, { statusLabel, subtotalNum, discountNum, dpNum, receivedNum, balanceDueNum }); }
       });
     }).sort((a, b) => INVOICE_STATUS_PRIORITY[a.statusKey] - INVOICE_STATUS_PRIORITY[b.statusKey]);
+    const invoiceColDefs = [
+      { key: "no", label: L.colInvoice, align: "left" },
+      { key: "account", label: L.colAccount, align: "left" },
+      { key: "issued", label: L.colIssued, align: "left" },
+      { key: "status", label: L.colStatus, align: "left" },
+      { key: "balance", label: L.colBalance, align: "right" }
+    ].map((c) => ({
+      key: c.key, label: c.label + (s.invoiceSortKey === c.key ? (s.invoiceSortDir === 1 ? " ▲" : " ▼") : ""),
+      align: c.align, go: this.sortInvoices(c.key)
+    }));
     const servicesTr = s.maintenance.map((sv) => {
       const items = Array.isArray(sv.items) ? sv.items : [];
       const isDone = sv.status === "Done";
@@ -3940,7 +3958,22 @@ class Component extends DCLogic {
         go: this.setInvoiceFilter(f.key)
       })),
       fleet: fleetTr, drivers: driversSorted, customers: customersTr,
-      invoices: s.invoiceFilter === "All" ? invoicesTr : invoicesTr.filter((i) => i.statusKey === s.invoiceFilter),
+      invoices: (() => {
+        const base = s.invoiceFilter === "All" ? invoicesTr : invoicesTr.filter((i) => i.statusKey === s.invoiceFilter);
+        if (!s.invoiceSortKey) return base;
+        const key = s.invoiceSortKey, dir = s.invoiceSortDir;
+        return base.slice().sort((a, b) => {
+          let av, bv;
+          if (key === "balance") { av = a.balanceDueNum; bv = b.balanceDueNum; }
+          else if (key === "status") { av = INVOICE_STATUS_PRIORITY[a.statusKey]; bv = INVOICE_STATUS_PRIORITY[b.statusKey]; }
+          else if (key === "issued") { av = a.issuedISO; bv = b.issuedISO; }
+          else { av = (a[key] || "").toString().toLowerCase(); bv = (b[key] || "").toString().toLowerCase(); }
+          if (av < bv) return -1 * dir;
+          if (av > bv) return 1 * dir;
+          return 0;
+        });
+      })(),
+      invoiceColsLeft: invoiceColDefs.slice(0, 4), invoiceBalanceCol: invoiceColDefs[4],
       services: servicesTr,
       expensesTr: expensesTr, hasExpenses: hasExpenses, noExpensesYet: noExpensesYet,
       expensesMonthLabel: expensesMonthLabel, companyBalanceLabel: companyBalanceLabel, companyBalanceValueStyle: companyBalanceValueStyle,
