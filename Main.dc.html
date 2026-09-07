@@ -1964,7 +1964,7 @@ const COUNTRY_CODE_OPTIONS = [
   { code: "82", label: "🇰🇷 +82" }
 ];
 const MAINTENANCE_STATUS_OPTIONS = ["Scheduled", "Workshop", "Overdue", "Done"];
-const EXPENSE_CATEGORY_OPTIONS = ["Maintenance", "Fuel", "Salary", "Insurance", "Office", "Other"];
+const EXPENSE_CATEGORY_OPTIONS = ["Maintenance", "Fuel", "Salary", "Insurance", "Office", "Operational", "Other"];
 const TIME_OPTIONS = (() => {
   const out = [];
   for (let h = 0; h < 24; h++) {
@@ -2086,6 +2086,7 @@ const WORD_MAP_ID = {
   "Salary": "Gaji",
   "Insurance": "Asuransi",
   "Office": "Kantor",
+  "Operational": "Operasional",
   "Other": "Lainnya"
 };
 const WORD_KEYS_SORTED = Object.keys(WORD_MAP_ID).sort((a, b) => b.length - a.length);
