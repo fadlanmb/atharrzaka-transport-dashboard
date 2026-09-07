@@ -113,22 +113,22 @@ html{overflow-x:hidden}
 </div>
 <sc-if value="{{ isNormalGuestLogin }}" hint-placeholder-val="{{ true }}">
 <div style="font-size:19px;font-weight:600;text-align:center;margin-bottom:24px">{{ L.loginTitle }}</div>
-<div style="display:flex;flex-direction:column;gap:14px">
+<form onSubmit="{{ submitLogin }}" style="display:flex;flex-direction:column;gap:14px">
 <sc-if value="{{ passwordResetDone }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11.5px;color:#5b7a3a;background:rgba(91,122,58,.1);border-radius:8px;padding:10px 12px">{{ L.passwordResetDoneMsg }}</div>
 </sc-if>
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.emailLabel }}</div>
-<input type="email" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
+<input type="email" autocomplete="username" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 13px;font-size:13px;font-family:inherit">
 </div>
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.passwordLabel }}</div>
 <div style="position:relative">
 <sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
-<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 40px 12px 13px;font-size:13px;font-family:inherit">
+<input type="password" autocomplete="current-password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 40px 12px 13px;font-size:13px;font-family:inherit">
 </sc-if>
 <sc-if value="{{ loginPasswordVisible }}" hint-placeholder-val="{{ false }}">
-<input type="text" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 40px 12px 13px;font-size:13px;font-family:inherit">
+<input type="text" autocomplete="current-password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:12px 40px 12px 13px;font-size:13px;font-family:inherit">
 </sc-if>
 <div onClick="{{ toggleLoginPasswordVisible }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(24,24,24,.42);display:flex">
 <sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
@@ -140,11 +140,20 @@ html{overflow-x:hidden}
 </div>
 </div>
 </div>
+<div onClick="{{ toggleRememberDevice }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+<sc-if value="{{ rememberDevice }}" hint-placeholder-val="{{ true }}">
+<div style="width:17px;height:17px;border-radius:5px;background:#DBAF5D;flex:none;display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#181818" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+</sc-if>
+<sc-if value="{{ rememberDeviceOff }}" hint-placeholder-val="{{ false }}">
+<div style="width:17px;height:17px;border-radius:5px;border:1.5px solid rgba(89,50,3,.25);flex:none"></div>
+</sc-if>
+<span style="font-size:11.5px;color:rgba(24,24,24,.65)">{{ L.rememberDeviceLabel }}</span>
+</div>
 <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11.5px;color:#a8471f">{{ loginError }}</div>
 </sc-if>
-<div onClick="{{ submitLogin }}" style="margin-top:4px;text-align:center;font-size:13px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:13px;cursor:pointer">{{ L.loginBtn }}</div>
-</div>
+<button type="submit" style="margin-top:4px;text-align:center;font-size:13px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:13px;cursor:pointer;border:none;font-family:inherit;width:100%;box-sizing:border-box">{{ L.loginBtn }}</button>
+</form>
 </sc-if>
 <sc-if value="{{ isPasswordRecovery }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:19px;font-weight:600;text-align:center;margin-bottom:6px">{{ L.resetPasswordTitle }}</div>
@@ -1226,19 +1235,19 @@ html{overflow-x:hidden}
 <div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeLogin }}">
 <div class="modal-panel" style="width:360px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
 <div style="font-size:17px;font-weight:600;margin-bottom:18px">{{ L.loginTitle }}</div>
-<div style="display:flex;flex-direction:column;gap:12px">
+<form onSubmit="{{ submitLogin }}" style="display:flex;flex-direction:column;gap:12px">
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.emailLabel }}</div>
-<input type="email" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+<input type="email" autocomplete="username" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
 </div>
 <div>
 <div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.passwordLabel }}</div>
 <div style="position:relative">
 <sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
-<input type="password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 40px 11px 12px;font-size:12.5px;font-family:inherit">
+<input type="password" autocomplete="current-password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 40px 11px 12px;font-size:12.5px;font-family:inherit">
 </sc-if>
 <sc-if value="{{ loginPasswordVisible }}" hint-placeholder-val="{{ false }}">
-<input type="text" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 40px 11px 12px;font-size:12.5px;font-family:inherit">
+<input type="text" autocomplete="current-password" value="{{ loginPassword }}" onChange="{{ setLoginPassword }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 40px 11px 12px;font-size:12.5px;font-family:inherit">
 </sc-if>
 <div onClick="{{ toggleLoginPasswordVisible }}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(24,24,24,.42);display:flex">
 <sc-if value="{{ loginPasswordHidden }}" hint-placeholder-val="{{ true }}">
@@ -1250,11 +1259,20 @@ html{overflow-x:hidden}
 </div>
 </div>
 </div>
+<div onClick="{{ toggleRememberDevice }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+<sc-if value="{{ rememberDevice }}" hint-placeholder-val="{{ true }}">
+<div style="width:17px;height:17px;border-radius:5px;background:#DBAF5D;flex:none;display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#181818" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+</sc-if>
+<sc-if value="{{ rememberDeviceOff }}" hint-placeholder-val="{{ false }}">
+<div style="width:17px;height:17px;border-radius:5px;border:1.5px solid rgba(89,50,3,.25);flex:none"></div>
+</sc-if>
+<span style="font-size:11.5px;color:rgba(24,24,24,.65)">{{ L.rememberDeviceLabel }}</span>
+</div>
 <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:11px;color:#a8471f">{{ loginError }}</div>
 </sc-if>
-<div onClick="{{ submitLogin }}" style="margin-top:6px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.loginBtn }}</div>
-</div>
+<button type="submit" style="margin-top:6px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer;border:none;font-family:inherit;width:100%;box-sizing:border-box">{{ L.loginBtn }}</button>
+</form>
 </div>
 </div>
 </sc-if>
@@ -1611,6 +1629,7 @@ const STR = {
   emailLabel: { en: "Email", id: "Email" },
   passwordLabel: { en: "Password", id: "Kata sandi" },
   loginBtn: { en: "Sign in", id: "Masuk" },
+  rememberDeviceLabel: { en: "Stay signed in on this device", id: "Tetap masuk di perangkat ini" },
   loginErrorGeneric: { en: "Invalid email or password.", id: "Email atau kata sandi salah." },
   resetPasswordTitle: { en: "Set new password", id: "Atur kata sandi baru" },
   resetPasswordSubtitle: { en: "Enter a new password for your account.", id: "Masukkan kata sandi baru untuk akun Anda." },
@@ -1908,6 +1927,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let sbClient = null;
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 const IDLE_STORAGE_KEY = "arz_last_activity";
+const REMEMBER_DEVICE_KEY = "arz_remember_device";
 function getSupabase() {
   if (!sbClient && window.supabase) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true } });
   return sbClient;
@@ -2402,6 +2422,7 @@ class Component extends DCLogic {
   state = {
     screen: "dashboard", detail: null, showNew: false, step: 1, filter: "All", lang: "en", approvingTripRequestId: null,
     session: null, checkingSession: true, showLogin: false, loginEmail: "", loginPassword: "", loginError: "", loginPasswordVisible: false,
+    rememberDevice: true,
     passwordRecovery: false, newPasswordValue: "", confirmNewPasswordValue: "", newPasswordError: "", passwordResetDone: false,
     bookings: [], fleet: [], drivers: [], customers: [], invoices: [], maintenance: [], tripRequests: [], expenses: [], loaded: false,
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
@@ -2431,8 +2452,10 @@ class Component extends DCLogic {
     if (!client) { this.setState({ checkingSession: false }); return; }
     const isRecoveryLink = typeof window !== "undefined" && window.location.hash.indexOf("type=recovery") !== -1;
     if (isRecoveryLink) this.setState({ passwordRecovery: true });
+    let deviceRemembered = false;
+    try { deviceRemembered = localStorage.getItem(REMEMBER_DEVICE_KEY) === "1"; } catch (e) {}
     const lastActivity = parseInt(localStorage.getItem(IDLE_STORAGE_KEY), 10) || 0;
-    const idleExpired = lastActivity > 0 && (Date.now() - lastActivity) > IDLE_TIMEOUT_MS;
+    const idleExpired = !deviceRemembered && lastActivity > 0 && (Date.now() - lastActivity) > IDLE_TIMEOUT_MS;
     client.auth.getSession().then((res) => {
       const session = res.data ? res.data.session : null;
       if (session && idleExpired && !isRecoveryLink) {
@@ -2455,6 +2478,9 @@ class Component extends DCLogic {
     });
     this.idleCheckInterval = setInterval(() => {
       if (!this.state.session) return;
+      let remembered = false;
+      try { remembered = localStorage.getItem(REMEMBER_DEVICE_KEY) === "1"; } catch (e) {}
+      if (remembered) return;
       const last = parseInt(localStorage.getItem(IDLE_STORAGE_KEY), 10) || Date.now();
       if (Date.now() - last > IDLE_TIMEOUT_MS) this.logout();
     }, 30000);
@@ -2602,13 +2628,20 @@ class Component extends DCLogic {
   setLoginEmail = (e) => this.setState({ loginEmail: e.target.value });
   setLoginPassword = (e) => this.setState({ loginPassword: e.target.value });
   toggleLoginPasswordVisible = () => this.setState((p) => ({ loginPasswordVisible: !p.loginPasswordVisible }));
-  submitLogin = () => {
+  toggleRememberDevice = () => this.setState((p) => ({ rememberDevice: !p.rememberDevice }));
+  submitLogin = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     const client = getSupabase();
     if (!client) return;
     const lang = this.state.lang;
+    const remember = this.state.rememberDevice;
     this.setState({ passwordResetDone: false });
     client.auth.signInWithPassword({ email: this.state.loginEmail, password: this.state.loginPassword }).then((res) => {
       if (res.error) { this.setState({ loginError: STR.loginErrorGeneric[lang] }); return; }
+      try {
+        if (remember) localStorage.setItem(REMEMBER_DEVICE_KEY, "1");
+        else localStorage.removeItem(REMEMBER_DEVICE_KEY);
+      } catch (err) {}
       this.setState({ session: res.data.session, showLogin: false, loginEmail: "", loginPassword: "", loginPasswordVisible: false });
     });
   };
@@ -2641,7 +2674,7 @@ class Component extends DCLogic {
   logout = () => {
     const client = getSupabase();
     if (client) client.auth.signOut();
-    try { localStorage.removeItem(IDLE_STORAGE_KEY); } catch (e) {}
+    try { localStorage.removeItem(IDLE_STORAGE_KEY); localStorage.removeItem(REMEMBER_DEVICE_KEY); } catch (e) {}
     this.setState({
       session: null, loaded: false, screen: "dashboard", detail: null, showMoreSheet: false,
       userRole: "driver", profileName: "", profileAvatar: "",
@@ -3994,6 +4027,7 @@ class Component extends DCLogic {
       setLoginEmail: this.setLoginEmail, setLoginPassword: this.setLoginPassword,
       loginPasswordVisible: s.loginPasswordVisible, loginPasswordHidden: !s.loginPasswordVisible,
       toggleLoginPasswordVisible: this.toggleLoginPasswordVisible,
+      rememberDevice: s.rememberDevice, rememberDeviceOff: !s.rememberDevice, toggleRememberDevice: this.toggleRememberDevice,
       loginError: s.loginError, submitLogin: this.submitLogin, logout: this.logout,
 
       addBooking: this.openNewBooking,
