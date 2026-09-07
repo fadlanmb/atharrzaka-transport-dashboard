@@ -2286,8 +2286,10 @@ function phoneToWaLink(phone, message) {
 function invoicePaymentStatusStyle(key) {
   if (key === "paid") return "background:rgba(93,138,58,.12);color:#4d6a30";
   if (key === "partial") return "background:rgba(219,175,93,.22);color:#8a6614";
+  if (key === "voided") return "background:rgba(24,24,24,.06);color:rgba(24,24,24,.4)";
   return "background:rgba(168,71,31,.12);color:#a8471f";
 }
+const INVOICE_STATUS_PRIORITY = { unpaid: 0, partial: 1, paid: 2, voided: 3 };
 function maintenanceStatusStyle(status) {
   if (status === "Done") return "background:rgba(93,138,58,.12);color:#4d6a30";
   if (status === "Overdue") return "background:rgba(168,71,31,.12);color:#a8471f";
@@ -2760,9 +2762,12 @@ class Component extends DCLogic {
       const original = s.invoices.find((i) => i.id === s.formEditId);
       const bookingRef = original ? original.booking_ref : payload.booking_ref;
       this.nextInvoiceNo().then((no) => client.from("invoices").insert(Object.assign({}, payload, { no: no, booking_ref: bookingRef })).then((res) => {
-        this._submittingForm = false;
-        if (res.error) { this.setState({ formError: STR.saveErrorGeneric[lang] }); return; }
-        this.loadAll().then(() => this.setState({ showForm: false }));
+        if (res.error) { this._submittingForm = false; this.setState({ formError: STR.saveErrorGeneric[lang] }); return; }
+        const voidReq = original ? client.from("invoices").update({ voided: true }).eq("id", original.id) : Promise.resolve();
+        voidReq.then(() => {
+          this._submittingForm = false;
+          this.loadAll().then(() => this.setState({ showForm: false }));
+        });
       }));
       return;
     }
@@ -3369,13 +3374,14 @@ class Component extends DCLogic {
       const receivedNum = parseAmount(i.receive_payment);
       const paidNum = dpNum + receivedNum;
       const balanceDueNum = Math.max(0, subtotalNum - discountNum - paidNum);
-      const statusKey = balanceDueNum <= 0 && subtotalNum > 0 ? "paid" : (paidNum > 0 ? "partial" : "unpaid");
-      const statusLabel = statusKey === "paid" ? (lang === "id" ? "Lunas" : "Paid")
+      const statusKey = i.voided ? "voided" : (balanceDueNum <= 0 && subtotalNum > 0 ? "paid" : (paidNum > 0 ? "partial" : "unpaid"));
+      const statusLabel = statusKey === "voided" ? (lang === "id" ? "Dibatalkan" : "Cancelled")
+        : statusKey === "paid" ? (lang === "id" ? "Lunas" : "Paid")
         : statusKey === "partial" ? (lang === "id" ? "Sebagian dibayar" : "Partially paid")
         : (lang === "id" ? "Belum dibayar" : "Unpaid");
       return Object.assign({}, i, {
         issued: trWords(i.issued, lang),
-        statusLabel: statusLabel, statusStyle: invoicePaymentStatusStyle(statusKey),
+        statusKey: statusKey, statusLabel: statusLabel, statusStyle: invoicePaymentStatusStyle(statusKey),
         balanceDueLabel: formatRupiah(balanceDueNum),
         subtotalLabel: formatRupiah(subtotalNum), discountLabel: formatRupiah(discountNum),
         downPaymentLabel: formatRupiah(dpNum), receivePaymentLabel: formatRupiah(receivedNum),
@@ -3383,7 +3389,7 @@ class Component extends DCLogic {
         remove: (e) => { e.stopPropagation(); this.askDelete("invoice", i.id); },
         download: (e) => { e.stopPropagation(); this.openInvoicePrint(i, { statusLabel, subtotalNum, discountNum, dpNum, receivedNum, balanceDueNum }); }
       });
-    });
+    }).sort((a, b) => INVOICE_STATUS_PRIORITY[a.statusKey] - INVOICE_STATUS_PRIORITY[b.statusKey]);
     const servicesTr = s.maintenance.map((sv) => {
       const items = Array.isArray(sv.items) ? sv.items : [];
       const isDone = sv.status === "Done";
