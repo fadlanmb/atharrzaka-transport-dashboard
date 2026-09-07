@@ -348,7 +348,13 @@ html{overflow-x:hidden}
 
 <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
 <div style="background:linear-gradient(140deg,#593203,#824703 65%,#3d2200);border-radius:14px;overflow:hidden;color:#fff">
-<div style="padding:16px 18px 12px;display:flex;align-items:baseline"><div style="font-size:14px;font-weight:600">{{ L.totalRevenueCard }}</div><div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.55)">{{ L.allTimeLabel }}</div></div>
+<div style="padding:16px 18px 12px;display:flex;align-items:center;gap:8px"><div style="font-size:14px;font-weight:600">{{ L.totalRevenueCard }}</div>
+<select value="{{ dashboardRevenueVehicle }}" onChange="{{ setDashboardRevenueVehicle }}" style="margin-left:auto;font-size:10.5px;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:5px 7px;font-family:inherit;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;max-width:150px">
+<sc-for list="{{ dashboardRevenueVehicleOptions }}" as="dvo" hint-placeholder-count="4">
+<option value="{{ dvo.value }}">{{ dvo.label }}</option>
+</sc-for>
+</select>
+</div>
 <div style="height:196px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,.12);gap:10px">
 <span style="{{ totalRevenueValueStyle }}">{{ totalRevenueAllTimeLabel }}</span>
 <span style="font-size:11.5px;color:rgba(255,255,255,.6)">{{ totalRevenueBookingsLabel }}</span>
@@ -697,6 +703,28 @@ html{overflow-x:hidden}
 <div style="display:flex;font-size:12.5px;font-weight:700"><span>{{ L.revenueServiceTotal }}</span><span style="margin-left:auto">{{ revenueServiceTotalLabel }}</span></div>
 </div>
 </div>
+</div>
+<div style="background:#fff;border:1px solid rgba(89,50,3,.09);border-radius:14px;padding:22px">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+<div style="font-size:14px;font-weight:600">{{ L.revenueByVehicle }}</div>
+<select value="{{ revenueServiceMonth }}" onChange="{{ setRevenueServiceMonth }}" style="margin-left:auto;font-size:11px;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:6px 8px;font-family:inherit;background:#fff;cursor:pointer">
+<sc-for list="{{ revenueMonthOptions }}" as="mo" hint-placeholder-count="3">
+<option value="{{ mo.value }}">{{ mo.label }}</option>
+</sc-for>
+</select>
+</div>
+<sc-if value="{{ hasFleetForRevenue }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:15px">
+<sc-for list="{{ revenueByVehicleRows }}" as="row" hint-placeholder-count="4">
+<div><div style="display:flex;font-size:11.5px;margin-bottom:6px"><span>{{ row.label }}</span><span style="margin-left:auto;font-weight:500">{{ row.amountLabel }}</span></div><div style="height:7px;border-radius:5px;background:rgba(89,50,3,.1);overflow:hidden;transition:width .4s cubic-bezier(.22,1,.36,1)"><div class="dc-bar-hover" style="width:{{ row.pct }}%;height:100%;background:linear-gradient(90deg,#593203,#DBAF5D)"></div></div></div>
+</sc-for>
+<div style="height:1px;background:rgba(89,50,3,.12);margin:2px 0"></div>
+<div style="display:flex;font-size:12.5px;font-weight:700"><span>{{ L.revenueServiceTotal }}</span><span style="margin-left:auto">{{ revenueVehicleTotalLabel }}</span></div>
+</div>
+</sc-if>
+<sc-if value="{{ noFleetForRevenue }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12px;color:rgba(24,24,24,.5);padding:10px 0">{{ L.noFleetYet }}</div>
+</sc-if>
 </div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ addInvoice }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:20px;padding:9px 15px;cursor:pointer;display:inline-block">{{ L.addBtn }}</div>
@@ -1848,6 +1876,7 @@ const STR = {
   colLifetime: { en: "LIFETIME", id: "SEUMUR HIDUP" },
 
   revenueByService: { en: "Revenue by service", id: "Pendapatan per layanan" },
+  revenueByVehicle: { en: "Revenue by vehicle", id: "Pendapatan per kendaraan" },
   revenueAllMonths: { en: "All months", id: "Semua bulan" },
   revenueServiceTotal: { en: "Total", id: "Total" },
   colInvoice: { en: "INVOICE", id: "FAKTUR" },
@@ -2465,7 +2494,7 @@ class Component extends DCLogic {
     showForm: false, formType: null, formMode: "add", formEditId: null, formValues: {}, formError: "",
     confirmDelete: null,
     newBooking: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", arrivalTime: "", passengers: "", durationValue: "", durationUnit: "days", extraFee: "", vehicleIndexes: [0], discount: "", waConfirmed: false },
-    showMoreSheet: false, todaySortKey: null, todaySortDir: 1, invoiceSortKey: null, invoiceSortDir: 1, chartRange: "dtd", fleetDaysRange: "dtd", revenueServiceMonth: "all",
+    showMoreSheet: false, todaySortKey: null, todaySortDir: 1, invoiceSortKey: null, invoiceSortDir: 1, chartRange: "dtd", fleetDaysRange: "dtd", revenueServiceMonth: "all", dashboardRevenueVehicle: "all",
     calendarMonthOffset: 0, calendarVehicleFilter: "all", showCalendarDay: false, calendarDayModalDate: null, calendarDayModalDisplay: "",
     driverSortKey: null, driverSortDir: 1, bookingsPage: 1, newBookingError: "",
     userRole: "driver", weatherTemp: null, profileName: "", profileAvatar: "",
@@ -2558,6 +2587,7 @@ class Component extends DCLogic {
 
   go = (id) => () => this.setState({ screen: id, detail: null, showMoreSheet: false });
   setRevenueServiceMonth = (e) => this.setState({ revenueServiceMonth: e.target.value });
+  setDashboardRevenueVehicle = (e) => this.setState({ dashboardRevenueVehicle: e.target.value });
   setInvoiceFilter = (key) => () => this.setState({ invoiceFilter: key });
   openMoreSheet = () => this.setState({ showMoreSheet: true });
   openSettingsMobile = () => { this.setState({ showMoreSheet: false }); this.openSettings(); };
@@ -3589,13 +3619,20 @@ class Component extends DCLogic {
     const totalPaidAllTimeNum = s.bookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
     const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
     const companyBalanceLabel = formatRupiah(companyBalanceNum);
-    const totalRevenueAllTimeLabel = formatRupiah(companyBalanceNum);
+    const dashboardRevenueVehicleOptions = [{ value: "all", label: L.allVehiclesFilter }].concat(
+      s.fleet.map((v) => ({ value: v.name, label: v.name }))
+    );
+    const dashboardVehicleBookings = s.dashboardRevenueVehicle === "all" ? s.bookings : s.bookings.filter((b) => b.vehicle === s.dashboardRevenueVehicle);
+    const dashboardRevenueDisplayNum = s.dashboardRevenueVehicle === "all"
+      ? companyBalanceNum
+      : dashboardVehicleBookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
+    const totalRevenueAllTimeLabel = formatRupiah(dashboardRevenueDisplayNum);
     const negativeBalanceColor = "#ffb4a0";
-    const totalRevenueValueStyle = "font-size:34px;font-weight:600;letter-spacing:-1px" + (companyBalanceNum < 0 ? ";color:" + negativeBalanceColor : "");
+    const totalRevenueValueStyle = "font-size:34px;font-weight:600;letter-spacing:-1px" + (dashboardRevenueDisplayNum < 0 ? ";color:" + negativeBalanceColor : "");
     const companyBalanceValueStyle = "font-size:26px;font-weight:600;margin-top:8px" + (companyBalanceNum < 0 ? ";color:" + negativeBalanceColor : "");
-    const totalRevenueBookingsLabel = lang === "id"
-      ? (s.bookings.length + " pemesanan · setelah pengeluaran")
-      : (s.bookings.length + " bookings · after expenses");
+    const totalRevenueBookingsLabel = s.dashboardRevenueVehicle === "all"
+      ? (lang === "id" ? (s.bookings.length + " pemesanan · setelah pengeluaran") : (s.bookings.length + " bookings · after expenses"))
+      : (lang === "id" ? (dashboardVehicleBookings.length + " pemesanan") : (dashboardVehicleBookings.length + " bookings"));
     const expensesNavLabel = NAV_LABELS.expenses[lang];
     const calendarNavLabel = NAV_LABELS.calendar[lang];
     const tripsTodayLabel = lang === "id"
@@ -3701,6 +3738,22 @@ class Component extends DCLogic {
     }));
     const revenueServiceTotalNum = serviceRevenueValues.reduce((sum, v) => sum + v, 0);
     const revenueServiceTotalLabel = formatRupiah(revenueServiceTotalNum);
+
+    const vehicleRevenueMap = {};
+    s.fleet.forEach((v) => { vehicleRevenueMap[v.name] = 0; });
+    bookingsForServiceRevenue.forEach((b) => { if (vehicleRevenueMap.hasOwnProperty(b.vehicle)) vehicleRevenueMap[b.vehicle] += paidAmountForBooking(b); });
+    const vehicleRevenueValues = s.fleet.map((v) => vehicleRevenueMap[v.name]);
+    const maxVehicleRevenue = Math.max(1, ...vehicleRevenueValues);
+    const revenueByVehicleRows = s.fleet.map((v) => ({ name: v.name, plate: v.plate, num: vehicleRevenueMap[v.name] || 0 }))
+      .sort((a, b) => b.num - a.num)
+      .map((v) => ({
+        label: v.name + (v.plate ? " · " + v.plate : ""), amountLabel: formatRupiah(v.num),
+        pct: Math.round((v.num / maxVehicleRevenue) * 100)
+      }));
+    const revenueVehicleTotalNum = vehicleRevenueValues.reduce((sum, v) => sum + v, 0);
+    const revenueVehicleTotalLabel = formatRupiah(revenueVehicleTotalNum);
+    const hasFleetForRevenue = s.fleet.length > 0;
+    const noFleetForRevenue = !hasFleetForRevenue;
 
     const odometerRows = s.fleet.map((v) => {
       const km = parseFloat(v.km) || 0;
@@ -4007,6 +4060,8 @@ class Component extends DCLogic {
       revenueMonthLabel: revenueMonthLabel, dashboardNetRevenueLabel: dashboardNetRevenueLabel, revenueWeekBars: revenueWeekBars, revenueByServiceRows: revenueByServiceRows,
       revenueMonthOptions: revenueMonthOptions, revenueServiceMonth: s.revenueServiceMonth, setRevenueServiceMonth: this.setRevenueServiceMonth,
       revenueServiceTotalLabel: revenueServiceTotalLabel,
+      revenueByVehicleRows: revenueByVehicleRows, revenueVehicleTotalLabel: revenueVehicleTotalLabel,
+      hasFleetForRevenue: hasFleetForRevenue, noFleetForRevenue: noFleetForRevenue,
       odometerRows: odometerRows, hasOdometerRows: hasOdometerRows, noOdometerRows: noOdometerRows,
       maintenanceSpendLabel: maintenanceSpendLabel, maintenanceSpendSubLabel: maintenanceSpendSubLabel,
       maintenanceDowntimeLabel: maintenanceDowntimeLabel,
@@ -4037,6 +4092,7 @@ class Component extends DCLogic {
       fleetDaysRows: fleetDaysRows, fleetDaysTabs: fleetDaysTabs, fleetDaysSubLabel: fleetDaysSubLabel,
       hasFleetDaysRows: hasFleetDaysRows, noFleetDaysRows: !hasFleetDaysRows,
       totalRevenueAllTimeLabel: totalRevenueAllTimeLabel, totalRevenueBookingsLabel: totalRevenueBookingsLabel, totalRevenueValueStyle: totalRevenueValueStyle,
+      dashboardRevenueVehicleOptions: dashboardRevenueVehicleOptions, dashboardRevenueVehicle: s.dashboardRevenueVehicle, setDashboardRevenueVehicle: this.setDashboardRevenueVehicle,
       detail: detailTr, detailAlreadyInvoiced: detailAlreadyInvoiced, detailNotInvoiced: !detailAlreadyInvoiced,
       closeDetail: () => this.setState({ detail: null }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
