@@ -23,9 +23,7 @@ html{overflow-x:hidden}
 @media print{
   body *{visibility:hidden}
   .print-invoice,.print-invoice *{visibility:visible}
-  .modal-backdrop{position:static!important;background:none!important;padding:0!important;display:block!important}
-  .modal-panel{position:static!important;overflow:visible!important;max-height:none!important;width:auto!important;box-shadow:none!important;border-radius:0!important}
-  .print-invoice{position:static!important;width:100%}
+  .print-invoice{position:fixed!important;top:0!important;left:0!important;width:100%!important;max-height:none!important;overflow:visible!important}
   .no-print{display:none!important}
 }
 @keyframes dcSpin{to{transform:rotate(360deg)}}
