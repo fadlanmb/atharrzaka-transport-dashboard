@@ -618,6 +618,9 @@ html{overflow-x:hidden}
 <sc-if value="{{ noFreeDrivers }}" hint-placeholder-val="{{ true }}">
 <div style="margin-top:14px;font-size:11.5px;color:rgba(255,255,255,.6)">{{ L.noFreeDrivers }}</div>
 </sc-if>
+<sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ assignSelfDrive }}" style="margin-top:10px;text-align:center;font-size:10.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:7px;padding:9px 10px;cursor:pointer">{{ L.selfDriveAction }}</div>
+</sc-if>
 </sc-if>
 <sc-if value="{{ noUnassignedTrip }}" hint-placeholder-val="{{ true }}">
 <div style="margin-top:9px;font-size:12.5px;color:rgba(255,255,255,.8)">{{ L.allTripsAssigned }}</div>
@@ -1845,6 +1848,7 @@ const STR = {
   allTimeLabel: { en: "All-time", id: "Sepanjang waktu" },
   needsAttention: { en: "Needs attention", id: "Perlu perhatian" },
   assignAction: { en: "Assign", id: "Tugaskan" },
+  selfDriveAction: { en: "Self-drive (no driver)", id: "Lepas kunci (tanpa pengemudi)" },
   bookAction: { en: "Book", id: "Pesan" },
   remindAction: { en: "Remind", id: "Ingatkan" },
   nextPickups: { en: "NEXT PICKUPS", id: "JEMPUT BERIKUTNYA" },
@@ -1998,6 +2002,7 @@ function getSupabase() {
 }
 
 const TABLE_NAMES = { booking: "bookings", fleet: "fleet", driver: "drivers", customer: "customers", invoice: "invoices", maintenance: "maintenance", expense: "expenses" };
+const SELF_DRIVE_DRIVER = "Self-drive";
 const FLEET_STATUS_OPTIONS = ["Available", "In service"];
 const RATE_UNIT_OPTIONS = ["Hour", "Day", "Week", "Month"];
 const SERVICE_TYPE_OPTIONS = ["Airport transfer", "Corporate charter", "Wedding & event", "Tour package", "Individual"];
@@ -2144,6 +2149,7 @@ const WORD_MAP_ID = {
   "yrs": "thn",
   "Aug": "Agu",
   "AUG": "AGU",
+  "Self-drive": "Lepas kunci",
   "Maintenance": "Perawatan",
   "Fuel": "Bahan Bakar",
   "Salary": "Gaji",
@@ -2923,20 +2929,30 @@ class Component extends DCLogic {
     const numPart = String(inv.no || "").replace(/^[A-Za-z]+-?/, "");
     const fileName = "ARZ-" + (numPart || "0000");
     const el = document.querySelector(".print-invoice");
+    const fallbackPrint = () => {
+      const prevTitle = document.title;
+      document.title = fileName;
+      window.print();
+      setTimeout(() => { document.title = prevTitle; }, 500);
+    };
     if (window.html2pdf && el) {
-      window.html2pdf().set({
-        margin: 0,
-        filename: fileName + ".pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-      }).from(el).save();
+      const runCapture = () => {
+        window.html2pdf().set({
+          margin: 0,
+          filename: fileName + ".pdf",
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: -window.scrollY },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        }).from(el).save().catch(fallbackPrint);
+      };
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(runCapture).catch(runCapture);
+      } else {
+        runCapture();
+      }
       return;
     }
-    const prevTitle = document.title;
-    document.title = fileName;
-    window.print();
-    setTimeout(() => { document.title = prevTitle; }, 500);
+    fallbackPrint();
   };
   openSettings = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
@@ -3413,6 +3429,7 @@ class Component extends DCLogic {
     }));
     const hasFreeDrivers = freeDriverSuggestions.length > 0;
     const noFreeDrivers = !hasFreeDrivers;
+    const assignSelfDrive = hasUnassignedTrip ? (() => this.assignDriverToTrip(unassignedTripBooking.id, SELF_DRIVE_DRIVER)) : (() => {});
     const SHIFT_WINDOWS = [
       { labelKey: "shiftMorning", start: 6 * 60, end: 14 * 60 },
       { labelKey: "shiftAfternoon", start: 14 * 60, end: 22 * 60 },
@@ -3501,7 +3518,7 @@ class Component extends DCLogic {
     const detailAlreadyInvoiced = !!(s.detail && s.invoices.some((i) => i.booking_ref === s.detail.ref));
     const detailDiscountNum = s.detail ? Math.max(0, parseAmount(s.detail.base) - parseAmount(s.detail.amount)) : 0;
     const detailCreatedLabel = s.detail && s.detail.created_at ? (lang === "id" ? "dibuat " : "created ") + formatCreatedAt(s.detail.created_at, lang) : "";
-    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone, hasDiscount: detailDiscountNum > 0, discountLabel: formatRupiah(detailDiscountNum), createdLabel: detailCreatedLabel }) : null;
+    const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driver: trWords(s.detail.driver, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone, hasDiscount: detailDiscountNum > 0, discountLabel: formatRupiah(detailDiscountNum), createdLabel: detailCreatedLabel }) : null;
     const canCompleteTrip = isDriverRole && !!s.detail && (s.detail.status === "Confirmed" || s.detail.status === "Dikonfirmasi");
 
     const fleetComputedStatuses = s.fleet.map((v) => computedFleetStatus(v, s.bookings));
@@ -3853,7 +3870,7 @@ class Component extends DCLogic {
       return {
         time: extractTimeHHMM(b.time),
         line1: b.customer,
-        line2: vehicleWithPlate + (b.driver && b.driver !== "Unassigned" ? " · " + b.driver : ""),
+        line2: vehicleWithPlate + (b.driver && b.driver !== "Unassigned" ? " · " + trWords(b.driver, lang) : ""),
         showDivider: i < upcomingRaw.length - 1
       };
     });
@@ -4092,6 +4109,7 @@ class Component extends DCLogic {
       hasUnassignedTrip: hasUnassignedTrip, noUnassignedTrip: noUnassignedTrip,
       unassignedTripLabel: unassignedTripLabel, unassignedTripSub: unassignedTripSub,
       freeDriverSuggestions: freeDriverSuggestions, hasFreeDrivers: hasFreeDrivers, noFreeDrivers: noFreeDrivers,
+      assignSelfDrive: assignSelfDrive,
       shiftCoverageRows: shiftCoverageRows,
       corpAccountsCount: corpAccountsCount, returningRatePct: returningRatePct, outstandingLabel: outstandingLabel,
       fleetTotalCount: s.fleet.length,
