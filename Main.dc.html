@@ -6,7 +6,6 @@
 <meta name="robots" content="noindex, nofollow">
 <script src="./support.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <x-dc>
@@ -24,7 +23,9 @@ html{overflow-x:hidden}
 @media print{
   body *{visibility:hidden}
   .print-invoice,.print-invoice *{visibility:visible}
-  .print-invoice{position:absolute;top:0;left:0;width:100%}
+  .modal-backdrop{position:static!important;background:none!important;padding:0!important;display:block!important}
+  .modal-panel{position:static!important;overflow:visible!important;max-height:none!important;width:auto!important;box-shadow:none!important;border-radius:0!important}
+  .print-invoice{position:static!important;width:100%}
   .no-print{display:none!important}
 }
 @keyframes dcSpin{to{transform:rotate(360deg)}}
@@ -2928,59 +2929,10 @@ class Component extends DCLogic {
     const inv = this.state.printInvoice || {};
     const numPart = String(inv.no || "").replace(/^[A-Za-z]+-?/, "");
     const fileName = "ARZ-" + (numPart || "0000");
-    const el = document.querySelector(".print-invoice");
-    let settled = false;
-    const fallbackPrint = () => {
-      if (settled) return;
-      settled = true;
-      const prevTitle = document.title;
-      document.title = fileName;
-      window.print();
-      setTimeout(() => { document.title = prevTitle; }, 500);
-    };
-    const canvasLooksBlank = (canvas) => {
-      const w = canvas.width, h = canvas.height;
-      if (!w || !h) return true;
-      const ctx = canvas.getContext("2d");
-      const sampleRows = 12;
-      let nonWhite = 0;
-      for (let r = 0; r < sampleRows; r++) {
-        const y = Math.floor((h - 1) * (r / (sampleRows - 1)));
-        const row = ctx.getImageData(0, y, w, 1).data;
-        for (let x = 0; x < row.length; x += 4) {
-          if (row[x] < 250 || row[x + 1] < 250 || row[x + 2] < 250) { nonWhite++; break; }
-        }
-      }
-      return nonWhite === 0;
-    };
-    if (window.html2pdf && el) {
-      const runCapture = () => {
-        const worker = window.html2pdf().set({
-          margin: 0,
-          filename: fileName + ".pdf",
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: -window.scrollY },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-        }).from(el);
-        const captureTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 9000));
-        Promise.race([worker.toCanvas(), captureTimeout])
-          .then(() => worker.get("canvas"))
-          .then((canvas) => {
-            if (settled) return;
-            if (canvasLooksBlank(canvas)) { fallbackPrint(); return; }
-            settled = true;
-            worker.toPdf().save();
-          })
-          .catch(fallbackPrint);
-      };
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(runCapture).catch(runCapture);
-      } else {
-        runCapture();
-      }
-      return;
-    }
-    fallbackPrint();
+    const prevTitle = document.title;
+    document.title = fileName;
+    window.print();
+    setTimeout(() => { document.title = prevTitle; }, 500);
   };
   openSettings = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
