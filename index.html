@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <script src="./support.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <x-dc>
@@ -2995,10 +2996,73 @@ class Component extends DCLogic {
     const inv = this.state.printInvoice || {};
     const numPart = String(inv.no || "").replace(/^[A-Za-z]+-?/, "");
     const fileName = "ARZ-" + (numPart || "0000");
-    const prevTitle = document.title;
-    document.title = fileName;
-    window.print();
-    setTimeout(() => { document.title = prevTitle; }, 500);
+    const el = document.querySelector(".print-invoice");
+    const fallbackPrint = () => {
+      const prevTitle = document.title;
+      document.title = fileName;
+      window.print();
+      setTimeout(() => { document.title = prevTitle; }, 500);
+    };
+    if (!window.html2pdf || !el) { fallbackPrint(); return; }
+    const sidebar = document.querySelector(".sidebar");
+    const mainWrap = document.querySelector(".main-content-wrap");
+    const prevSidebarDisplay = sidebar ? sidebar.style.display : "";
+    const prevMainDisplay = mainWrap ? mainWrap.style.display : "";
+    let restored = false;
+    const restore = () => {
+      if (restored) return;
+      restored = true;
+      if (sidebar) sidebar.style.display = prevSidebarDisplay;
+      if (mainWrap) mainWrap.style.display = prevMainDisplay;
+    };
+    if (sidebar) sidebar.style.display = "none";
+    if (mainWrap) mainWrap.style.display = "none";
+    let settled = false;
+    const doFallback = () => {
+      if (settled) return;
+      settled = true;
+      restore();
+      fallbackPrint();
+    };
+    const canvasLooksBlank = (canvas) => {
+      const w = canvas.width, h = canvas.height;
+      if (!w || !h) return true;
+      const ctx = canvas.getContext("2d");
+      const sampleRows = 12;
+      let nonWhite = 0;
+      for (let r = 0; r < sampleRows; r++) {
+        const y = Math.floor((h - 1) * (r / (sampleRows - 1)));
+        const row = ctx.getImageData(0, y, w, 1).data;
+        for (let x = 0; x < row.length; x += 4) {
+          if (row[x] < 250 || row[x + 1] < 250 || row[x + 2] < 250) { nonWhite++; break; }
+        }
+      }
+      return nonWhite === 0;
+    };
+    const runCapture = () => {
+      const worker = window.html2pdf().set({
+        margin: 0,
+        filename: fileName + ".pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+      }).from(el);
+      const captureTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 9000));
+      Promise.race([worker.toCanvas(), captureTimeout])
+        .then(() => worker.get("canvas"))
+        .then((canvas) => {
+          if (settled) return;
+          if (canvasLooksBlank(canvas)) { doFallback(); return; }
+          settled = true;
+          worker.toPdf().save().then(restore).catch(restore);
+        })
+        .catch(doFallback);
+    };
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(runCapture).catch(runCapture);
+    } else {
+      runCapture();
+    }
   };
   openSettings = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
