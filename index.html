@@ -21,10 +21,12 @@ select{max-width:100%}
 input[type=date]{min-width:0;max-width:100%}
 html{overflow-x:hidden}
 @media print{
-  body *{visibility:hidden}
-  .print-invoice,.print-invoice *{visibility:visible}
-  .print-invoice{position:fixed!important;top:0!important;left:0!important;width:100%!important;max-height:none!important;overflow:visible!important}
+  .sidebar,.main-content-wrap{display:none!important}
   .no-print{display:none!important}
+  .app-shell{display:block!important}
+  .modal-backdrop{display:block!important;position:static!important;background:none!important;padding:0!important;width:100%!important}
+  .modal-panel{display:block!important;position:static!important;overflow:visible!important;max-height:none!important;width:auto!important;box-shadow:none!important;border-radius:0!important}
+  .print-invoice{position:static!important;width:100%!important}
 }
 @keyframes dcSpin{to{transform:rotate(360deg)}}
 @keyframes dcFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -224,7 +226,7 @@ html{overflow-x:hidden}
 
 </div>
 
-<div style="flex:1;min-width:0;display:flex;flex-direction:column">
+<div class="main-content-wrap" style="flex:1;min-width:0;display:flex;flex-direction:column">
 
 <div class="header-bar" style="display:flex;align-items:center;gap:18px;padding:18px 28px;background:#fff;border-bottom:1px solid rgba(89,50,3,.09);position:sticky;top:0;z-index:20">
 <div class="page-title-wrap">
@@ -1556,6 +1558,7 @@ Jl. KH Tubagus Abdullah RT/RW. 002/001, Sukaasih, Purbaratu.<br>
 Tasikmalaya, Jawa Barat. 46115<br>
 atharrazkatransport@gmail.com / +62 813 956 3210
 </div>
+<sc-if value="{{ printInvoice.noItems }}" hint-placeholder-val="{{ true }}">
 <div style="border-bottom:1px solid rgba(89,50,3,.2);padding:0 0 8px;display:flex;font-size:10.5px;font-weight:600;letter-spacing:.05em;color:rgba(24,24,24,.5);margin-bottom:10px">
 <div style="flex:1.5">{{ L.invoiceVehicleLabel }}</div>
 <div style="flex:1;text-align:right">{{ L.invoiceDurationLabel }}</div>
@@ -1568,6 +1571,20 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 <div style="flex:1;text-align:right;color:rgba(24,24,24,.65)">{{ printInvoice.pricePerDayLabel }}</div>
 <div style="width:130px;text-align:right;font-weight:600">{{ printInvoice.subtotalLabel }}</div>
 </div>
+</sc-if>
+<sc-if value="{{ printInvoice.hasItems }}" hint-placeholder-val="{{ false }}">
+<div style="border-bottom:1px solid rgba(89,50,3,.2);padding:0 0 8px;display:flex;font-size:10.5px;font-weight:600;letter-spacing:.05em;color:rgba(24,24,24,.5);margin-bottom:10px">
+<div style="flex:1">{{ L.fldDescription }}</div>
+<div style="width:130px;text-align:right">{{ L.fldNominal }}</div>
+</div>
+<sc-for list="{{ printInvoice.items }}" as="pit" hint-placeholder-count="2">
+<div style="display:flex;font-size:12.5px;padding:6px 0">
+<div style="flex:1">{{ pit.description }}</div>
+<div style="width:130px;text-align:right;font-weight:600">{{ pit.amountLabel }}</div>
+</div>
+</sc-for>
+<div style="padding-bottom:20px"></div>
+</sc-if>
 <div style="display:flex;justify-content:space-between">
 <div style="font-size:11px;color:rgba(24,24,24,.6);line-height:1.7">
 <div style="font-weight:600;color:#181818">{{ L.billToLabel }}</div>
@@ -1635,6 +1652,29 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 </div>
 </sc-for>
 </div>
+<sc-if value="{{ isInvoiceFormType }}" hint-placeholder-val="{{ false }}">
+<div class="wizard-pad" style="padding:4px 26px 22px;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55)">{{ L.invoiceItemsSectionLabel }}</div>
+<div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ L.invoiceItemsHint }}</div>
+<sc-for list="{{ invoiceItems }}" as="it" hint-placeholder-count="2">
+<div style="display:flex;gap:8px;align-items:flex-end">
+<div style="flex:1;min-width:0">
+<div style="font-size:10px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:5px">{{ L.fldDescription }}</div>
+<input value="{{ it.description }}" onChange="{{ it.setDescription }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:9px 10px;font-size:12px;font-family:inherit">
+</div>
+<div style="width:130px;flex:none">
+<div style="font-size:10px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:5px">{{ L.fldNominal }}</div>
+<input value="{{ it.amount }}" onChange="{{ it.setAmount }}" placeholder="0" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:9px 10px;font-size:12px;font-family:inherit">
+</div>
+<div onClick="{{ it.remove }}" style="flex:none;color:#a8471f;cursor:pointer;padding:9px 2px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</div>
+</sc-for>
+<div onClick="{{ addInvoiceItem }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.addItemBtn }}</div>
+<sc-if value="{{ hasInvoiceItemRows }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;font-size:12.5px;font-weight:600;padding-top:4px;border-top:1px solid rgba(89,50,3,.1)"><span>{{ L.invoiceItemsTotalLabel }}</span><span style="margin-left:auto">{{ invoiceItemsTotalLabel }}</span></div>
+</sc-if>
+</div>
+</sc-if>
 <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
 <div style="padding:0 26px 14px;font-size:11px;color:#a8471f">{{ formError }}</div>
 </sc-if>
@@ -1717,6 +1757,10 @@ const STR = {
   settingsPasswordTooShort: { en: "Password must be at least 6 characters.", id: "Kata sandi minimal 6 karakter." },
   invoiceDpExceedsError: { en: "Down payment cannot exceed the subtotal.", id: "Uang muka tidak boleh melebihi subtotal." },
   invoiceReceivedExceedsError: { en: "Received payment cannot exceed the subtotal.", id: "Pembayaran diterima tidak boleh melebihi subtotal." },
+  invoiceItemsSectionLabel: { en: "Line items (optional)", id: "Rincian item (opsional)" },
+  invoiceItemsHint: { en: "Add one or more descriptions to break down this invoice — the subtotal will be the sum of these items.", id: "Tambahkan satu atau lebih deskripsi untuk merinci faktur ini — subtotal akan menjadi jumlah dari item-item ini." },
+  invoiceItemsRequiredError: { en: "Fill in description and nominal for every line item.", id: "Isi deskripsi dan nominal untuk setiap rincian item." },
+  invoiceItemsTotalLabel: { en: "Items total", id: "Total item" },
   formRequiredFieldsError: { en: "Please fill in all required fields.", id: "Mohon lengkapi semua kolom yang wajib diisi." },
   settingsSavedMsg: { en: "Saved.", id: "Tersimpan." },
   formTitleAddBooking: { en: "Add booking", id: "Tambah pemesanan" },
@@ -2515,6 +2559,7 @@ class Component extends DCLogic {
     showTripRequest: false, tripRequestForm: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
     showSettings: false, settingsName: "", settingsAvatar: "", settingsNewPassword: "", settingsConfirmPassword: "", settingsError: "", settingsSaved: false,
     showCompleteService: false, completeServiceId: null, completeServiceItems: [], completeServiceError: "",
+    invoiceItems: [],
     showCompleteTrip: false, completeTripOdometer: "", completeTripError: "",
     editingBookingId: null,
     showInvoicePrint: false, printInvoice: null
@@ -2771,15 +2816,26 @@ class Component extends DCLogic {
     const defs = FIELD_DEFS[type];
     const values = {};
     defs.forEach((f) => { values[f.key] = row && row[f.key] != null ? String(row[f.key]) : ""; });
+    const invoiceItems = type === "invoice" && Array.isArray(row && row.items) ? row.items : [];
     if (type === "invoice") {
       values.issued = row && row.issued ? displayDateToISO(row.issued) : new Date().toISOString().slice(0, 10);
     }
-    this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "" });
+    this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "", invoiceItems: invoiceItems });
     if (type === "invoice" && mode === "add") {
       this.nextInvoiceNo().then((no) => {
         this.setState((p) => ({ formValues: Object.assign({}, p.formValues, { no: no }) }));
       });
     }
+  };
+  addInvoiceItem = () => {
+    this.setState((p) => ({ invoiceItems: p.invoiceItems.concat([{ description: "", amount: "" }]) }));
+  };
+  removeInvoiceItem = (idx) => () => {
+    this.setState((p) => ({ invoiceItems: p.invoiceItems.filter((_, i) => i !== idx) }));
+  };
+  setInvoiceItemField = (idx, key) => (e) => {
+    const v = key === "amount" ? formatRupiahTyping(e.target.value) : e.target.value;
+    this.setState((p) => ({ invoiceItems: p.invoiceItems.map((it, i) => i === idx ? Object.assign({}, it, { [key]: v }) : it) }));
   };
   closeForm = () => this.setState({ showForm: false });
   setFormField = (key) => (e) => {
@@ -2824,6 +2880,15 @@ class Component extends DCLogic {
     const missingRequired = defs.some((f) => f.required && f.type !== "file" && !String(payload[f.key] || "").trim());
     if (missingRequired) { this.setState({ formError: STR.formRequiredFieldsError[lang] }); return; }
     if (s.formType === "invoice") {
+      const items = s.invoiceItems.filter((it) => it.description || it.amount);
+      const itemsInvalid = items.some((it) => !it.description || !parseAmount(it.amount));
+      if (itemsInvalid) { this.setState({ formError: STR.invoiceItemsRequiredError[lang] }); return; }
+      if (items.length) {
+        payload.subtotal = formatRupiah(items.reduce((sum, it) => sum + parseAmount(it.amount), 0));
+        payload.items = items;
+      } else {
+        payload.items = null;
+      }
       const subtotalNum = parseAmount(payload.subtotal);
       const dpNum = parseAmount(payload.down_payment);
       const receivedNum = parseAmount(payload.receive_payment);
@@ -2910,6 +2975,8 @@ class Component extends DCLogic {
     const hours = booking ? (parseFloat(durationLabelToHours(booking.duration)) || 24) : 24;
     const days = Math.max(1, Math.ceil(hours / 24));
     const pricePerDayNum = days > 0 ? Math.round(computed.subtotalNum / days) : computed.subtotalNum;
+    const hasItems = Array.isArray(invoice.items) && invoice.items.length > 0;
+    const printItems = hasItems ? invoice.items.map((it) => ({ description: it.description, amountLabel: formatRupiah(parseAmount(it.amount)) })) : [];
     this.setState({
       showInvoicePrint: true,
       printInvoice: Object.assign({}, invoice, {
@@ -2918,7 +2985,8 @@ class Component extends DCLogic {
         downPaymentLabel: formatRupiah(computed.dpNum), receivePaymentLabel: formatRupiah(computed.receivedNum),
         balanceDueLabel: formatRupiah(computed.balanceDueNum),
         vehicleName: vehicleName, rentalDaysLabel: days + " " + STR.invoiceDaysUnit[lang],
-        pricePerDayLabel: formatRupiah(pricePerDayNum)
+        pricePerDayLabel: formatRupiah(pricePerDayNum),
+        hasItems: hasItems, noItems: !hasItems, items: printItems
       })
     });
   };
@@ -3876,10 +3944,16 @@ class Component extends DCLogic {
     const fleetDaysSubLabel = CHART_RANGE_SUB[s.fleetDaysRange][lang];
     const hasFleetDaysRows = fleetDaysRows.length > 0;
 
+    const isInvoiceFormType = s.formType === "invoice";
+    const invoiceItemsActive = isInvoiceFormType ? s.invoiceItems.filter((it) => it.description || it.amount) : [];
+    const invoiceItemsTotalNum = invoiceItemsActive.reduce((sum, it) => sum + parseAmount(it.amount), 0);
+    const hasInvoiceItemsActive = invoiceItemsActive.length > 0;
+
     const formDefs = s.formType ? FIELD_DEFS[s.formType] : [];
     const formFields = formDefs.map((f) => {
       const type = f.type || "text";
-      const value = s.formValues[f.key] || "";
+      let value = s.formValues[f.key] || "";
+      if (isInvoiceFormType && f.key === "subtotal" && hasInvoiceItemsActive) value = formatRupiah(invoiceItemsTotalNum);
       const fld = {
         label: STR[f.labelKey][lang], value: value, required: !!f.required, placeholder: f.placeholder || "",
         onChange: type === "file" ? this.setFormPhotoField(f.key) : this.setFormField(f.key),
@@ -3904,6 +3978,13 @@ class Component extends DCLogic {
       return fld;
     });
     const formTitle = s.formType ? STR["formTitle" + (s.formMode === "add" ? "Add" : "Edit") + TYPE_SUFFIX[s.formType]][lang] : "";
+    const invoiceItemsTr = s.invoiceItems.map((it, idx) => Object.assign({}, it, {
+      setDescription: this.setInvoiceItemField(idx, "description"),
+      setAmount: this.setInvoiceItemField(idx, "amount"),
+      remove: this.removeInvoiceItem(idx)
+    }));
+    const hasInvoiceItemRows = invoiceItemsTr.length > 0;
+    const invoiceItemsTotalLabel = formatRupiah(invoiceItemsTotalNum);
 
     const pickupTimeOptions = TIME_OPTIONS.map((t) => ({ value: t, label: t }));
     const passengerOptions = PASSENGER_OPTIONS.map((p) => ({ value: p, label: p + " " + L.seatsWord }));
@@ -4196,6 +4277,9 @@ class Component extends DCLogic {
       addExpense: () => this.openFormFor("expense", "add", null),
       showForm: s.showForm, closeForm: this.closeForm, saveForm: this.saveForm,
       formTitle: formTitle, formFields: formFields, formError: s.formError,
+      isInvoiceFormType: isInvoiceFormType, invoiceItems: invoiceItemsTr, hasInvoiceItemRows: hasInvoiceItemRows,
+      noInvoiceItemRows: !hasInvoiceItemRows, addInvoiceItem: this.addInvoiceItem,
+      invoiceItemsTotalLabel: invoiceItemsTotalLabel, hasInvoiceItemsActive: hasInvoiceItemsActive,
 
       confirmDelete: s.confirmDelete, cancelDeleteConfirm: this.cancelDeleteConfirm, confirmDeleteNow: this.confirmDeleteNow
     };
