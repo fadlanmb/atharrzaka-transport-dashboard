@@ -758,7 +758,13 @@ html{overflow-x:hidden}
 </div>
 <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="5">
 <div class="tbl-min" style="display:grid;grid-template-columns:1fr 1.4fr 1fr 1fr .8fr .9fr;gap:12px;padding:14px 4px;align-items:center;font-size:12px;border-bottom:1px solid rgba(89,50,3,.06)">
-<div style="font-weight:500;color:#824703">{{ i.no }}</div><div>{{ i.account }}</div><div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
+<div style="font-weight:500;color:#824703">{{ i.no }}</div>
+<div>{{ i.account }}
+<sc-if value="{{ i.hasVehicleTag }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:9.5px;color:rgba(24,24,24,.4);margin-top:3px">{{ i.vehicleTagLabel }}</div>
+</sc-if>
+</div>
+<div style="color:rgba(24,24,24,.6)">{{ i.issued }}</div>
 <div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;{{ i.statusStyle }}">{{ i.statusLabel }}</span>
 <sc-if value="{{ i.hasSupersededByLabel }}" hint-placeholder-val="{{ false }}">
 <div style="font-size:9.5px;color:rgba(24,24,24,.4);margin-top:3px">{{ i.supersededByLabel }}</div>
@@ -2146,6 +2152,7 @@ const FIELD_DEFS = {
   ],
   invoice: [
     { key: "no", labelKey: "fldNo" }, { key: "account", labelKey: "fldAccount" },
+    { key: "vehicle", labelKey: "fldVehicle", type: "select" },
     { key: "issued", labelKey: "fldIssued", type: "date", required: true },
     { key: "subtotal", labelKey: "fldSubtotal" }, { key: "discount", labelKey: "fldDiscount" },
     { key: "down_payment", labelKey: "fldDownPayment" }, { key: "receive_payment", labelKey: "fldReceivePayment" }
@@ -3162,7 +3169,7 @@ class Component extends DCLogic {
   openInvoicePrint = (invoice, computed) => {
     const lang = this.state.lang;
     const booking = this.state.bookings.find((b) => b.ref === invoice.booking_ref);
-    const vehicleName = booking ? booking.vehicle : "-";
+    const vehicleName = booking ? booking.vehicle : (invoice.vehicle || "-");
     const hours = booking ? (parseFloat(durationLabelToHours(booking.duration)) || 24) : 24;
     const days = Math.max(1, Math.ceil(hours / 24));
     const pricePerDayNum = days > 0 ? Math.round(computed.subtotalNum / days) : computed.subtotalNum;
@@ -3712,6 +3719,7 @@ class Component extends DCLogic {
         issued: trWords(i.issued, lang), issuedISO: issuedISO,
         statusKey: statusKey, statusLabel: statusLabel, statusStyle: invoicePaymentStatusStyle(statusKey),
         supersededByLabel: supersededByLabel, hasSupersededByLabel: !!supersededByLabel,
+        hasVehicleTag: !!i.vehicle, vehicleTagLabel: i.vehicle || "",
         balanceDueNum: balanceDueNum, balanceDueLabel: formatRupiah(balanceDueNum),
         subtotalLabel: formatRupiah(subtotalNum), discountLabel: formatRupiah(discountNum),
         downPaymentLabel: formatRupiah(dpNum), receivePaymentLabel: formatRupiah(receivedNum),
@@ -3867,8 +3875,11 @@ class Component extends DCLogic {
       const latest = invs.reduce((a, c) => (new Date(c.created_at) > new Date(a.created_at) ? c : a));
       return parseAmount(latest.down_payment) + parseAmount(latest.receive_payment);
     };
+    const paidAmountForInvoice = (i) => parseAmount(i.down_payment) + parseAmount(i.receive_payment);
+    const standaloneInvoices = s.invoices.filter((i) => !i.booking_ref && !i.voided);
     const monthStartCutoff = new Date(monthStart.getTime() - 1);
-    const revenueMonthNum = s.bookings.reduce((sum, b) => sum + Math.max(0, paidAmountForBooking(b) - paidAmountAsOf(b, monthStartCutoff)), 0);
+    const revenueMonthNum = s.bookings.reduce((sum, b) => sum + Math.max(0, paidAmountForBooking(b) - paidAmountAsOf(b, monthStartCutoff)), 0)
+      + standaloneInvoices.filter((i) => i.created_at && new Date(i.created_at) >= monthStart).reduce((sum, i) => sum + paidAmountForInvoice(i), 0);
     const revenueMonthLabel = formatRupiah(revenueMonthNum);
     const expensesTr = s.expenses.map((ex) => Object.assign({}, ex, {
       categoryLabel: trWords(ex.category, lang),
@@ -3885,18 +3896,22 @@ class Component extends DCLogic {
     const dashboardNetRevenueNum = revenueMonthNum - expensesMonthNum;
     const dashboardNetRevenueLabel = formatRupiah(dashboardNetRevenueNum);
     const totalExpensesAllNum = s.expenses.reduce((sum, ex) => sum + parseAmount(ex.amount), 0);
-    const totalPaidAllTimeNum = s.bookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0);
+    const totalPaidAllTimeNum = s.bookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0)
+      + standaloneInvoices.reduce((sum, i) => sum + paidAmountForInvoice(i), 0);
     const companyBalanceNum = totalPaidAllTimeNum - totalExpensesAllNum;
     const companyBalanceLabel = formatRupiah(companyBalanceNum);
     const dashboardRevenueVehicleOptions = [{ value: "all", label: L.allVehiclesFilter }].concat(
       s.fleet.map((v) => ({ value: v.name, label: v.name }))
     );
     const dashboardVehicleBookings = s.dashboardRevenueVehicle === "all" ? s.bookings : s.bookings.filter((b) => b.vehicle === s.dashboardRevenueVehicle);
+    const dashboardVehicleStandaloneInvoices = s.dashboardRevenueVehicle === "all" ? [] : standaloneInvoices.filter((i) => i.vehicle === s.dashboardRevenueVehicle);
     const dashboardVehicleExpensesNum = s.dashboardRevenueVehicle === "all" ? 0
       : s.expenses.filter((ex) => ex.vehicle === s.dashboardRevenueVehicle).reduce((sum, ex) => sum + parseAmount(ex.amount), 0);
     const dashboardRevenueDisplayNum = s.dashboardRevenueVehicle === "all"
       ? companyBalanceNum
-      : dashboardVehicleBookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0) - dashboardVehicleExpensesNum;
+      : dashboardVehicleBookings.reduce((sum, b) => sum + paidAmountForBooking(b), 0)
+        + dashboardVehicleStandaloneInvoices.reduce((sum, i) => sum + paidAmountForInvoice(i), 0)
+        - dashboardVehicleExpensesNum;
     const totalRevenueAllTimeLabel = formatRupiah(dashboardRevenueDisplayNum);
     const negativeBalanceColor = "#ffb4a0";
     const totalRevenueValueStyle = "font-size:34px;font-weight:600;letter-spacing:-1px" + (dashboardRevenueDisplayNum < 0 ? ";color:" + negativeBalanceColor : "");
@@ -3950,7 +3965,8 @@ class Component extends DCLogic {
 
     const prevMonthStart = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
     const prevMonthStartCutoff = new Date(prevMonthStart.getTime() - 1);
-    const revenuePrevMonthNum = s.bookings.reduce((sum, b) => sum + Math.max(0, paidAmountAsOf(b, monthStartCutoff) - paidAmountAsOf(b, prevMonthStartCutoff)), 0);
+    const revenuePrevMonthNum = s.bookings.reduce((sum, b) => sum + Math.max(0, paidAmountAsOf(b, monthStartCutoff) - paidAmountAsOf(b, prevMonthStartCutoff)), 0)
+      + standaloneInvoices.filter((i) => i.created_at && new Date(i.created_at) >= prevMonthStart && new Date(i.created_at) < monthStart).reduce((sum, i) => sum + paidAmountForInvoice(i), 0);
     const revenueChangePct = revenuePrevMonthNum > 0
       ? Math.round(((revenueMonthNum - revenuePrevMonthNum) / revenuePrevMonthNum) * 100)
       : (revenueMonthNum > 0 ? 100 : 0);
@@ -3973,6 +3989,14 @@ class Component extends DCLogic {
           weekBuckets[idx] += delta;
         }
       });
+    });
+    standaloneInvoices.forEach((inv) => {
+      const total = paidAmountForInvoice(inv);
+      const invDate = new Date(inv.created_at);
+      if (total > 0 && invDate >= monthStart && invDate < monthEndExclusive) {
+        const idx = Math.min(4, Math.floor((invDate.getDate() - 1) / 7));
+        weekBuckets[idx] += total;
+      }
     });
     const maxWeek = Math.max(1, weekBuckets[0], weekBuckets[1], weekBuckets[2], weekBuckets[3], weekBuckets[4]);
     const revenueWeekBars = weekBuckets.map((v, i) => ({
@@ -4013,6 +4037,10 @@ class Component extends DCLogic {
     const vehicleRevenueMap = {};
     s.fleet.forEach((v) => { vehicleRevenueMap[v.name] = 0; });
     bookingsForServiceRevenue.forEach((b) => { if (vehicleRevenueMap.hasOwnProperty(b.vehicle)) vehicleRevenueMap[b.vehicle] += paidAmountForBooking(b); });
+    const standaloneInvoicesForVehicleRevenue = s.revenueServiceMonth === "all"
+      ? standaloneInvoices
+      : standaloneInvoices.filter((i) => monthKeyOf(i.created_at) === s.revenueServiceMonth);
+    standaloneInvoicesForVehicleRevenue.forEach((i) => { if (i.vehicle && vehicleRevenueMap.hasOwnProperty(i.vehicle)) vehicleRevenueMap[i.vehicle] += paidAmountForInvoice(i); });
     const expensesForVehicleRevenue = s.revenueServiceMonth === "all"
       ? s.expenses
       : s.expenses.filter((ex) => monthKeyOf(ex.expense_date) === s.revenueServiceMonth);
@@ -4166,7 +4194,7 @@ class Component extends DCLogic {
           fld.options = s.drivers.map((d) => ({ value: d.name, label: d.name }));
         } else if (f.key === "vehicle" && s.formType === "maintenance") {
           fld.options = s.fleet.map((v) => ({ value: v.name, label: v.name }));
-        } else if (f.key === "vehicle" && s.formType === "expense") {
+        } else if (f.key === "vehicle" && (s.formType === "expense" || s.formType === "invoice")) {
           fld.options = [{ value: "", label: lang === "id" ? "— Umum, bukan khusus 1 mobil —" : "— General, not vehicle-specific —" }]
             .concat(s.fleet.map((v) => ({ value: v.name, label: v.name })));
         } else {
