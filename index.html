@@ -3039,7 +3039,7 @@ class Component extends DCLogic {
       }
       return nonWhite === 0;
     };
-    const runCapture = () => {
+    const attemptCapture = () => {
       const worker = window.html2pdf().set({
         margin: 0,
         filename: fileName + ".pdf",
@@ -3047,22 +3047,33 @@ class Component extends DCLogic {
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
       }).from(el);
-      const captureTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 9000));
-      Promise.race([worker.toCanvas(), captureTimeout])
+      const captureTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000));
+      return Promise.race([worker.toCanvas(), captureTimeout])
         .then(() => worker.get("canvas"))
         .then((canvas) => {
+          if (canvasLooksBlank(canvas)) throw new Error("blank");
+          return worker;
+        });
+    };
+    const runCapture = () => {
+      attemptCapture()
+        .catch(() => attemptCapture())
+        .then((worker) => {
           if (settled) return;
-          if (canvasLooksBlank(canvas)) { doFallback(); return; }
           settled = true;
           worker.toPdf().save().then(restore).catch(restore);
         })
         .catch(doFallback);
     };
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(runCapture).catch(runCapture);
-    } else {
-      runCapture();
-    }
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(runCapture).catch(runCapture);
+        } else {
+          runCapture();
+        }
+      }, 60);
+    });
   };
   openSettings = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
