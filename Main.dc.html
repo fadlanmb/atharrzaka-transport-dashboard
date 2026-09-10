@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <script src="./support.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <x-dc>
@@ -1607,8 +1608,11 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 <div style="font-weight:600;color:#181818">Atharrazka Transport</div>
 </div>
 </div>
-<div class="no-print" style="padding:16px 22px;border-top:1px solid rgba(89,50,3,.09);display:flex;justify-content:flex-end">
-<div onClick="{{ triggerPrint }}" style="font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:11px 20px;cursor:pointer">{{ L.printDownloadBtn }}</div>
+<div class="no-print" style="padding:16px 22px;border-top:1px solid rgba(89,50,3,.09);display:flex;align-items:center;justify-content:flex-end;gap:12px">
+<sc-if value="{{ pdfError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;color:#a8471f;margin-right:auto">{{ pdfError }}</div>
+</sc-if>
+<div onClick="{{ triggerPrint }}" style="{{ printDownloadBtnStyle }}">{{ printDownloadBtnLabel }}</div>
 </div>
 </div>
 </div>
@@ -1806,6 +1810,8 @@ const STR = {
   balanceDueTitle: { en: "Balance Due", id: "Sisa Tagihan" },
   regardsLabel: { en: "Regards,", id: "Hormat kami," },
   printDownloadBtn: { en: "Save PDF", id: "Simpan PDF" },
+  printDownloadBtnBusy: { en: "Preparing PDF…", id: "Menyiapkan PDF…" },
+  printDownloadError: { en: "Could not generate the PDF. Please try again.", id: "Gagal membuat PDF. Silakan coba lagi." },
   fldFrom: { en: "From", id: "Dari" },
   fldTo: { en: "To", id: "Ke" },
   fldEta: { en: "ETA", id: "Estimasi tiba" },
@@ -2562,7 +2568,7 @@ class Component extends DCLogic {
     invoiceItems: [],
     showCompleteTrip: false, completeTripOdometer: "", completeTripError: "",
     editingBookingId: null,
-    showInvoicePrint: false, printInvoice: null
+    showInvoicePrint: false, printInvoice: null, savingPdf: false, pdfError: ""
   };
 
   componentDidMount() {
@@ -2990,15 +2996,26 @@ class Component extends DCLogic {
       })
     });
   };
-  closeInvoicePrint = () => this.setState({ showInvoicePrint: false });
+  closeInvoicePrint = () => this.setState({ showInvoicePrint: false, savingPdf: false, pdfError: "" });
   triggerPrint = () => {
+    if (this.state.savingPdf) return;
     const inv = this.state.printInvoice || {};
     const numPart = String(inv.no || "").replace(/^[A-Za-z]+-?/, "");
     const fileName = "ARZ-" + (numPart || "0000");
-    const prevTitle = document.title;
-    document.title = fileName;
-    window.print();
-    setTimeout(() => { document.title = prevTitle; }, 500);
+    const el = document.querySelector(".print-invoice");
+    if (!window.html2pdf || !el) return;
+    this.setState({ savingPdf: true, pdfError: "" });
+    const worker = window.html2pdf().set({
+      margin: 0,
+      filename: fileName + ".pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    }).from(el);
+    const captureTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 45000));
+    Promise.race([worker.save(), captureTimeout])
+      .then(() => { this.setState({ savingPdf: false }); })
+      .catch(() => { this.setState({ savingPdf: false, pdfError: STR.printDownloadError[this.state.lang] }); });
   };
   openSettings = () => {
     if (!this.state.session) { this.setState({ showLogin: true, loginError: "" }); return; }
@@ -4133,6 +4150,9 @@ class Component extends DCLogic {
       myPendingRequests: myPendingRequests, hasMyPendingRequests: hasMyPendingRequests,
       showInvoicePrint: s.showInvoicePrint, closeInvoicePrint: this.closeInvoicePrint,
       printInvoice: s.printInvoice || {}, triggerPrint: this.triggerPrint,
+      pdfError: s.pdfError,
+      printDownloadBtnLabel: s.savingPdf ? STR.printDownloadBtnBusy[lang] : L.printDownloadBtn,
+      printDownloadBtnStyle: "font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:11px 20px;cursor:pointer" + (s.savingPdf ? ";opacity:.6;pointer-events:none" : ""),
       showCompleteService: s.showCompleteService, closeCompleteService: this.closeCompleteService,
       completeServiceItems: completeServiceItemsTr, completeServiceTotalLabel: completeServiceTotalLabel,
       completeServiceError: s.completeServiceError, addCompleteItem: this.addCompleteItem,
