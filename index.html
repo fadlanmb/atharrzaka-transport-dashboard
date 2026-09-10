@@ -1679,6 +1679,29 @@ atharrazkatransport@gmail.com / +62 813 956 3210
 </sc-if>
 </div>
 </sc-if>
+<sc-if value="{{ isExpenseFormType }}" hint-placeholder-val="{{ false }}">
+<div class="wizard-pad" style="padding:4px 26px 22px;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55)">{{ L.expenseItemsSectionLabel }}</div>
+<div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ L.expenseItemsHint }}</div>
+<sc-for list="{{ expenseItems }}" as="it" hint-placeholder-count="2">
+<div style="display:flex;gap:8px;align-items:flex-end">
+<div style="flex:1;min-width:0">
+<div style="font-size:10px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:5px">{{ L.fldDescription }}</div>
+<input value="{{ it.description }}" onChange="{{ it.setDescription }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:9px 10px;font-size:12px;font-family:inherit">
+</div>
+<div style="width:130px;flex:none">
+<div style="font-size:10px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:5px">{{ L.fldNominal }}</div>
+<input value="{{ it.amount }}" onChange="{{ it.setAmount }}" placeholder="0" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:8px;padding:9px 10px;font-size:12px;font-family:inherit">
+</div>
+<div onClick="{{ it.remove }}" style="flex:none;color:#a8471f;cursor:pointer;padding:9px 2px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+</div>
+</sc-for>
+<div onClick="{{ addExpenseItem }}" style="align-self:flex-start;font-size:11.5px;font-weight:600;color:#824703;cursor:pointer">{{ L.addItemBtn }}</div>
+<sc-if value="{{ hasExpenseItemRows }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;font-size:12.5px;font-weight:600;padding-top:4px;border-top:1px solid rgba(89,50,3,.1)"><span>{{ L.invoiceItemsTotalLabel }}</span><span style="margin-left:auto">{{ expenseItemsTotalLabel }}</span></div>
+</sc-if>
+</div>
+</sc-if>
 <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
 <div style="padding:0 26px 14px;font-size:11px;color:#a8471f">{{ formError }}</div>
 </sc-if>
@@ -1765,6 +1788,9 @@ const STR = {
   invoiceItemsHint: { en: "Add one or more descriptions to break down this invoice — the subtotal will be the sum of these items.", id: "Tambahkan satu atau lebih deskripsi untuk merinci faktur ini — subtotal akan menjadi jumlah dari item-item ini." },
   invoiceItemsRequiredError: { en: "Fill in description and nominal for every line item.", id: "Isi deskripsi dan nominal untuk setiap rincian item." },
   invoiceItemsTotalLabel: { en: "Items total", id: "Total item" },
+  expenseItemsSectionLabel: { en: "Line items (optional)", id: "Rincian item (opsional)" },
+  expenseItemsHint: { en: "Add one or more descriptions to break down this expense — the amount will be the sum of these items.", id: "Tambahkan satu atau lebih deskripsi untuk merinci pengeluaran ini — nominal akan menjadi jumlah dari item-item ini." },
+  expenseItemsRequiredError: { en: "Fill in description and nominal for every line item.", id: "Isi deskripsi dan nominal untuk setiap rincian item." },
   formRequiredFieldsError: { en: "Please fill in all required fields.", id: "Mohon lengkapi semua kolom yang wajib diisi." },
   settingsSavedMsg: { en: "Saved.", id: "Tersimpan." },
   formTitleAddBooking: { en: "Add booking", id: "Tambah pemesanan" },
@@ -2700,7 +2726,7 @@ class Component extends DCLogic {
     showTripRequest: false, tripRequestForm: { customer: "", phoneCountry: "62", phone: "", serviceType: "", pickup: "", destination: "", date: "", dateISO: "", pickupTime: "", passengers: "", durationHours: "", notes: "" }, tripRequestError: "", tripRequestSent: false,
     showSettings: false, settingsName: "", settingsAvatar: "", settingsNewPassword: "", settingsConfirmPassword: "", settingsError: "", settingsSaved: false,
     showCompleteService: false, completeServiceId: null, completeServiceItems: [], completeServiceError: "",
-    invoiceItems: [],
+    invoiceItems: [], expenseItems: [],
     showCompleteTrip: false, completeTripOdometer: "", completeTripError: "",
     editingBookingId: null,
     showInvoicePrint: false, printInvoice: null, savingPdf: false, pdfError: ""
@@ -2958,10 +2984,11 @@ class Component extends DCLogic {
     const values = {};
     defs.forEach((f) => { values[f.key] = row && row[f.key] != null ? String(row[f.key]) : ""; });
     const invoiceItems = type === "invoice" && Array.isArray(row && row.items) ? row.items : [];
+    const expenseItems = type === "expense" && Array.isArray(row && row.items) ? row.items : [];
     if (type === "invoice") {
       values.issued = row && row.issued ? displayDateToISO(row.issued) : new Date().toISOString().slice(0, 10);
     }
-    this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "", invoiceItems: invoiceItems });
+    this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "", invoiceItems: invoiceItems, expenseItems: expenseItems });
     if (type === "invoice" && mode === "add") {
       this.nextInvoiceNo().then((no) => {
         this.setState((p) => ({ formValues: Object.assign({}, p.formValues, { no: no }) }));
@@ -2977,6 +3004,16 @@ class Component extends DCLogic {
   setInvoiceItemField = (idx, key) => (e) => {
     const v = key === "amount" ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ invoiceItems: p.invoiceItems.map((it, i) => i === idx ? Object.assign({}, it, { [key]: v }) : it) }));
+  };
+  addExpenseItem = () => {
+    this.setState((p) => ({ expenseItems: p.expenseItems.concat([{ description: "", amount: "" }]) }));
+  };
+  removeExpenseItem = (idx) => () => {
+    this.setState((p) => ({ expenseItems: p.expenseItems.filter((_, i) => i !== idx) }));
+  };
+  setExpenseItemField = (idx, key) => (e) => {
+    const v = key === "amount" ? formatRupiahTyping(e.target.value) : e.target.value;
+    this.setState((p) => ({ expenseItems: p.expenseItems.map((it, i) => i === idx ? Object.assign({}, it, { [key]: v }) : it) }));
   };
   closeForm = () => this.setState({ showForm: false });
   setFormField = (key) => (e) => {
@@ -3018,8 +3055,6 @@ class Component extends DCLogic {
     if (s.formType === "invoice" && payload.issued) payload.issued = isoToDisplayDate(payload.issued) || payload.issued;
     const lang = s.lang;
     const defs = FIELD_DEFS[s.formType] || [];
-    const missingRequired = defs.some((f) => f.required && f.type !== "file" && !String(payload[f.key] || "").trim());
-    if (missingRequired) { this.setState({ formError: STR.formRequiredFieldsError[lang] }); return; }
     if (s.formType === "invoice") {
       const items = s.invoiceItems.filter((it) => it.description || it.amount);
       const itemsInvalid = items.some((it) => !it.description || !parseAmount(it.amount));
@@ -3030,6 +3065,21 @@ class Component extends DCLogic {
       } else {
         payload.items = null;
       }
+    }
+    if (s.formType === "expense") {
+      const items = s.expenseItems.filter((it) => it.description || it.amount);
+      const itemsInvalid = items.some((it) => !it.description || !parseAmount(it.amount));
+      if (itemsInvalid) { this.setState({ formError: STR.expenseItemsRequiredError[lang] }); return; }
+      if (items.length) {
+        payload.amount = formatRupiah(items.reduce((sum, it) => sum + parseAmount(it.amount), 0));
+        payload.items = items;
+      } else {
+        payload.items = null;
+      }
+    }
+    const missingRequired = defs.some((f) => f.required && f.type !== "file" && !String(payload[f.key] || "").trim());
+    if (missingRequired) { this.setState({ formError: STR.formRequiredFieldsError[lang] }); return; }
+    if (s.formType === "invoice") {
       const subtotalNum = parseAmount(payload.subtotal);
       const dpNum = parseAmount(payload.down_payment);
       const receivedNum = parseAmount(payload.receive_payment);
@@ -4094,12 +4144,17 @@ class Component extends DCLogic {
     const invoiceItemsActive = isInvoiceFormType ? s.invoiceItems.filter((it) => it.description || it.amount) : [];
     const invoiceItemsTotalNum = invoiceItemsActive.reduce((sum, it) => sum + parseAmount(it.amount), 0);
     const hasInvoiceItemsActive = invoiceItemsActive.length > 0;
+    const isExpenseFormType = s.formType === "expense";
+    const expenseItemsActive = isExpenseFormType ? s.expenseItems.filter((it) => it.description || it.amount) : [];
+    const expenseItemsTotalNum = expenseItemsActive.reduce((sum, it) => sum + parseAmount(it.amount), 0);
+    const hasExpenseItemsActive = expenseItemsActive.length > 0;
 
     const formDefs = s.formType ? FIELD_DEFS[s.formType] : [];
     const formFields = formDefs.map((f) => {
       const type = f.type || "text";
       let value = s.formValues[f.key] || "";
       if (isInvoiceFormType && f.key === "subtotal" && hasInvoiceItemsActive) value = formatRupiah(invoiceItemsTotalNum);
+      if (isExpenseFormType && f.key === "amount" && hasExpenseItemsActive) value = formatRupiah(expenseItemsTotalNum);
       const fld = {
         label: STR[f.labelKey][lang], value: value, required: !!f.required, placeholder: f.placeholder || "",
         onChange: type === "file" ? this.setFormPhotoField(f.key) : this.setFormField(f.key),
@@ -4131,6 +4186,13 @@ class Component extends DCLogic {
     }));
     const hasInvoiceItemRows = invoiceItemsTr.length > 0;
     const invoiceItemsTotalLabel = formatRupiah(invoiceItemsTotalNum);
+    const expenseItemsTr = s.expenseItems.map((it, idx) => Object.assign({}, it, {
+      setDescription: this.setExpenseItemField(idx, "description"),
+      setAmount: this.setExpenseItemField(idx, "amount"),
+      remove: this.removeExpenseItem(idx)
+    }));
+    const hasExpenseItemRows = expenseItemsTr.length > 0;
+    const expenseItemsTotalLabel = formatRupiah(expenseItemsTotalNum);
 
     const pickupTimeOptions = TIME_OPTIONS.map((t) => ({ value: t, label: t }));
     const passengerOptions = PASSENGER_OPTIONS.map((p) => ({ value: p, label: p + " " + L.seatsWord }));
@@ -4429,6 +4491,9 @@ class Component extends DCLogic {
       isInvoiceFormType: isInvoiceFormType, invoiceItems: invoiceItemsTr, hasInvoiceItemRows: hasInvoiceItemRows,
       noInvoiceItemRows: !hasInvoiceItemRows, addInvoiceItem: this.addInvoiceItem,
       invoiceItemsTotalLabel: invoiceItemsTotalLabel, hasInvoiceItemsActive: hasInvoiceItemsActive,
+      isExpenseFormType: isExpenseFormType, expenseItems: expenseItemsTr, hasExpenseItemRows: hasExpenseItemRows,
+      noExpenseItemRows: !hasExpenseItemRows, addExpenseItem: this.addExpenseItem,
+      expenseItemsTotalLabel: expenseItemsTotalLabel, hasExpenseItemsActive: hasExpenseItemsActive,
 
       confirmDelete: s.confirmDelete, cancelDeleteConfirm: this.cancelDeleteConfirm, confirmDeleteNow: this.confirmDeleteNow
     };
