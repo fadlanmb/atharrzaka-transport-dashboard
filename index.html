@@ -3391,7 +3391,7 @@ class Component extends DCLogic {
     const editPhoneDigits = editPhoneMatch ? editPhoneMatch[2] : String(row.phone || "").replace(/[^0-9]/g, "");
     this.setState({
       showNew: true, step: 1, newBookingError: "", editingBookingId: row.id, approvingTripRequestId: null,
-      newBooking: {
+      newBooking: this.syncNewBookingDuration({
         customer: row.customer || "", phoneCountry: editPhoneCountry, phone: editPhoneDigits,
         serviceType: row.type || "", pickup: row.from_location || "", destination: row.to_location || "",
         date: dateDisplay, dateISO: displayDateToISO(dateDisplay), pickupTime: pickupTime, arrivalTime: row.eta || "",
@@ -3399,7 +3399,7 @@ class Component extends DCLogic {
         durationValue: editDurVU.value, durationUnit: editDurVU.unit,
         extraFee: editExtraFeeNum ? String(editExtraFeeNum) : "",
         vehicleIndexes: [vIdx], discount: discountNum ? String(discountNum) : "", waConfirmed: true
-      }
+      })
     });
   };
   closeNewBooking = () => this.setState({ showNew: false, newBookingError: "", editingBookingId: null, approvingTripRequestId: null });
