@@ -2375,13 +2375,22 @@ function newBookingStartDate(nb) {
   const d = new Date(iso + "T" + nb.pickupTime + ":00");
   return isNaN(d.getTime()) ? null : d;
 }
+function newBookingArrivalDate(nb) {
+  const start = newBookingStartDate(nb);
+  if (!start || !/^\d{2}:\d{2}$/.test(nb.arrivalTime || "")) return null;
+  const parts = nb.arrivalTime.split(":");
+  const arrival = new Date(start.getFullYear(), start.getMonth(), start.getDate(), parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+  if (arrival.getTime() <= start.getTime()) arrival.setDate(arrival.getDate() + 1);
+  return arrival;
+}
 function newBookingEndDate(nb) {
   const start = newBookingStartDate(nb);
   if (!start) return null;
-  if (!String(nb.durationValue || "").trim()) return null;
-  const hours = durationToHours(nb.durationValue, nb.durationUnit);
-  if (!hours) return null;
-  return new Date(start.getTime() + hours * 3600000);
+  if (String(nb.durationValue || "").trim()) {
+    const hours = durationToHours(nb.durationValue, nb.durationUnit);
+    if (hours) return new Date(start.getTime() + hours * 3600000);
+  }
+  return newBookingArrivalDate(nb);
 }
 function vehicleTimeConflict(vehicleName, nb, bookings, excludeId) {
   const newStart = newBookingStartDate(nb);
@@ -3397,6 +3406,22 @@ class Component extends DCLogic {
   setNewBookingField = (key) => (e) => {
     const v = (key === "discount" || key === "extraFee") ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ newBooking: Object.assign({}, p.newBooking, { [key]: v }) }));
+  };
+  syncNewBookingDuration = (nb) => {
+    const start = newBookingStartDate(nb);
+    const arrival = newBookingArrivalDate(nb);
+    if (!start || !arrival) return nb;
+    const hours = (arrival.getTime() - start.getTime()) / 3600000;
+    const vu = hoursToDurationValueUnit(String(hours));
+    return Object.assign({}, nb, { durationValue: vu.value, durationUnit: vu.unit });
+  };
+  setNewPickupTime = (e) => {
+    const v = e.target.value;
+    this.setState((p) => ({ newBooking: this.syncNewBookingDuration(Object.assign({}, p.newBooking, { pickupTime: v })) }));
+  };
+  setNewArrivalTime = (e) => {
+    const v = e.target.value;
+    this.setState((p) => ({ newBooking: this.syncNewBookingDuration(Object.assign({}, p.newBooking, { arrivalTime: v })) }));
   };
   setNewPhoneNumber = (e) => {
     const v = e.target.value.replace(/[^0-9]/g, "").slice(0, 13);
@@ -4460,8 +4485,8 @@ class Component extends DCLogic {
       setNewPickup: this.setNewBookingField("pickup"),
       setNewDestination: this.setNewBookingField("destination"),
       setNewDate: this.setNewDateField,
-      setNewPickupTime: this.setNewBookingField("pickupTime"),
-      setNewArrivalTime: this.setNewBookingField("arrivalTime"),
+      setNewPickupTime: this.setNewPickupTime,
+      setNewArrivalTime: this.setNewArrivalTime,
       setNewPassengers: this.setNewBookingField("passengers"),
       pickupTimeOptions: pickupTimeOptions, passengerOptions: passengerOptions,
       setNewDurationValue: this.setNewBookingField("durationValue"),
