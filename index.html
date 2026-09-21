@@ -546,7 +546,9 @@ html{overflow-x:hidden}
 <div style="display:flex;align-items:baseline;gap:8px"><div style="font-size:14px;font-weight:600">{{ v.name }}</div>
 <div style="margin-left:auto;font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ v.status }}</div></div>
 <div style="font-size:11px;color:rgba(24,24,24,.5);margin-top:4px">{{ v.plate }} · {{ v.seats }} {{ L.seatsWord }} · {{ v.kmLabel }}</div>
+<sc-if value="{{ showFinancials }}" hint-placeholder-val="{{ true }}">
 <div style="display:flex;align-items:baseline;margin-top:14px"><div style="font-size:13px;font-weight:600;color:#824703">{{ v.rate }}</div></div>
+</sc-if>
 <div style="display:flex;gap:8px;margin-top:15px;font-size:11px">
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ openNewBooking }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.assignTrip }}</div>
@@ -981,6 +983,10 @@ html{overflow-x:hidden}
 </sc-if>
 
 <sc-if value="{{ isDriverBottomNav }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ goFleetTab }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:{{ fleetTabColor }}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+<div style="font-size:9.5px;font-weight:600;margin-top:3px">{{ fleetTabLabel }}</div>
+</div>
 <div onClick="{{ goCalendarMobile }}" style="flex:1;text-align:center;padding:8px 2px 7px;cursor:pointer;color:{{ calendarTabColor }}">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
 <div style="font-size:9.5px;font-weight:600;margin-top:3px">{{ calendarNavLabel }}</div>
@@ -2332,7 +2338,7 @@ function vehicleRateBaseForHours(vehicle, hours) {
 }
 function formatVehicleRateDisplay(v, lang) {
   const unit = v.rate_unit || "Day";
-  return cleanVehicleRate(v.rate) + " / " + trWords(unit, lang).toLowerCase();
+  return formatRupiah(parseAmount(cleanVehicleRate(v.rate))) + " / " + trWords(unit, lang).toLowerCase();
 }
 function formatCreatedAt(isoStr, lang) {
   const d = new Date(isoStr);
@@ -3004,6 +3010,8 @@ class Component extends DCLogic {
     if (type === "invoice") {
       values.issued = row && row.issued ? displayDateToISO(row.issued) : new Date().toISOString().slice(0, 10);
     }
+    if (type === "fleet" && values.rate) values.rate = formatRupiah(parseAmount(values.rate));
+    if (type === "customer" && values.value) values.value = formatRupiah(parseAmount(values.value));
     this.setState({ showForm: true, formType: type, formMode: mode, formEditId: row ? row.id : null, formValues: values, formError: "", invoiceItems: invoiceItems, expenseItems: expenseItems });
     if (type === "invoice" && mode === "add") {
       this.nextInvoiceNo().then((no) => {
@@ -3035,7 +3043,9 @@ class Component extends DCLogic {
   setFormField = (key) => (e) => {
     const s = this.state;
     const isMoneyField = (s.formType === "invoice" && ["subtotal", "discount", "down_payment", "receive_payment"].indexOf(key) >= 0)
-      || (s.formType === "expense" && key === "amount");
+      || (s.formType === "expense" && key === "amount")
+      || (s.formType === "fleet" && key === "rate")
+      || (s.formType === "customer" && key === "value");
     const v = isMoneyField ? formatRupiahTyping(e.target.value) : e.target.value;
     this.setState((p) => ({ formValues: Object.assign({}, p.formValues, { [key]: v }) }));
   };
@@ -3723,6 +3733,7 @@ class Component extends DCLogic {
 
     const customersTr = s.customers.map((c) => Object.assign({}, c, {
       type: trWords(c.type, lang), last: trWords(c.last, lang), trips: trWords(c.trips, lang),
+      value: c.value ? formatRupiah(parseAmount(c.value)) : c.value,
       edit: (e) => { e.stopPropagation(); this.openFormFor("customer", "edit", c); },
       remove: (e) => { e.stopPropagation(); this.askDelete("customer", c.id); }
     }));
@@ -4321,14 +4332,14 @@ class Component extends DCLogic {
       langIdStyle: lang === "id" ? ACTIVE_LANG_STYLE : INACTIVE_LANG_STYLE,
       setLangEn: () => this.setState({ lang: "en" }),
       setLangId: () => this.setState({ lang: "id" }),
-      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings" || n.id === "maintenance" || n.id === "calendar") : NAV_OPS),
+      navOps: nav(isDriverRole ? NAV_OPS.filter((n) => n.id === "bookings" || n.id === "fleet" || n.id === "maintenance" || n.id === "calendar") : NAV_OPS),
       navInsight: nav(isDriverRole ? [] : NAV_INSIGHT),
       pageTitle: (s.screen === "dashboard" || isDriverRole) ? dashboardGreeting : t[0], pageSub: pageSub,
       showLoading: s.checkingSession, contentLoading: contentLoading,
       canManage: canManage, isNotManager: !canManage, isDriverRole: isDriverRole, isDirectorRole: isDirectorRole, showFinancials: showFinancials,
       roleBadgeLabel: roleBadgeLabel, roleNameLabel: roleNameLabel, roleTitleLabel: roleTitleLabel,
       isDashboard: s.screen === "dashboard" && s.loaded && !isDriverRole, isBookings: s.screen === "bookings" && s.loaded,
-      isFleet: s.screen === "fleet" && s.loaded && !isDriverRole, isDrivers: s.screen === "drivers" && s.loaded && !isDriverRole,
+      isFleet: s.screen === "fleet" && s.loaded, isDrivers: s.screen === "drivers" && s.loaded && !isDriverRole,
       isCustomers: s.screen === "customers" && s.loaded && !isDriverRole, isRevenue: s.screen === "revenue" && s.loaded && !isDriverRole,
       isMaintenance: s.screen === "maintenance" && s.loaded,
       isExpenses: s.screen === "expenses" && s.loaded && !isDriverRole,
