@@ -106,6 +106,7 @@ html{overflow-x:hidden}
   .modal-backdrop{padding:16px 14px!important}
   .modal-panel{width:100%!important;max-width:none!important;max-height:80vh!important;max-height:80dvh!important;border-radius:16px!important;box-sizing:border-box!important}
   .modal-panel .form-grid-2,.modal-panel .form-grid-3{gap:10px!important}
+  .notif-panel{top:62px!important;left:12px!important;right:12px!important;width:auto!important;max-height:calc(100vh - 180px)!important}
   .detail-drawer{width:92vw!important}
   .bottom-nav{display:flex!important;padding-bottom:var(--bnav-pad)!important;box-shadow:0 -6px 22px rgba(24,24,24,.07)}
   .fab-btn{display:flex!important;right:16px!important;width:56px!important;height:56px!important;bottom:calc(var(--bnav-h) + var(--bnav-pad) + 16px)!important}
@@ -270,6 +271,12 @@ html{overflow-x:hidden}
 <div style="display:flex;align-items:center;gap:2px;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);border-radius:8px;padding:3px">
 <div onClick="{{ setLangEn }}" style="{{ langEnStyle }}">EN</div>
 <div onClick="{{ setLangId }}" style="{{ langIdStyle }}">ID</div>
+</div>
+<div class="notif-btn" onClick="{{ toggleNotifications }}" title="{{ L.notifTitle }}" style="position:relative;width:38px;height:38px;border-radius:50%;background:#F4F1EC;border:1px solid rgba(89,50,3,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#593203;flex:none;touch-action:manipulation">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+<sc-if value="{{ hasNotifications }}" hint-placeholder-val="{{ false }}">
+<span style="position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:#a8471f;color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff">{{ notifCountLabel }}</span>
+</sc-if>
 </div>
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div class="header-cta" onClick="{{ openNewBooking }}" style="font-size:12px;font-weight:600;color:#fff;background:linear-gradient(100deg,#824703,#593203);border-radius:9px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ L.newBooking }}</div>
@@ -527,7 +534,16 @@ html{overflow-x:hidden}
 <div><div style="font-weight:500">{{ b.customer }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.type }}</div></div>
 <div><div>{{ b.vehicle }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.45)">{{ b.vehiclePlate }}</div></div>
 <div style="color:rgba(24,24,24,.62)"><div>{{ b.route }}</div><div style="font-size:10.5px;color:rgba(24,24,24,.42)">{{ b.time }}</div></div>
-<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span></div>
+<div><span style="font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;background:rgba(89,50,3,.08);color:#593203">{{ b.status }}</span>
+<sc-if value="{{ showFinancials }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ b.hasPaymentTag }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:9.5px;color:rgba(24,24,24,.5);margin-top:5px">{{ b.paymentTag }}</div>
+</sc-if>
+<sc-if value="{{ b.needsRecord }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:9.5px;font-weight:600;color:#a8471f;margin-top:2px">{{ L.needsRecordBadge }}</div>
+</sc-if>
+</sc-if>
+</div>
 <div style="text-align:right;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:9px">
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
 <div onClick="{{ b.edit }}" style="color:#824703;cursor:pointer;display:flex"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
@@ -1037,6 +1053,35 @@ html{overflow-x:hidden}
 </div>
 </sc-if>
 
+<sc-if value="{{ showNotifications }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:78" onClick="{{ closeNotifications }}">
+<div class="notif-panel" style="position:fixed;top:70px;right:20px;width:380px;max-width:calc(100vw - 24px);max-height:calc(100vh - 150px);overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(24,24,24,.28);border:1px solid rgba(89,50,3,.1)" onClick="{{ stop }}">
+<div style="display:flex;align-items:center;padding:16px 18px 12px;border-bottom:1px solid rgba(89,50,3,.08);position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0">
+<div style="font-size:14px;font-weight:600">{{ L.notifTitle }}</div>
+<sc-if value="{{ hasNotifications }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ dismissAllNotifs }}" style="margin-left:auto;font-size:11px;font-weight:600;color:#824703;cursor:pointer;padding:6px 2px">{{ L.notifMarkAll }}</div>
+</sc-if>
+</div>
+<sc-if value="{{ noNotifications }}" hint-placeholder-val="{{ true }}">
+<div style="padding:34px 18px;text-align:center;font-size:12px;color:rgba(24,24,24,.45)">{{ L.notifEmpty }}</div>
+</sc-if>
+<sc-for list="{{ notifItems }}" as="n" hint-placeholder-count="3">
+<div onClick="{{ n.open }}" style="display:flex;gap:12px;align-items:flex-start;padding:13px 18px;border-bottom:1px solid rgba(89,50,3,.06);cursor:pointer" style-hover="background:rgba(89,50,3,.03)">
+<div style="{{ n.dotStyle }}"></div>
+<div style="flex:1;min-width:0">
+<div style="font-size:12.5px;font-weight:600">{{ n.title }}</div>
+<div style="font-size:11px;color:rgba(24,24,24,.55);margin-top:3px;line-height:1.5;overflow-wrap:anywhere">{{ n.body }}</div>
+</div>
+<sc-if value="{{ n.urgent }}" hint-placeholder-val="{{ false }}">
+<span style="font-size:9px;font-weight:700;color:#a8471f;flex:none;margin-top:3px">!</span>
+</sc-if>
+<div onClick="{{ n.dismiss }}" aria-label="{{ L.notifDismiss }}" style="flex:none;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:rgba(24,24,24,.4);cursor:pointer;font-size:15px;border-radius:50%">×</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
 <sc-if value="{{ showMoreSheet }}" hint-placeholder-val="{{ false }}">
 <div class="sheet-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:75;display:flex;align-items:flex-end" onClick="{{ closeMoreSheet }}">
 <div class="sheet-panel" style="width:100%;background:#fff;border-radius:18px 18px 0 0;padding:10px 8px calc(22px + env(safe-area-inset-bottom, 0px));box-shadow:0 -20px 50px rgba(24,24,24,.2)" onClick="{{ stop }}">
@@ -1129,9 +1174,49 @@ html{overflow-x:hidden}
 <div style="display:flex;font-weight:600;font-size:13.5px"><span>{{ L.total }}</span><span style="margin-left:auto">{{ detail.amount }}</span></div>
 </div>
 </div>
+<sc-if value="{{ detailHasTripSummary }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin-bottom:12px">{{ L.tripSummaryTitle }}</div>
+<div style="display:flex;flex-direction:column;gap:9px;font-size:12px">
+<div style="display:flex;gap:12px"><span style="color:rgba(24,24,24,.6);flex:none">{{ L.tripOdoSummaryLabel }}</span><span style="margin-left:auto;text-align:right">{{ detailOdoLabel }}</span></div>
+<div style="display:flex;gap:12px"><span style="color:rgba(24,24,24,.6);flex:none">{{ L.tripFinishedAtLabel }}</span><span style="margin-left:auto;text-align:right">{{ detailFinishedLabel }}</span></div>
+<sc-if value="{{ showDetailPayment }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px"><span style="color:rgba(24,24,24,.6);flex:none">{{ L.tripPaymentSummaryLabel }}</span><span style="margin-left:auto;text-align:right">{{ detailPaymentLabel }}</span></div>
+</sc-if>
+<sc-if value="{{ showDetailPaymentNote }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;color:rgba(24,24,24,.55);line-height:1.5">{{ detailPaymentNote }}</div>
+</sc-if>
+<sc-if value="{{ showDetailCosts }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px"><span style="color:rgba(24,24,24,.6);flex:none">{{ L.tripCostsSummaryLabel }}</span><span style="margin-left:auto;text-align:right">{{ detailCostsLabel }}</span></div>
+</sc-if>
+<sc-if value="{{ showDetailTripNotes }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px"><span style="color:rgba(24,24,24,.6);flex:none">{{ L.tripNotesSummaryLabel }}</span><span style="margin-left:auto;text-align:right">{{ detailTripNotes }}</span></div>
+</sc-if>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+<sc-if value="{{ detailCanRecordPayment }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ recordTripPayment }}" style="text-align:center;padding:11px;border-radius:10px;border:1px solid rgba(130,71,3,.35);color:#824703;font-size:12px;font-weight:600;cursor:pointer">{{ L.recordPaymentBtn }}</div>
+</sc-if>
+<sc-if value="{{ detailCanRecordCosts }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ recordTripCosts }}" style="text-align:center;padding:11px;border-radius:10px;border:1px solid rgba(130,71,3,.35);color:#824703;font-size:12px;font-weight:600;cursor:pointer">{{ L.recordCostsBtn }}</div>
+</sc-if>
+<sc-if value="{{ detailPaymentRecorded }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;font-weight:600;color:#4d6a30">✓ {{ L.paymentRecordedBadge }}</div>
+</sc-if>
+<sc-if value="{{ detailCostsRecorded }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;font-weight:600;color:#4d6a30">✓ {{ L.costsRecordedBadge }}</div>
+</sc-if>
+<sc-if value="{{ detailActionError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;color:#a8471f">{{ detailActionError }}</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
 <div style="display:flex;gap:10px;font-size:12px">
 <sc-if value="{{ canManage }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ detailNotCompleted }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ confirmDispatchBtn }}" style="flex:1;text-align:center;padding:12px;border-radius:10px;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);color:#181818;font-weight:600;cursor:pointer">{{ L.confirmDispatch }}</div>
+</sc-if>
 <sc-if value="{{ detailNotInvoiced }}" hint-placeholder-val="{{ true }}">
 <div onClick="{{ createInvoiceBtn }}" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(89,50,3,.15);color:#824703;cursor:pointer">{{ L.invoiceBtn }}</div>
 </sc-if>
@@ -1589,20 +1674,51 @@ html{overflow-x:hidden}
 
 <sc-if value="{{ showCompleteTrip }}" hint-placeholder-val="{{ false }}">
 <div class="modal-backdrop" style="position:fixed;inset:0;background:rgba(24,24,24,.45);z-index:80;display:flex;align-items:center;justify-content:center;padding:40px" onClick="{{ closeCompleteTrip }}">
-<div class="modal-panel" style="width:400px;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px" onClick="{{ stop }}">
+<div class="modal-panel" style="width:440px;max-height:100%;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(24,24,24,.3);padding:26px;box-sizing:border-box" onClick="{{ stop }}">
 <div style="display:flex;align-items:center;margin-bottom:6px">
 <div style="font-size:17px;font-weight:600">{{ L.completeTripTitle }}</div>
 <div onClick="{{ closeCompleteTrip }}" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F1EC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">×</div>
 </div>
 <div style="font-size:11.5px;color:rgba(24,24,24,.5);margin-bottom:18px">{{ L.completeTripSubtitle }}</div>
 <div>
-<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.completeTripOdometerLabel }}</div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.completeTripOdometerLabel }} <span style="color:#a8471f">*</span></div>
 <input value="{{ completeTripOdometer }}" onChange="{{ setCompleteTripOdometer }}" inputmode="numeric" placeholder="12500" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+<div style="font-size:10.5px;color:rgba(24,24,24,.45);margin-top:5px">{{ completeTripKmStartLabel }}</div>
+</div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin:18px 0 10px">{{ L.tripPaymentSection }}</div>
+<div>
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.tripPaymentMethodLabel }} <span style="color:#a8471f">*</span></div>
+<select value="{{ completeTripPayMethod }}" onChange="{{ setCompleteTripPayMethod }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit;background:#fff">
+<option value="">{{ L.selectPh }}</option>
+<sc-for list="{{ completeTripPayOptions }}" as="opt" hint-placeholder-count="4">
+<option value="{{ opt.value }}">{{ opt.label }}</option>
+</sc-for>
+</select>
+</div>
+<sc-if value="{{ completeTripShowPayAmount }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:12px">
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.tripPaymentAmountLabel }}</div>
+<input value="{{ completeTripPayAmount }}" onChange="{{ setCompleteTripPayAmount }}" inputmode="numeric" placeholder="0" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+</sc-if>
+<div style="margin-top:12px">
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.tripPaymentNoteLabel }}</div>
+<input value="{{ completeTripPayNote }}" onChange="{{ setCompleteTripPayNote }}" placeholder="{{ L.tripPaymentNotePh }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
+</div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin:18px 0 10px">{{ L.tripCostsSection }}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.tripCostFuel }}</div><input value="{{ completeTripFuel }}" onChange="{{ setCompleteTripFuel }}" inputmode="numeric" placeholder="0" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 10px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.tripCostToll }}</div><input value="{{ completeTripToll }}" onChange="{{ setCompleteTripToll }}" inputmode="numeric" placeholder="0" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 10px;font-size:12.5px;font-family:inherit"></div>
+<div><div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.tripCostParking }}</div><input value="{{ completeTripParking }}" onChange="{{ setCompleteTripParking }}" inputmode="numeric" placeholder="0" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 10px;font-size:12.5px;font-family:inherit"></div>
+</div>
+<div style="margin-top:14px">
+<div style="font-size:10.5px;font-weight:600;color:rgba(24,24,24,.55);margin-bottom:6px">{{ L.tripNotesLabel }}</div>
+<input value="{{ completeTripNotes }}" onChange="{{ setCompleteTripNotes }}" placeholder="{{ L.tripNotesPh }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit">
 </div>
 <sc-if value="{{ completeTripError }}" hint-placeholder-val="{{ false }}">
-<div style="font-size:11px;color:#a8471f;margin-top:10px">{{ completeTripError }}</div>
+<div style="font-size:11px;color:#a8471f;margin-top:12px">{{ completeTripError }}</div>
 </sc-if>
-<div onClick="{{ submitCompleteTrip }}" style="margin-top:16px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:12px;cursor:pointer">{{ L.completeTripBtn }}</div>
+<div onClick="{{ submitCompleteTrip }}" style="margin-top:16px;text-align:center;font-size:12.5px;font-weight:600;color:#181818;background:linear-gradient(120deg,#F6E6BE,#DBAF5D 55%,#C08A2E);border-radius:10px;padding:13px;cursor:pointer">{{ L.completeTripBtn }}</div>
 </div>
 </div>
 </sc-if>
@@ -1949,10 +2065,41 @@ const STR = {
   completeServiceRequiredError: { en: "Fill in description and nominal for every item.", id: "Isi deskripsi dan nominal untuk setiap item." },
   completeTripBtn: { en: "Complete trip", id: "Selesaikan perjalanan" },
   completeTripTitle: { en: "Complete trip", id: "Selesaikan perjalanan" },
-  completeTripSubtitle: { en: "Enter the vehicle's current odometer reading to finish this trip.", id: "Masukkan angka odometer kendaraan saat ini untuk menyelesaikan perjalanan ini." },
-  completeTripOdometerLabel: { en: "Current odometer (km)", id: "Odometer saat ini (km)" },
+  completeTripSubtitle: { en: "Enter the final odometer, payment and trip costs to finish this trip.", id: "Isi odometer akhir, pembayaran, dan biaya perjalanan untuk menyelesaikan perjalanan ini." },
+  completeTripOdometerLabel: { en: "Final odometer (km)", id: "Odometer akhir (km)" },
+  tripKmStartLabel: { en: "Start km", id: "Km awal" },
   completeTripOdometerRequired: { en: "Please enter the current odometer reading.", id: "Mohon masukkan angka odometer saat ini." },
-  completeTripOdometerTooLow: { en: "Odometer can't be lower than the vehicle's last recorded reading.", id: "Odometer tidak boleh lebih kecil dari catatan terakhir kendaraan." },
+  completeTripOdometerTooLow: { en: "Final odometer must be greater than the start km.", id: "Odometer akhir harus lebih besar dari km awal." },
+  tripPaymentSection: { en: "PAYMENT", id: "PEMBAYARAN" },
+  tripPaymentMethodLabel: { en: "Payment method", id: "Metode pembayaran" },
+  tripPayCash: { en: "Cash", id: "Tunai" },
+  tripPayTransfer: { en: "Transfer", id: "Transfer" },
+  tripPayPrepaid: { en: "Paid in advance", id: "Sudah lunas di muka" },
+  tripPayUnpaid: { en: "Not paid yet", id: "Belum dibayar" },
+  tripPaymentAmountLabel: { en: "Amount received (Rp)", id: "Jumlah diterima (Rp)" },
+  tripPaymentNoteLabel: { en: "Payment note", id: "Keterangan pembayaran" },
+  tripPaymentNotePh: { en: "e.g. paid to driver in cash, remainder via transfer", id: "Mis. dibayar tunai ke driver, sisanya transfer" },
+  tripPaymentMethodRequired: { en: "Choose a payment method.", id: "Pilih metode pembayaran." },
+  tripCostsSection: { en: "TRIP COSTS (OPTIONAL)", id: "BIAYA PERJALANAN (OPSIONAL)" },
+  tripCostFuel: { en: "Fuel", id: "BBM" },
+  tripCostToll: { en: "Toll", id: "Tol" },
+  tripCostParking: { en: "Parking", id: "Parkir" },
+  tripNotesLabel: { en: "Trip notes (optional)", id: "Catatan perjalanan (opsional)" },
+  tripNotesPh: { en: "e.g. traffic, delay, vehicle condition", id: "Mis. macet, keterlambatan, kondisi kendaraan" },
+  tripSummaryTitle: { en: "TRIP SUMMARY", id: "RINGKASAN PERJALANAN" },
+  tripOdoSummaryLabel: { en: "Odometer", id: "Odometer" },
+  tripFinishedAtLabel: { en: "Finished", id: "Selesai" },
+  tripPaymentSummaryLabel: { en: "Payment", id: "Pembayaran" },
+  tripCostsSummaryLabel: { en: "Costs", id: "Biaya" },
+  tripNotesSummaryLabel: { en: "Notes", id: "Catatan" },
+  recordPaymentBtn: { en: "Record payment to invoice", id: "Catat pembayaran ke invoice" },
+  recordCostsBtn: { en: "Record costs to expenses", id: "Catat biaya ke pengeluaran" },
+  paymentRecordedBadge: { en: "Payment recorded", id: "Pembayaran sudah dicatat" },
+  costsRecordedBadge: { en: "Costs recorded", id: "Biaya sudah dicatat" },
+  needsRecordBadge: { en: "Needs recording", id: "Perlu dicatat" },
+  recordNoInvoiceError: { en: "No invoice for this booking yet. Create the invoice first.", id: "Belum ada invoice untuk pemesanan ini. Buat invoice dulu." },
+  recordExceedsError: { en: "Amount is more than the remaining invoice balance. Edit the invoice manually.", id: "Jumlah melebihi sisa tagihan invoice. Ubah invoice secara manual." },
+  recordFailedError: { en: "Could not record. Please try again.", id: "Gagal mencatat. Silakan coba lagi." },
   fldDate: { en: "Date", id: "Tanggal" },
   fldCategory: { en: "Category", id: "Kategori" },
   fldExpenseDate: { en: "Expense date", id: "Tanggal pengeluaran" },
@@ -2092,6 +2239,10 @@ const STR = {
   newBookingPickVehicleError: { en: "Select at least one vehicle or add a unit from another rental.", id: "Pilih minimal satu kendaraan atau tambahkan unit dari rental lain." },
   tripRequestExternalNameError: { en: "Enter the name of the other-rental unit.", id: "Isi nama unit dari rental lain." },
   datePlaceholder: { en: "Select date", id: "Pilih tanggal" },
+  notifTitle: { en: "Notifications", id: "Notifikasi" },
+  notifEmpty: { en: "No new notifications", id: "Tidak ada notifikasi baru" },
+  notifMarkAll: { en: "Mark all as read", id: "Tandai semua dibaca" },
+  notifDismiss: { en: "Dismiss", id: "Tutup" },
   tripRequestDurationHint: { en: "Estimated duration", id: "Perkiraan durasi" },
   noFleetYet: { en: "No vehicles in fleet yet — add one on the Fleet page first.", id: "Belum ada armada — tambahkan dulu di halaman Armada." },
   vehicleDateConflict: { en: "Already booked at this time", id: "Sudah ada booking di jam ini" },
@@ -2436,6 +2587,18 @@ function formatCreatedAt(isoStr, lang) {
   const mi = String(d.getMinutes()).padStart(2, "0");
   return d.getDate() + " " + mo + " " + hh + ":" + mi;
 }
+const TRIP_PAY_KEYS = { cash: "tripPayCash", transfer: "tripPayTransfer", prepaid: "tripPayPrepaid", unpaid: "tripPayUnpaid" };
+function tripPaymentMethodLabel(key, lang) {
+  return TRIP_PAY_KEYS[key] ? STR[TRIP_PAY_KEYS[key]][lang] : "";
+}
+function tripCostsTotal(b) {
+  return parseAmount(b.cost_fuel) + parseAmount(b.cost_toll) + parseAmount(b.cost_parking);
+}
+function bookingNeedsRecord(b) {
+  const payPending = parseAmount(b.payment_amount) > 0 && !b.payment_recorded;
+  const costPending = tripCostsTotal(b) > 0 && !b.costs_recorded;
+  return payPending || costPending;
+}
 function bookingDateTimeRange(b) {
   const timeStr = String(b.time || "");
   const spaceIdx = timeStr.lastIndexOf(" ");
@@ -2447,7 +2610,11 @@ function bookingDateTimeRange(b) {
   const start = new Date(iso + "T" + timePart + ":00");
   if (isNaN(start.getTime())) return null;
   const hours = parseFloat(durationLabelToHours(b.duration)) || 24;
-  const end = new Date(start.getTime() + hours * 3600000);
+  let end = new Date(start.getTime() + hours * 3600000);
+  if (b.status === "Completed" && b.completed_at) {
+    const done = new Date(b.completed_at);
+    if (!isNaN(done.getTime())) end = new Date(Math.max(start.getTime(), Math.min(end.getTime(), done.getTime())));
+  }
   return { start: start, end: end };
 }
 function vehicleOnTripNow(vehicleName, bookings) {
@@ -2837,6 +3004,7 @@ class Component extends DCLogic {
     showCompleteService: false, completeServiceId: null, completeServiceItems: [], completeServiceError: "",
     invoiceItems: [], expenseItems: [],
     showCompleteTrip: false, completeTripOdometer: "", completeTripError: "",
+    completeTripPayMethod: "", completeTripPayAmount: "", completeTripPayNote: "", completeTripNotes: "", completeTripFuel: "", completeTripToll: "", completeTripParking: "", detailActionError: "", showNotifications: false, notifTick: 0,
     editingBookingId: null,
     showInvoicePrint: false, printInvoice: null, savingPdf: false, pdfError: ""
   };
@@ -2889,6 +3057,7 @@ class Component extends DCLogic {
     ["mousemove", "mousedown", "keydown", "scroll", "touchstart", "click"].forEach((evt) => {
       window.addEventListener(evt, activityHandler, { passive: true });
     });
+    this.notifInterval = setInterval(() => this.setState((p) => ({ notifTick: p.notifTick + 1 })), 60000);
     this.idleCheckInterval = setInterval(() => {
       if (!this.state.session) return;
       let remembered = false;
@@ -2897,6 +3066,31 @@ class Component extends DCLogic {
       const last = parseInt(localStorage.getItem(IDLE_STORAGE_KEY), 10) || Date.now();
       if (Date.now() - last > IDLE_TIMEOUT_MS) this.logout();
     }, 30000);
+  }
+  notifStorageKey = () => "atz-notif-v1:" + ((this.state.session && this.state.session.user && this.state.session.user.email) || "anon");
+  getDismissedNotifs = () => {
+    try { return JSON.parse(window.localStorage.getItem(this.notifStorageKey()) || "[]"); } catch (e) { return []; }
+  };
+  saveDismissedNotifs = (ids) => {
+    try { window.localStorage.setItem(this.notifStorageKey(), JSON.stringify(ids.slice(-300))); } catch (e) {}
+    this.setState((p) => ({ notifTick: p.notifTick + 1 }));
+  };
+  dismissNotif = (id) => {
+    const cur = this.getDismissedNotifs();
+    if (cur.indexOf(id) < 0) this.saveDismissedNotifs(cur.concat([id]));
+  };
+  dismissAllNotifs = () => {
+    const cur = this.getDismissedNotifs();
+    this.saveDismissedNotifs(cur.concat((this._notifAllIds || []).filter((id) => cur.indexOf(id) < 0)));
+  };
+  toggleNotifications = () => this.setState((p) => ({ showNotifications: !p.showNotifications }));
+  closeNotifications = () => this.setState({ showNotifications: false });
+  componentDidUpdate() {
+    try {
+      const n = this._notifCount || 0;
+      const t = (n > 0 ? "(" + n + ") " : "") + "Atharrazka Transport";
+      if (document.title !== t) document.title = t;
+    } catch (e) {}
   }
   markActivity = () => {
     const now = Date.now();
@@ -2961,14 +3155,19 @@ class Component extends DCLogic {
   openCompleteTrip = () => {
     const d = this.state.detail;
     if (!d) return;
-    const matchedVehicle = this.state.fleet.find((v) => v.name === d.vehicle);
     this.setState({
-      showCompleteTrip: true, completeTripError: "",
-      completeTripOdometer: matchedVehicle && matchedVehicle.km ? String(matchedVehicle.km) : ""
+      showCompleteTrip: true, completeTripError: "", completeTripOdometer: "",
+      completeTripPayMethod: "", completeTripPayAmount: "", completeTripPayNote: "", completeTripNotes: "",
+      completeTripFuel: "", completeTripToll: "", completeTripParking: ""
     });
   };
   closeCompleteTrip = () => this.setState({ showCompleteTrip: false, completeTripError: "" });
   setCompleteTripOdometer = (e) => this.setState({ completeTripOdometer: e.target.value.replace(/[^0-9]/g, "") });
+  setCompleteTripField = (key) => (e) => {
+    const money = ["completeTripPayAmount", "completeTripFuel", "completeTripToll", "completeTripParking"].indexOf(key) >= 0;
+    const v = money ? formatRupiahTyping(e.target.value) : e.target.value;
+    this.setState({ [key]: v });
+  };
   submitCompleteTrip = () => {
     if (this._submittingCompleteTrip) return;
     const client = getSupabase();
@@ -2983,19 +3182,101 @@ class Component extends DCLogic {
     }
     const matchedVehicle = s.fleet.find((v) => v.name === d.vehicle);
     const prevKm = matchedVehicle ? parseFloat(matchedVehicle.km) || 0 : 0;
-    if (odo < prevKm) {
+    if (matchedVehicle && odo <= prevKm) {
       this.setState({ completeTripError: STR.completeTripOdometerTooLow[lang] });
+      return;
+    }
+    if (!s.completeTripPayMethod) {
+      this.setState({ completeTripError: STR.tripPaymentMethodRequired[lang] });
       return;
     }
     this.setState({ completeTripError: "" });
     this._submittingCompleteTrip = true;
-    const reqs = [client.from("bookings").update({ status: "Completed" }).eq("id", d.id)];
+    const paidMethod = s.completeTripPayMethod === "cash" || s.completeTripPayMethod === "transfer";
+    const costOrNull = (v) => (parseAmount(v) > 0 ? formatRupiah(parseAmount(v)) : null);
+    const bookingUpdate = {
+      status: "Completed", completed_at: new Date().toISOString(),
+      odometer_start: matchedVehicle ? prevKm : null, odometer_end: odo,
+      payment_method: s.completeTripPayMethod,
+      payment_amount: paidMethod ? costOrNull(s.completeTripPayAmount) : null,
+      payment_note: s.completeTripPayNote.trim() || null, payment_recorded: false,
+      trip_notes: s.completeTripNotes.trim() || null,
+      cost_fuel: costOrNull(s.completeTripFuel), cost_toll: costOrNull(s.completeTripToll), cost_parking: costOrNull(s.completeTripParking),
+      costs_recorded: false
+    };
+    const reqs = [client.from("bookings").update(bookingUpdate).eq("id", d.id)];
     if (matchedVehicle) reqs.push(client.from("fleet").update({ km: odo }).eq("id", matchedVehicle.id));
     Promise.all(reqs).then((results) => {
       this._submittingCompleteTrip = false;
-      if (results.some((r) => r.error)) return;
+      if (results.some((r) => r.error)) {
+        this.setState({ completeTripError: STR.saveErrorGeneric[lang] });
+        this.loadAll();
+        return;
+      }
       this.setState({ showCompleteTrip: false, detail: null, completeTripOdometer: "" });
       this.loadAll();
+    });
+  };
+  recordTripPayment = () => {
+    if (this._recordingTrip) return;
+    const client = getSupabase();
+    const s = this.state;
+    const d = s.detail;
+    if (!client || !s.session || !d) return;
+    const lang = s.lang;
+    const amt = parseAmount(d.payment_amount);
+    if (!amt || d.payment_recorded) return;
+    const latest = s.invoices.filter((i) => i.booking_ref === d.ref && !i.voided)
+      .sort((a, c) => new Date(c.created_at) - new Date(a.created_at))[0];
+    if (!latest) { this.setState({ detailActionError: STR.recordNoInvoiceError[lang] }); return; }
+    const recvNum = parseAmount(latest.receive_payment);
+    const balance = Math.max(0, parseAmount(latest.subtotal || latest.amount) - parseAmount(latest.discount) - parseAmount(latest.down_payment) - recvNum);
+    if (amt > balance) { this.setState({ detailActionError: STR.recordExceedsError[lang] }); return; }
+    this._recordingTrip = true;
+    this.setState({ detailActionError: "" });
+    const fail = () => { this._recordingTrip = false; this.setState({ detailActionError: STR.recordFailedError[lang] }); };
+    this.nextInvoiceNo().then((no) => {
+      const row = Object.assign({}, latest);
+      ["id", "created_at", "voided", "superseded_by"].forEach((k) => { delete row[k]; });
+      row.no = no;
+      row.receive_payment = formatRupiah(recvNum + amt);
+      client.from("invoices").insert(row).then((res) => {
+        if (res.error) { fail(); return; }
+        client.from("invoices").update({ voided: true, superseded_by: no }).eq("id", latest.id).then(() => {
+          client.from("bookings").update({ payment_recorded: true }).eq("id", d.id).then((r2) => {
+            this._recordingTrip = false;
+            if (r2.error) { fail(); return; }
+            this.setState({ detail: null });
+            this.loadAll();
+          });
+        });
+      });
+    });
+  };
+  recordTripCosts = () => {
+    if (this._recordingTrip) return;
+    const client = getSupabase();
+    const s = this.state;
+    const d = s.detail;
+    if (!client || !s.session || !d) return;
+    const lang = s.lang;
+    if (!tripCostsTotal(d) || d.costs_recorded) return;
+    const inFleet = s.fleet.some((v) => v.name === d.vehicle);
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = [["Fuel", d.cost_fuel, STR.tripCostFuel[lang]], ["Operational", d.cost_toll, STR.tripCostToll[lang]], ["Operational", d.cost_parking, STR.tripCostParking[lang]]]
+      .filter((r) => parseAmount(r[1]) > 0)
+      .map((r) => ({ description: r[2] + " · " + d.ref, category: r[0], vehicle: inFleet ? d.vehicle : null, amount: formatRupiah(parseAmount(r[1])), expense_date: today }));
+    this._recordingTrip = true;
+    this.setState({ detailActionError: "" });
+    const fail = () => { this._recordingTrip = false; this.setState({ detailActionError: STR.recordFailedError[lang] }); };
+    client.from("expenses").insert(rows).then((res) => {
+      if (res.error) { fail(); return; }
+      client.from("bookings").update({ costs_recorded: true }).eq("id", d.id).then((r2) => {
+        this._recordingTrip = false;
+        if (r2.error) { fail(); return; }
+        this.setState({ detail: null });
+        this.loadAll();
+      });
     });
   };
   formatToday = () => {
@@ -3678,7 +3959,7 @@ class Component extends DCLogic {
     const approvingTripRequestId = this.state.approvingTripRequestId;
     Promise.all(reqs).then((results) => {
       this._submittingBooking = false;
-      if (results.some((r) => r.error)) return;
+      if (results.some((r) => r.error)) { this.setState({ newBookingError: STR.saveErrorGeneric[this.state.lang] }); return; }
       this.setState({ showNew: false, editingBookingId: null, approvingTripRequestId: null });
       if (approvingTripRequestId) {
         client.from("trip_requests").update({ status: "Approved" }).eq("id", approvingTripRequestId).then(() => {});
@@ -3776,9 +4057,11 @@ class Component extends DCLogic {
         edit: (e) => { e.stopPropagation(); this.openEditBooking(b); },
         remove: (e) => { e.stopPropagation(); this.askDelete("booking", b.id); },
         status: trWords(displayStatus, lang), time: trWords(b.time, lang), type: trWords(b.type, lang),
-        vehiclePlate: matchedVehicle ? matchedVehicle.plate : ""
+        vehiclePlate: matchedVehicle ? matchedVehicle.plate : "",
+        paymentTag: b.payment_method ? (tripPaymentMethodLabel(b.payment_method, lang) + (parseAmount(b.payment_amount) > 0 ? " · " + formatRupiah(parseAmount(b.payment_amount)) : "")) : "",
+        hasPaymentTag: !!b.payment_method, needsRecord: bookingNeedsRecord(b)
       });
-      enhanced.open = () => this.setState({ detail: enhanced });
+      enhanced.open = () => this.setState({ detail: enhanced, detailActionError: "" });
       return enhanced;
     };
     const todayDateStr = this.formatToday();
@@ -3877,7 +4160,7 @@ class Component extends DCLogic {
     const corpAccountsCount = s.customers.filter((c) => c.type === "Corporate").length;
     const returningCustomersCount = s.customers.filter((c) => parseInt(c.trips, 10) > 1).length;
     const returningRatePct = s.customers.length ? Math.round((returningCustomersCount / s.customers.length) * 100) : 0;
-    const outstandingNum = latestInvoicesByBooking(s.invoices).reduce((sum, i) => sum + invoiceBalanceDue(i), 0);
+    const outstandingNum = latestInvoicesByBooking(s.invoices.filter((i) => !i.voided)).reduce((sum, i) => sum + invoiceBalanceDue(i), 0);
     const outstandingLabel = formatRupiah(outstandingNum);
 
     const customersTr = s.customers.map((c) => Object.assign({}, c, {
@@ -3958,6 +4241,28 @@ class Component extends DCLogic {
     const detailDiscountNum = s.detail ? Math.max(0, parseAmount(s.detail.base) - parseAmount(s.detail.amount)) : 0;
     const detailCreatedLabel = s.detail && s.detail.created_at ? (lang === "id" ? "dibuat " : "created ") + formatCreatedAt(s.detail.created_at, lang) : "";
     const detailTr = s.detail ? Object.assign({}, s.detail, { status: trWords(s.detail.status, lang), time: trWords(s.detail.time, lang), type: trWords(s.detail.type, lang), duration: trWords(s.detail.duration, lang), driver: trWords(s.detail.driver, lang), driverMeta: trWords(s.detail.driverMeta, lang), hasPhone: !!s.detail.phone, hasDiscount: detailDiscountNum > 0, discountLabel: formatRupiah(detailDiscountNum), createdLabel: detailCreatedLabel }) : null;
+    const detailRaw = s.detail || {};
+    const detailHasTripSummary = !!(detailRaw.odometer_end || detailRaw.completed_at);
+    const detailIsCompleted = detailHasTripSummary || detailRaw.status === "Completed" || detailRaw.status === "Selesai";
+    const detailOdoStart = parseFloat(detailRaw.odometer_start), detailOdoEnd = parseFloat(detailRaw.odometer_end);
+    const detailOdoLabel = !isNaN(detailOdoEnd)
+      ? (!isNaN(detailOdoStart) ? formatKm(detailOdoStart) + " → " + formatKm(detailOdoEnd) + " (" + formatKm(detailOdoEnd - detailOdoStart) + ")" : formatKm(detailOdoEnd))
+      : "";
+    const detailFinishedLabel = detailRaw.completed_at ? formatCreatedAt(detailRaw.completed_at, lang) : "";
+    const detailPaymentLabel = detailRaw.payment_method
+      ? tripPaymentMethodLabel(detailRaw.payment_method, lang) + (parseAmount(detailRaw.payment_amount) > 0 ? " · " + formatRupiah(parseAmount(detailRaw.payment_amount)) : "")
+      : "";
+    const detailCostsLabel = [[L.tripCostFuel, detailRaw.cost_fuel], [L.tripCostToll, detailRaw.cost_toll], [L.tripCostParking, detailRaw.cost_parking]]
+      .filter((c) => parseAmount(c[1]) > 0).map((c) => c[0] + " " + formatRupiah(parseAmount(c[1]))).join(" · ");
+    const detailCanRecordPayment = canManage && parseAmount(detailRaw.payment_amount) > 0 && !detailRaw.payment_recorded;
+    const detailCanRecordCosts = canManage && tripCostsTotal(detailRaw) > 0 && !detailRaw.costs_recorded;
+    const detailPaymentRecorded = canManage && parseAmount(detailRaw.payment_amount) > 0 && !!detailRaw.payment_recorded;
+    const detailCostsRecorded = canManage && tripCostsTotal(detailRaw) > 0 && !!detailRaw.costs_recorded;
+    const detailNotCompleted = !detailIsCompleted;
+    const completeTripMatchedVehicle = s.detail ? s.fleet.find((v) => v.name === s.detail.vehicle) : null;
+    const completeTripKmStartLabel = completeTripMatchedVehicle ? L.tripKmStartLabel + ": " + formatKm(parseFloat(completeTripMatchedVehicle.km) || 0) : "";
+    const completeTripPayOptions = Object.keys(TRIP_PAY_KEYS).map((k) => ({ value: k, label: tripPaymentMethodLabel(k, lang) }));
+    const completeTripShowPayAmount = s.completeTripPayMethod === "cash" || s.completeTripPayMethod === "transfer";
     const canCompleteTrip = isDriverRole && !!s.detail && (s.detail.status === "Confirmed" || s.detail.status === "Dikonfirmasi");
 
     const fleetComputedStatuses = s.fleet.map((v) => computedFleetStatus(v, s.bookings));
@@ -4268,6 +4573,93 @@ class Component extends DCLogic {
     });
     const hasOdometerRows = odometerRows.length > 0;
     const noOdometerRows = !hasOdometerRows;
+    const notifNow = new Date();
+    const notifDismissed = this.getDismissedNotifs();
+    const notifRaw = [];
+    const pushNotif = (id, level, title, body, go) => notifRaw.push({ id: id, level: level, title: title, body: body, go: go });
+    const hhmm = (d) => String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    const myNameLower = (s.profileName || "").trim().toLowerCase();
+    const isMineBooking = (b) => !isDriverRole || !myNameLower || String(b.driver || "").trim().toLowerCase() === myNameLower;
+    const openBookingFromNotif = (b) => () => {
+      const plate = (s.fleet.find((v) => v.name === b.vehicle) || {}).plate || "";
+      this.setState({ screen: "bookings", showNotifications: false, detail: Object.assign({}, b, { vehiclePlate: plate }), detailActionError: "" });
+    };
+    const goScreenFromNotif = (screenId) => () => this.setState({ screen: screenId, showNotifications: false, detail: null, showMoreSheet: false });
+    let unassignedShown = 0;
+    s.bookings.forEach((b) => {
+      if (b.status === "Completed" || b.status === "Cancelled") return;
+      const r = bookingDateTimeRange(b);
+      if (!r) return;
+      const confirmed = b.status === "Confirmed";
+      if (confirmed && r.end < notifNow && isMineBooking(b)) {
+        pushNotif("overdue:" + b.ref, "urgent",
+          isDriverRole ? (lang === "id" ? "Perjalanan belum diselesaikan" : "Trip not completed") : (lang === "id" ? "Perjalanan belum diselesaikan driver" : "Trip not completed by driver"),
+          b.ref + " · " + (b.customer || "-") + " — " + b.vehicle + (isDriverRole ? "" : " · " + trWords(b.driver, lang)) + (lang === "id" ? ", seharusnya selesai " : ", was due ") + hhmm(r.end),
+          openBookingFromNotif(b));
+      } else if (isDriverRole && confirmed && r.start > notifNow && r.start - notifNow <= 3 * 3600000 && isMineBooking(b)) {
+        pushNotif("soon:" + b.ref, "warn", lang === "id" ? "Perjalanan segera dimulai" : "Trip starting soon",
+          b.ref + " · " + (b.customer || "-") + " · " + (b.from_location || "") + (lang === "id" ? " pukul " : " at ") + hhmm(r.start), openBookingFromNotif(b));
+      } else if (canManage && b.driver === "Unassigned" && r.end > notifNow && r.start - notifNow <= 48 * 3600000 && unassignedShown < 5) {
+        unassignedShown += 1;
+        pushNotif("unassigned:" + b.ref, (r.start - notifNow <= 24 * 3600000) ? "warn" : "info", lang === "id" ? "Belum ada pengemudi" : "No driver assigned",
+          b.ref + " · " + (b.customer || "-") + " · " + trWords(b.time, lang), openBookingFromNotif(b));
+      }
+    });
+    if (canManage) {
+      if (pendingTripRequests.length) {
+        pushNotif("reqs:" + pendingTripRequests.length, "warn",
+          pendingTripRequests.length + (lang === "id" ? " permintaan trip menunggu persetujuan" : " trip requests awaiting approval"),
+          lang === "id" ? "Buka Pemesanan lalu pilih Setujui atau Tolak." : "Open Bookings and choose Approve or Reject.", goScreenFromNotif("bookings"));
+      }
+      const needRecordCount = s.bookings.filter((b) => bookingNeedsRecord(b)).length;
+      if (needRecordCount) {
+        pushNotif("record:" + needRecordCount, "warn",
+          needRecordCount + (lang === "id" ? " perjalanan selesai perlu dicatat" : " finished trips need recording"),
+          lang === "id" ? "Pembayaran/biaya dari driver belum dicatat ke invoice atau pengeluaran." : "Driver payment/costs not yet recorded to invoices or expenses.", goScreenFromNotif("bookings"));
+      }
+      const overdueInvoices = latestInvoicesByBooking(s.invoices.filter((i) => !i.voided)).filter((i) => {
+        const iso = displayDateToISO(i.issued);
+        const days = iso ? (notifNow - new Date(iso + "T00:00:00")) / 86400000 : 0;
+        return invoiceBalanceDue(i) > 0 && days >= 7;
+      });
+      if (overdueInvoices.length) {
+        const total = overdueInvoices.reduce((sum, i) => sum + invoiceBalanceDue(i), 0);
+        pushNotif("inv:" + overdueInvoices.length + ":" + total, "info",
+          overdueInvoices.length + (lang === "id" ? " invoice belum lunas lebih dari 7 hari" : " invoices unpaid for over 7 days"),
+          (lang === "id" ? "Total sisa tagihan " : "Outstanding total ") + formatRupiah(total), goScreenFromNotif("revenue"));
+      }
+    }
+    odometerRows.filter((o) => o.overLimit).forEach((o) => {
+      pushNotif("svc:" + o.plate, "warn", o.plate + (lang === "id" ? " mendekati interval servis" : " near service interval"), lang === "id" ? "Jadwalkan perawatan di menu Perawatan." : "Schedule maintenance in the Maintenance menu.", goScreenFromNotif("maintenance"));
+    });
+    const overdueServices = s.maintenance.filter((m) => m.status === "Overdue");
+    if (overdueServices.length) {
+      pushNotif("svcover:" + overdueServices.length, "urgent", overdueServices.length + (lang === "id" ? " servis terlambat" : " services overdue"),
+        lang === "id" ? "Segera jadwalkan atau selesaikan servis kendaraan." : "Schedule or complete the vehicle service soon.", goScreenFromNotif("maintenance"));
+    }
+    if (isDriverRole) {
+      const threeDaysAgo = notifNow.getTime() - 3 * 86400000;
+      s.tripRequests.filter((r) => r.requested_by === myEmail && r.status !== "Pending" && r.created_at && new Date(r.created_at).getTime() >= threeDaysAgo).forEach((r) => {
+        const rejected = r.status === "Rejected";
+        pushNotif("req:" + r.id + ":" + r.status, rejected ? "warn" : "info",
+          rejected ? (lang === "id" ? "Pengajuan trip ditolak" : "Trip request rejected") : (lang === "id" ? "Pengajuan trip disetujui" : "Trip request approved"),
+          (r.pickup || "") + " → " + (r.destination || "") + " · " + trWords(r.trip_date, lang), goScreenFromNotif("bookings"));
+      });
+    }
+    const NOTIF_ORDER = { urgent: 0, warn: 1, info: 2 };
+    const NOTIF_DOT = { urgent: "#a8471f", warn: "#C08A2E", info: "#5b7a3a" };
+    const notifItems = notifRaw.filter((n) => notifDismissed.indexOf(n.id) < 0)
+      .sort((a, c) => NOTIF_ORDER[a.level] - NOTIF_ORDER[c.level])
+      .map((n) => ({
+        title: n.title, body: n.body, urgent: n.level === "urgent",
+        dotStyle: "width:9px;height:9px;border-radius:50%;flex:none;margin-top:5px;background:" + NOTIF_DOT[n.level],
+        open: () => { if (n.level !== "urgent") this.dismissNotif(n.id); n.go(); },
+        dismiss: (e) => { e.stopPropagation(); this.dismissNotif(n.id); }
+      }));
+    const hasNotifications = notifItems.length > 0;
+    const notifCountLabel = notifItems.length > 9 ? "9+" : String(notifItems.length);
+    this._notifCount = notifItems.length;
+    this._notifAllIds = notifRaw.map((n) => n.id);
 
     const maintenanceSpendNum = s.maintenance.reduce((sum, m) => sum + parseAmount(m.cost), 0);
     const maintenanceSpendLabel = formatRupiah(maintenanceSpendNum);
@@ -4627,7 +5019,25 @@ class Component extends DCLogic {
       detail: detailTr, detailAlreadyInvoiced: detailAlreadyInvoiced, detailNotInvoiced: !detailAlreadyInvoiced,
       closeDetail: () => this.setState({ detail: null }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
+      showNotifications: s.showNotifications, toggleNotifications: this.toggleNotifications, closeNotifications: this.closeNotifications,
+      notifItems: notifItems, hasNotifications: hasNotifications, noNotifications: !hasNotifications, notifCountLabel: notifCountLabel, dismissAllNotifs: this.dismissAllNotifs,
       canCompleteTrip: canCompleteTrip, openCompleteTrip: this.openCompleteTrip,
+      detailHasTripSummary: detailHasTripSummary, detailNotCompleted: detailNotCompleted,
+      detailOdoLabel: detailOdoLabel, detailFinishedLabel: detailFinishedLabel,
+      showDetailPayment: showFinancials && !!detailPaymentLabel, detailPaymentLabel: detailPaymentLabel,
+      detailPaymentNote: detailRaw.payment_note || "", showDetailPaymentNote: showFinancials && !!detailRaw.payment_note,
+      showDetailCosts: showFinancials && !!detailCostsLabel, detailCostsLabel: detailCostsLabel,
+      detailTripNotes: detailRaw.trip_notes || "", showDetailTripNotes: !!detailRaw.trip_notes,
+      detailCanRecordPayment: detailCanRecordPayment, detailCanRecordCosts: detailCanRecordCosts,
+      detailPaymentRecorded: detailPaymentRecorded, detailCostsRecorded: detailCostsRecorded,
+      recordTripPayment: this.recordTripPayment, recordTripCosts: this.recordTripCosts, detailActionError: s.detailActionError,
+      completeTripKmStartLabel: completeTripKmStartLabel, completeTripPayOptions: completeTripPayOptions, completeTripShowPayAmount: completeTripShowPayAmount,
+      completeTripPayMethod: s.completeTripPayMethod, completeTripPayAmount: s.completeTripPayAmount, completeTripPayNote: s.completeTripPayNote,
+      completeTripNotes: s.completeTripNotes, completeTripFuel: s.completeTripFuel, completeTripToll: s.completeTripToll, completeTripParking: s.completeTripParking,
+      setCompleteTripPayMethod: this.setCompleteTripField("completeTripPayMethod"), setCompleteTripPayAmount: this.setCompleteTripField("completeTripPayAmount"),
+      setCompleteTripPayNote: this.setCompleteTripField("completeTripPayNote"), setCompleteTripNotes: this.setCompleteTripField("completeTripNotes"),
+      setCompleteTripFuel: this.setCompleteTripField("completeTripFuel"), setCompleteTripToll: this.setCompleteTripField("completeTripToll"), setCompleteTripParking: this.setCompleteTripField("completeTripParking"),
+
       showCompleteTrip: s.showCompleteTrip, closeCompleteTrip: this.closeCompleteTrip,
       completeTripOdometer: s.completeTripOdometer, setCompleteTripOdometer: this.setCompleteTripOdometer,
       completeTripError: s.completeTripError, submitCompleteTrip: this.submitCompleteTrip,
