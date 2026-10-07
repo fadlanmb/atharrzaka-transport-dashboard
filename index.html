@@ -1178,6 +1178,21 @@ html{overflow-x:hidden}
 <div style="display:flex;font-weight:600;font-size:13.5px"><span>{{ L.total }}</span><span style="margin-left:auto">{{ detail.amount }}</span></div>
 </div>
 </div>
+<sc-if value="{{ showDetailNotesBlock }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin-bottom:12px">{{ L.driverNotesTitle }}</div>
+<sc-if value="{{ hasDetailNotesText }}" hint-placeholder-val="{{ false }}">
+<div style="background:#F4F1EC;border-radius:11px;padding:13px;font-size:12px;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere">{{ detailNotesText }}</div>
+</sc-if>
+<sc-if value="{{ canAddDriverNote }}" hint-placeholder-val="{{ false }}">
+<textarea value="{{ driverNoteInput }}" onChange="{{ setDriverNoteInput }}" rows="2" placeholder="{{ L.driverNotePh }}" style="width:100%;box-sizing:border-box;border:1px solid rgba(89,50,3,.14);border-radius:10px;padding:11px 12px;font-size:12.5px;font-family:inherit;margin-top:10px;resize:vertical"></textarea>
+<div onClick="{{ saveDriverNote }}" style="margin-top:8px;text-align:center;padding:11px;border-radius:10px;border:1px solid rgba(130,71,3,.35);color:#824703;font-size:12px;font-weight:600;cursor:pointer">{{ L.driverNoteSaveBtn }}</div>
+<sc-if value="{{ detailActionError }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:11px;color:#a8471f;margin-top:8px">{{ detailActionError }}</div>
+</sc-if>
+</sc-if>
+</div>
+</sc-if>
 <sc-if value="{{ detailHasTripSummary }}" hint-placeholder-val="{{ false }}">
 <div>
 <div style="font-size:9.5px;font-weight:600;letter-spacing:.11em;color:rgba(24,24,24,.4);margin-bottom:12px">{{ L.tripSummaryTitle }}</div>
@@ -1192,9 +1207,6 @@ html{overflow-x:hidden}
 </sc-if>
 <sc-if value="{{ showDetailCosts }}" hint-placeholder-val="{{ false }}">
 <div style="display:flex;gap:12px"><span style="color:rgba(24,24,24,.6);flex:none">{{ L.tripCostsSummaryLabel }}</span><span style="margin-left:auto;text-align:right">{{ detailCostsLabel }}</span></div>
-</sc-if>
-<sc-if value="{{ showDetailTripNotes }}" hint-placeholder-val="{{ false }}">
-<div style="display:flex;gap:12px"><span style="color:rgba(24,24,24,.6);flex:none">{{ L.tripNotesSummaryLabel }}</span><span style="margin-left:auto;text-align:right">{{ detailTripNotes }}</span></div>
 </sc-if>
 </div>
 <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
@@ -2088,7 +2100,10 @@ const STR = {
   tripCostFuel: { en: "Fuel", id: "BBM" },
   tripCostToll: { en: "Toll", id: "Tol" },
   tripCostParking: { en: "Parking", id: "Parkir" },
-  tripNotesLabel: { en: "Trip notes (optional)", id: "Catatan perjalanan (opsional)" },
+  tripNotesLabel: { en: "Final note (optional)", id: "Catatan akhir (opsional)" },
+  driverNotesTitle: { en: "DRIVER NOTES", id: "CATATAN DRIVER" },
+  driverNotePh: { en: "Write a note about this trip…", id: "Tulis catatan tentang perjalanan ini…" },
+  driverNoteSaveBtn: { en: "Save note", id: "Simpan catatan" },
   tripNotesPh: { en: "e.g. traffic, delay, vehicle condition", id: "Mis. macet, keterlambatan, kondisi kendaraan" },
   tripSummaryTitle: { en: "TRIP SUMMARY", id: "RINGKASAN PERJALANAN" },
   tripOdoSummaryLabel: { en: "Odometer", id: "Odometer" },
@@ -3008,7 +3023,7 @@ class Component extends DCLogic {
     showCompleteService: false, completeServiceId: null, completeServiceItems: [], completeServiceError: "",
     invoiceItems: [], expenseItems: [],
     showCompleteTrip: false, completeTripOdometer: "", completeTripError: "",
-    completeTripPayMethod: "", completeTripPayAmount: "", completeTripPayNote: "", completeTripNotes: "", completeTripFuel: "", completeTripToll: "", completeTripParking: "", detailActionError: "", showNotifications: false, notifTick: 0,
+    completeTripPayMethod: "", completeTripPayAmount: "", completeTripPayNote: "", completeTripNotes: "", completeTripFuel: "", completeTripToll: "", completeTripParking: "", detailActionError: "", driverNoteInput: "", showNotifications: false, notifTick: 0,
     editingBookingId: null,
     showInvoicePrint: false, printInvoice: null, savingPdf: false, pdfError: ""
   };
@@ -3203,6 +3218,9 @@ class Component extends DCLogic {
     this.setState({ completeTripError: "" });
     this._submittingCompleteTrip = true;
     const paidMethod = s.completeTripPayMethod === "cash" || s.completeTripPayMethod === "transfer";
+    const latestBooking = s.bookings.find((b) => b.id === d.id) || d;
+    const finalNote = s.completeTripNotes.trim();
+    const mergedTripNotes = [latestBooking.trip_notes, finalNote ? formatCreatedAt(new Date().toISOString(), lang) + " — " + finalNote : ""].filter(Boolean).join("\n") || null;
     const costOrNull = (v) => (parseAmount(v) > 0 ? formatRupiah(parseAmount(v)) : null);
     const bookingUpdate = {
       status: "Completed", completed_at: new Date().toISOString(),
@@ -3210,7 +3228,7 @@ class Component extends DCLogic {
       payment_method: s.completeTripPayMethod,
       payment_amount: paidMethod ? costOrNull(s.completeTripPayAmount) : null,
       payment_note: s.completeTripPayNote.trim() || null, payment_recorded: false,
-      trip_notes: s.completeTripNotes.trim() || null,
+      trip_notes: mergedTripNotes,
       cost_fuel: costOrNull(s.completeTripFuel), cost_toll: costOrNull(s.completeTripToll), cost_parking: costOrNull(s.completeTripParking),
       costs_recorded: false
     };
@@ -3224,6 +3242,28 @@ class Component extends DCLogic {
         return;
       }
       this.setState({ showCompleteTrip: false, detail: null, completeTripOdometer: "" });
+      this.loadAll();
+    });
+  };
+  setDriverNoteInput = (e) => this.setState({ driverNoteInput: e.target.value });
+  saveDriverNote = () => {
+    if (this._savingNote) return;
+    const client = getSupabase();
+    const s = this.state;
+    const d = s.detail;
+    if (!client || !s.session || !d) return;
+    const text = s.driverNoteInput.trim();
+    if (!text) return;
+    const lang = s.lang;
+    const latest = s.bookings.find((b) => b.id === d.id) || d;
+    const line = formatCreatedAt(new Date().toISOString(), lang) + " — " + text;
+    const merged = [latest.trip_notes, line].filter(Boolean).join("\n");
+    this._savingNote = true;
+    this.setState({ detailActionError: "" });
+    client.from("bookings").update({ trip_notes: merged }).eq("id", d.id).then((res) => {
+      this._savingNote = false;
+      if (res.error) { this.setState({ detailActionError: STR.saveErrorGeneric[lang] }); return; }
+      this.setState((p) => ({ driverNoteInput: "", detail: p.detail && p.detail.id === d.id ? Object.assign({}, p.detail, { trip_notes: merged }) : p.detail }));
       this.loadAll();
     });
   };
@@ -4058,7 +4098,8 @@ class Component extends DCLogic {
     const customersNavLabel = NAV_LABELS.customers[lang];
     const maintenanceNavLabel = NAV_LABELS.maintenance[lang];
     const revenueNavLabel = NAV_LABELS.revenue[lang];
-    const showFab = canManage || isDriverRole;
+    const anyOverlayOpen = !!(s.detail || s.showNew || s.showForm || s.showTripRequest || s.showSettings || s.showCompleteService || s.showCompleteTrip || s.showInvoicePrint || s.showNotifications || s.showMoreSheet || s.showCalendarDay || s.confirmDelete);
+    const showFab = (canManage || isDriverRole) && !anyOverlayOpen;
     const fabAction = canManage ? this.openNewBooking : this.openTripRequest;
     const withOpen = (b) => {
       const matchedVehicle = s.fleet.find((v) => v.name === b.vehicle);
@@ -4071,7 +4112,7 @@ class Component extends DCLogic {
         paymentTag: b.payment_method ? (tripPaymentMethodLabel(b.payment_method, lang) + (parseAmount(b.payment_amount) > 0 ? " · " + formatRupiah(parseAmount(b.payment_amount)) : "")) : "",
         hasPaymentTag: !!b.payment_method, needsRecord: bookingNeedsRecord(b)
       });
-      enhanced.open = () => this.setState({ detail: enhanced, detailActionError: "" });
+      enhanced.open = () => this.setState({ detail: enhanced, detailActionError: "", driverNoteInput: "" });
       return enhanced;
     };
     const todayDateStr = this.formatToday();
@@ -4269,6 +4310,9 @@ class Component extends DCLogic {
     const detailPaymentRecorded = canManage && parseAmount(detailRaw.payment_amount) > 0 && !!detailRaw.payment_recorded;
     const detailCostsRecorded = canManage && tripCostsTotal(detailRaw) > 0 && !!detailRaw.costs_recorded;
     const detailNotCompleted = !detailIsCompleted;
+    const canAddDriverNote = isDriverRole && !!s.detail && !detailIsCompleted;
+    const detailNotesText = detailRaw.trip_notes || "";
+    const showDetailNotesBlock = !!detailNotesText || canAddDriverNote;
     const completeTripMatchedVehicle = s.detail ? s.fleet.find((v) => v.name === s.detail.vehicle) : null;
     const completeTripKmStartLabel = completeTripMatchedVehicle ? L.tripKmStartLabel + ": " + formatKm(parseFloat(completeTripMatchedVehicle.km) || 0) : "";
     const completeTripPayOptions = Object.keys(TRIP_PAY_KEYS).map((k) => ({ value: k, label: tripPaymentMethodLabel(k, lang) }));
@@ -4592,7 +4636,7 @@ class Component extends DCLogic {
     const isMineBooking = (b) => !isDriverRole || !myNameLower || String(b.driver || "").trim().toLowerCase() === myNameLower;
     const openBookingFromNotif = (b) => () => {
       const plate = (s.fleet.find((v) => v.name === b.vehicle) || {}).plate || "";
-      this.setState({ screen: "bookings", showNotifications: false, detail: Object.assign({}, b, { vehiclePlate: plate }), detailActionError: "" });
+      this.setState({ screen: "bookings", showNotifications: false, detail: Object.assign({}, b, { vehiclePlate: plate }), detailActionError: "", driverNoteInput: "" });
     };
     const goScreenFromNotif = (screenId) => () => this.setState({ screen: screenId, showNotifications: false, detail: null, showMoreSheet: false });
     let unassignedShown = 0;
@@ -4621,6 +4665,12 @@ class Component extends DCLogic {
           pendingTripRequests.length + (lang === "id" ? " permintaan trip menunggu persetujuan" : " trip requests awaiting approval"),
           lang === "id" ? "Buka Pemesanan lalu pilih Setujui atau Tolak." : "Open Bookings and choose Approve or Reject.", goScreenFromNotif("bookings"));
       }
+      s.bookings.filter((b) => b.trip_notes && b.status !== "Completed" && b.status !== "Cancelled").slice(0, 5).forEach((b) => {
+        const lastLine = String(b.trip_notes).split("\n").filter(Boolean).pop() || "";
+        pushNotif("note:" + b.ref + ":" + String(b.trip_notes).length, "warn",
+          (lang === "id" ? "Catatan baru dari " : "New note from ") + (b.driver && b.driver !== "Unassigned" ? trWords(b.driver, lang) : "driver") + " · " + b.ref,
+          lastLine, openBookingFromNotif(b));
+      });
       const needRecordCount = s.bookings.filter((b) => bookingNeedsRecord(b)).length;
       if (needRecordCount) {
         pushNotif("record:" + needRecordCount, "warn",
@@ -5027,17 +5077,18 @@ class Component extends DCLogic {
       totalRevenueAllTimeLabel: totalRevenueAllTimeLabel, totalRevenueBookingsLabel: totalRevenueBookingsLabel, totalRevenueValueStyle: totalRevenueValueStyle,
       dashboardRevenueVehicleOptions: dashboardRevenueVehicleOptions, dashboardRevenueVehicle: s.dashboardRevenueVehicle, setDashboardRevenueVehicle: this.setDashboardRevenueVehicle,
       detail: detailTr, detailAlreadyInvoiced: detailAlreadyInvoiced, detailNotInvoiced: !detailAlreadyInvoiced,
-      closeDetail: () => this.setState({ detail: null }),
+      closeDetail: () => this.setState({ detail: null, driverNoteInput: "" }),
       confirmDispatchBtn: this.confirmDispatchBtn, createInvoiceBtn: this.createInvoiceBtn,
       showNotifications: s.showNotifications, toggleNotifications: this.toggleNotifications, closeNotifications: this.closeNotifications,
       notifItems: notifItems, hasNotifications: hasNotifications, noNotifications: !hasNotifications, notifCountLabel: notifCountLabel, dismissAllNotifs: this.dismissAllNotifs,
       canCompleteTrip: canCompleteTrip, openCompleteTrip: this.openCompleteTrip,
       detailHasTripSummary: detailHasTripSummary, detailNotCompleted: detailNotCompleted,
+      canAddDriverNote: canAddDriverNote, hasDetailNotesText: !!detailNotesText, detailNotesText: detailNotesText, showDetailNotesBlock: showDetailNotesBlock,
+      driverNoteInput: s.driverNoteInput, setDriverNoteInput: this.setDriverNoteInput, saveDriverNote: this.saveDriverNote,
       detailOdoLabel: detailOdoLabel, detailFinishedLabel: detailFinishedLabel,
       showDetailPayment: showFinancials && !!detailPaymentLabel, detailPaymentLabel: detailPaymentLabel,
       detailPaymentNote: detailRaw.payment_note || "", showDetailPaymentNote: showFinancials && !!detailRaw.payment_note,
       showDetailCosts: showFinancials && !!detailCostsLabel, detailCostsLabel: detailCostsLabel,
-      detailTripNotes: detailRaw.trip_notes || "", showDetailTripNotes: !!detailRaw.trip_notes,
       detailCanRecordPayment: detailCanRecordPayment, detailCanRecordCosts: detailCanRecordCosts,
       detailPaymentRecorded: detailPaymentRecorded, detailCostsRecorded: detailCostsRecorded,
       recordTripPayment: this.recordTripPayment, recordTripCosts: this.recordTripCosts, detailActionError: s.detailActionError,
